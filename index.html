@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZenBill — Fight Your Medical Bills</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;min-height:100vh}
+:root{--orange:#F97316;--yellow:#FCD34D;--cream:#FFF8F0;--text:#1F2937;--teal:#2DD4BF;--gray:#6B7280;--light:#F3F4F6;--border:#E5E7EB;--white:#fff}
+/* Header */
+.header{background:#fff;border-bottom:3px solid var(--orange);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-text{font-size:1.6rem;font-weight:800;color:var(--orange);letter-spacing:-0.5px}
+.logo-tag{font-size:.8rem;color:var(--gray);font-weight:500;margin-top:2px}
+.logo-icon{width:38px;height:38px;background:var(--orange);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;font-weight:800}
+.header-badge{background:var(--yellow);color:#92400E;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600}
+/* Nav Tabs */
+.tab-nav{background:#fff;border-bottom:2px solid var(--border);padding:0 24px;display:flex;overflow-x:auto;gap:0;position:sticky;top:73px;z-index:99;box-shadow:0 2px 4px rgba(0,0,0,.04)}
+.tab-btn{padding:14px 20px;border:none;background:none;cursor:pointer;font-size:.88rem;font-weight:500;color:var(--gray);white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab-btn:hover{color:var(--orange)}
+.tab-btn.active{color:var(--orange);border-bottom-color:var(--orange);font-weight:600}
+/* Main */
+.main{max-width:900px;margin:0 auto;padding:24px 16px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+/* Cards */
+.card{background:#fff;border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.card-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title .icon{color:var(--orange)}
+/* Forms */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.single{grid-template-columns:1fr}
+.form-row.triple{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}.form-row.triple{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:.85rem;font-weight:600;color:#374151}
+.form-group input,.form-group select,.form-group textarea{padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;color:var(--text);background:#fff;transition:border .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--orange)}
+.form-group textarea{resize:vertical;min-height:80px}
+/* Buttons */
+.btn{padding:11px 22px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-primary:hover{background:#EA6C0A}
+.btn-secondary{background:var(--light);color:var(--text);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:var(--border)}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-teal:hover{background:#14B8A6}
+.btn-lg{padding:14px 28px;font-size:1rem}
+.btn-block{width:100%;display:block;text-align:center}
+/* Badges */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
+.badge-orange{background:#FEF3C7;color:#92400E}
+.badge-red{background:#FEE2E2;color:#991B1B}
+.badge-green{background:#D1FAE5;color:#065F46}
+.badge-blue{background:#DBEAFE;color:#1E40AF}
+.badge-gray{background:#F3F4F6;color:#374151}
+/* Alert boxes */
+.alert{padding:14px 16px;border-radius:10px;margin-bottom:16px;border-left:4px solid;font-size:.9rem}
+.alert-orange{background:#FFF7ED;border-color:var(--orange);color:#92400E}
+.alert-green{background:#ECFDF5;border-color:var(--teal);color:#065F46}
+.alert-blue{background:#EFF6FF;border-color:#3B82F6;color:#1E40AF}
+.alert-red{background:#FEF2F2;border-color:#EF4444;color:#991B1B}
+.alert-yellow{background:#FFFBEB;border-color:var(--yellow);color:#92400E}
+/* Error checker */
+.error-item{padding:14px 16px;border-radius:10px;border:1.5px solid var(--border);margin-bottom:10px;cursor:pointer;transition:all .2s}
+.error-item:hover{border-color:var(--orange);background:#FFF7ED}
+.error-item.checked{border-color:var(--orange);background:#FFF7ED}
+.error-item-header{display:flex;align-items:center;gap:10px}
+.error-item-header input[type=checkbox]{width:18px;height:18px;accent-color:var(--orange);cursor:pointer}
+.error-item-label{font-weight:600;font-size:.9rem}
+.error-detail{margin-top:10px;padding:12px;background:#fff;border-radius:8px;border:1px solid var(--border);display:none;font-size:.85rem}
+.error-detail.show{display:block}
+.error-detail p{margin-bottom:6px;line-height:1.5}
+.error-detail .savings{color:#065F46;font-weight:600}
+/* Pathway */
+.pathway-card{border-radius:12px;padding:20px;margin-bottom:16px;border:2px solid;cursor:pointer;transition:all .2s}
+.pathway-primary{border-color:var(--orange);background:#FFF7ED}
+.pathway-secondary{border-color:var(--border);background:#fff}
+.pathway-title{font-size:1rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.pathway-steps{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.step{display:flex;gap:12px;margin-bottom:10px;align-items:flex-start}
+.step-num{background:var(--orange);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:1px}
+.step-text{font-size:.87rem;line-height:1.5}
+/* Letter */
+.letter-output{background:#FFFEF5;border:1.5px solid var(--border);border-radius:10px;padding:20px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.7;white-space:pre-wrap;max-height:480px;overflow-y:auto;color:#1F2937}
+/* Calculator */
+.calc-result{background:linear-gradient(135deg,#FFF7ED,#FFFBEB);border:2px solid var(--orange);border-radius:12px;padding:24px;text-align:center;margin-top:20px}
+.calc-result .big-num{font-size:2.2rem;font-weight:800;color:var(--orange)}
+.calc-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:.9rem}
+.calc-row:last-child{border-bottom:none;font-weight:700;font-size:1rem}
+.savings-num{color:#065F46;font-weight:700}
+/* Case Library */
+.case-table{width:100%;border-collapse:collapse;font-size:.83rem}
+.case-table th{background:#F9FAFB;padding:10px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--border);cursor:pointer;white-space:nowrap}
+.case-table th:hover{background:var(--border)}
+.case-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.case-table tr:hover td{background:#FFF7ED}
+.sort-arrow{margin-left:4px;color:var(--gray)}
+.case-title{color:var(--orange);text-decoration:none;font-weight:500}
+.case-title:hover{text-decoration:underline}
+.search-bar{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.search-bar input{flex:1;min-width:200px}
+.search-bar select{min-width:180px}
+/* Footer */
+.footer{background:#1F2937;color:#9CA3AF;text-align:center;padding:24px;font-size:.8rem;line-height:1.7;margin-top:40px}
+.footer a{color:var(--yellow)}
+/* FPL result */
+.fpl-result{background:#ECFDF5;border:1px solid var(--teal);border-radius:10px;padding:14px;margin-top:12px;font-size:.87rem}
+.fpl-result.warning{background:#FFFBEB;border-color:var(--yellow)}
+.fpl-result.danger{background:#FEF2F2;border-color:#EF4444}
+/* Section headers */
+.section-header{font-size:.8rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;margin-top:4px}
+/* Result summary */
+.result-box{background:linear-gradient(135deg,#FFF7ED 0%,#FFFBEB 100%);border:2px solid var(--orange);border-radius:12px;padding:20px;margin-top:20px}
+.result-box h3{color:var(--orange);font-size:1.05rem;margin-bottom:12px}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:500px){.result-grid{grid-template-columns:1fr}}
+.result-item{background:#fff;border-radius:8px;padding:12px;border:1px solid var(--border)}
+.result-item .label{font-size:.75rem;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.result-item .value{font-size:1rem;font-weight:700;color:var(--text);margin-top:3px}
+.result-item .value.orange{color:var(--orange)}
+.result-item .value.green{color:#059669}
+/* Hidden */
+.hidden{display:none!important}
+/* Responsive table */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+/* Intake summary */
+#intake-summary{display:none}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">Z</div>
+    <div>
+      <div class="logo-text">ZenBill</div>
+      <div class="logo-tag">Fight Your Medical Bills</div>
+    </div>
+  </div>
+  <div class="header-badge">Internal Team Tool</div>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('intake',this)">1. Bill Intake</button>
+  <button class="tab-btn" onclick="switchTab('errors',this)">2. Error Detector</button>
+  <button class="tab-btn" onclick="switchTab('pathway',this)">3. Dispute Pathway</button>
+  <button class="tab-btn" onclick="switchTab('letters',this)">4. Letter Generator</button>
+  <button class="tab-btn" onclick="switchTab('calculator',this)">5. Savings Calculator</button>
+  <button class="tab-btn" onclick="switchTab('cases',this)">6. Case Library (26)</button>
+  <button class="tab-btn" onclick="switchTab('pricelookup',this)">7. GFE / Price Lookup</button>
+  <button class="tab-btn" onclick="switchTab('aiocr',this)">8. AI & OCR Guide</button>
+</div>
+
+<div class="main">
+
+<!-- TAB 1: INTAKE -->
+<div id="tab-intake" class="tab-content active">
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span> Patient & Case Information</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Patient Name</label>
+        <input type="text" id="i-name" placeholder="Full name">
+      </div>
+      <div class="form-group">
+        <label>Case Reference</label>
+        <input type="text" id="i-ref" placeholder="e.g. ZB-2026-001">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Provider / Hospital Name</label>
+        <input type="text" id="i-provider" placeholder="Provider name and location">
+      </div>
+      <div class="form-group">
+        <label>Date of Service</label>
+        <input type="date" id="i-dos">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">💰</span> Bill Details</div>
+    <div class="form-row triple">
+      <div class="form-group">
+        <label>Total Amount Billed ($)</label>
+        <input type="number" id="i-billed" placeholder="0.00" min="0" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Insurer Paid ($)</label>
+        <input type="number" id="i-paid" placeholder="0.00" min="0" step="0.01" value="0">
+      </div>
+      <div class="form-group">
+        <label>Your Current Balance ($)</label>
+        <input type="number" id="i-balance" placeholder="0.00" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Insurance Status</label>
+        <select id="i-insurance">
+          <option value="">— Select —</option>
+          <option value="uninsured">Uninsured / Self-Pay</option>
+          <option value="private">Insured — Private / Employer</option>
+          <option value="medicaid">Medicaid / Medicare</option>
+          <option value="tricare">TRICARE / VA</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Service Type</label>
+        <select id="i-service">
+          <option value="">— Select —</option>
+          <option value="emergency">ER / Emergency</option>
+          <option value="surgery">Surgery</option>
+          <option value="imaging">Imaging / Radiology</option>
+          <option value="lab">Lab / Pathology</option>
+          <option value="pharmacy">Pharmacy</option>
+          <option value="ambulance">Ambulance / Air Ambulance</option>
+          <option value="outpatient">Outpatient Visit</option>
+          <option value="inpatient">Inpatient Hospitalization</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Brief Service Description</label>
+        <input type="text" id="i-desc" placeholder="e.g. CT scan for abdominal pain, ER visit">
+      </div>
+      <div class="form-group">
+        <label>Bill Currently in Collections?</label>
+        <select id="i-collections">
+          <option value="no">No</option>
+          <option value="yes">Yes</option>
+          <option value="unknown">Unknown</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Did you receive a Good Faith Estimate (GFE)?</label>
+        <select id="i-gfe" onchange="toggleGFE()">
+          <option value="no">No</option>
+          <option value="yes">Yes</option>
+        </select>
+      </div>
+      <div class="form-group" id="gfe-amount-group" style="display:none">
+        <label>GFE Amount ($)</label>
+        <input type="number" id="i-gfe-amount" placeholder="0.00" min="0" step="0.01">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🏠</span> Financial Information (for Charity Care Eligibility)</div>
+    <div class="form-row triple">
+      <div class="form-group">
+        <label>Employment Status</label>
+        <select id="i-employment">
+          <option value="">— Select —</option>
+          <option value="employed">Employed full-time</option>
+          <option value="part-time">Employed part-time</option>
+          <option value="self-employed">Self-employed</option>
+          <option value="unemployed">Unemployed</option>
+          <option value="retired">Retired</option>
+          <option value="disabled">Disabled</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Household Size</label>
+        <input type="number" id="i-household" placeholder="e.g. 3" min="1" max="20">
+      </div>
+      <div class="form-group">
+        <label>Annual Household Income ($)</label>
+        <input type="number" id="i-income" placeholder="e.g. 35000" min="0">
+      </div>
+    </div>
+    <div id="fpl-result-box"></div>
+  </div>
+
+  <button class="btn btn-primary btn-lg btn-block" onclick="analyzeIntake()">Analyze My Bill →</button>
+
+  <div id="intake-summary" class="result-box" style="margin-top:20px">
+    <h3>Bill Analysis Summary</h3>
+    <div id="intake-summary-content"></div>
+  </div>
+</div>
+
+<!-- TAB 2: ERROR DETECTOR -->
+<div id="tab-errors" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">🔍</span> Common Billing Error Checklist</div>
+    <div class="alert alert-blue">Check all errors that apply to your case. For each, we'll explain your rights and estimated savings potential.</div>
+    <div id="error-list"></div>
+    <div id="error-summary" style="display:none;margin-top:16px"></div>
+  </div>
+</div>
+
+<!-- TAB 3: DISPUTE PATHWAY -->
+<div id="tab-pathway" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">🗺️</span> Recommended Dispute Pathway</div>
+    <div class="alert alert-orange">Complete Tab 1 (Bill Intake) first for a personalized recommendation. The pathways below are always available.</div>
+    <div id="pathway-recommendation"></div>
+    <div id="all-pathways"></div>
+  </div>
+</div>
+
+<!-- TAB 4: LETTER GENERATOR -->
+<div id="tab-letters" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">✉️</span> Dispute Letter Generator</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Select Letter Type</label>
+        <select id="letter-type" onchange="previewLetter()">
+          <option value="">— Choose a letter type —</option>
+          <option value="itemized">Itemized Bill Request (Always First Step)</option>
+          <option value="ppdr">PPDR Dispute Letter (Good Faith Estimate Exceeded)</option>
+          <option value="nsa">No Surprises Act Dispute (Surprise Billing)</option>
+          <option value="appeal">Insurance Appeal Letter (Claim Denial)</option>
+          <option value="charity">Charity Care Application (Financial Hardship)</option>
+          <option value="debt">Debt Validation Letter (Bill in Collections)</option>
+          <option value="latebill">Late Billing Dispute (Bill Too Late)</option>
+        </select>
+      </div>
+      <div class="form-group" style="justify-content:flex-end">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" onclick="generateLetter()">Generate Letter</button>
+      </div>
+    </div>
+    <div id="letter-desc" class="alert alert-blue" style="display:none"></div>
+    <div id="letter-output-wrap" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span class="section-header">Generated Letter</span>
+        <button class="btn btn-secondary" onclick="copyLetter()">Copy to Clipboard</button>
+      </div>
+      <div class="letter-output" id="letter-output"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 5: SAVINGS CALCULATOR -->
+<div id="tab-calculator" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">💵</span> Savings Calculator</div>
+    <div class="form-row triple">
+      <div class="form-group">
+        <label>Total Amount Billed ($)</label>
+        <input type="number" id="c-billed" placeholder="0.00" min="0" step="0.01" oninput="calcSavings()">
+      </div>
+      <div class="form-group">
+        <label>Expected / Negotiated Amount ($)</label>
+        <input type="number" id="c-negotiated" placeholder="0.00" min="0" step="0.01" oninput="calcSavings()">
+      </div>
+      <div class="form-group">
+        <label>Insurance Already Paid ($)</label>
+        <input type="number" id="c-ins-paid" placeholder="0.00" min="0" step="0.01" value="0" oninput="calcSavings()">
+      </div>
+    </div>
+    <div id="calc-result-area"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📄</span> Good Faith Estimate Calculator</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Good Faith Estimate Amount ($)</label>
+        <input type="number" id="c-gfe" placeholder="0.00" min="0" step="0.01" oninput="calcGFE()">
+      </div>
+      <div class="form-group">
+        <label>Final Bill Amount ($)</label>
+        <input type="number" id="c-final" placeholder="0.00" min="0" step="0.01" oninput="calcGFE()">
+      </div>
+    </div>
+    <div id="gfe-result-area"></div>
+  </div>
+</div>
+
+<!-- TAB 6: CASE LIBRARY -->
+<div id="tab-cases" class="tab-content">
+
+  <div class="card" style="border-left:4px solid #F97316">
+    <div class="card-title"><span class="icon">🔎</span> Patterns Found in Actual Patient Bills</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:.85rem">
+      <div style="background:#FEF2F2;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#991B1B;margin-bottom:6px">Duplicate Charges (NYU Langone)</div>
+        EKG/CPT 93010 billed by 3 separate providers on same dates. Classic soft-duplicate: each provider bills independently for reading the same EKG strip. <strong>Recoverable: ~$88–$132.</strong>
+      </div>
+      <div style="background:#FEF2F2;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#991B1B;margin-bottom:6px">Unit Count Inflation (NYU Langone)</div>
+        Cardiac Cath Lab billed 177 units × $551 = $97,000 for a single inpatient stay. Unit counts this high require line-by-line itemized audit against medical records. <strong>High dispute potential.</strong>
+      </div>
+      <div style="background:#FEF2F2;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#991B1B;margin-bottom:6px">CT Scan Overcharge (Bozeman Health)</div>
+        CT Scan billed at $7,902 — Medicare rate for CPT 74177 is ~$215. This is 37× Medicare. Insurance reversed payment in 2026, leaving patient $7,190 balance. <strong>Price anchor dispute + PPDR.</strong>
+      </div>
+      <div style="background:#FFF7ED;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#C2410C;margin-bottom:6px">Respiratory Unbundling (Jackson Purchase)</div>
+        Hand Held Neb ×4 + Chest Physio ×4 billed separately same day. NCCI edits may require bundling respiratory services. Triple metabolic panels (ABS + Comp + Basic) same day also suspicious. <strong>Request HCPCS codes.</strong>
+      </div>
+      <div style="background:#FFF7ED;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#C2410C;margin-bottom:6px">Financial Assistance Not Offered (Erlanger)</div>
+        Bill sent to collections with 10-day deadline — yet Erlanger's OWN financial assistance policy is printed on the same bill. Provider failed to proactively offer assistance. <strong>Apply immediately.</strong>
+      </div>
+      <div style="background:#FFF7ED;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#C2410C;margin-bottom:6px">Insurance Payment Reversal (Bozeman Health)</div>
+        United Healthcare processed payment in Sept 2025, then reversed and re-billed $8,807 to patient in Jan 2026. Reversal disputes require EOB audit and formal appeal. <strong>File appeal within 180 days.</strong>
+      </div>
+      <div style="background:#F0FDF4;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#15803D;margin-bottom:6px">Large Adjustments Applied (VCU Medical)</div>
+        $5,427 bill reduced to $150 through $5,277 in contractual adjustments. Example of insurer negotiated rate working correctly — patient only owes copay. <strong>Verify adjustment math.</strong>
+      </div>
+      <div style="background:#F0FDF4;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#15803D;margin-bottom:6px">Physician Billed Separately (Froedtert)</div>
+        Hospital bill states "physician charges will be billed separately by Medical College of Wisconsin." Patients often miss the second bill. <strong>Always ask: who else is billing?</strong>
+      </div>
+      <div style="background:#EFF6FF;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#1D4ED8;margin-bottom:6px">Vitamin D Likely Deniable (BCBS-TN)</div>
+        CPT 82306 Vitamin D ($106) frequently denied without ICD-10 E55.9 or Z13.88. Annotated training bill shows exact structure of BCBS payment/adjustment pattern. <strong>Check denial code first.</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📚</span> Real Case Library (26 Cases)</div>
+    <div class="alert alert-blue" style="margin-bottom:12px;font-size:.82rem">
+      <strong>Sources:</strong> 15 KFF/investigative journalism cases + 11 actual patient bills analyzed from [Train AI] folder — NYU Langone (duplicate EKGs, Cardiac Cath overcharge), Bozeman Health/Nicole Rolet ($7,902 CT scan + insurance reversal), Yuma Regional (Medicare inpatient $21K), Froedtert ER, Erlanger (collections threat), VCU, Jackson Purchase/Thana McGary (respiratory unbundling), CHLA, Allina Home Care, BCBS-TN (Vitamin D denial). Bills with real patient names were voluntarily shared for training — treat as confidential PHI.
+    </div>
+    <div class="search-bar">
+      <input type="text" id="case-search" class="form-group input" placeholder="Search cases..." oninput="filterCases()" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;flex:1;min-width:200px">
+      <select id="case-filter" onchange="filterCases()" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;min-width:160px">
+        <option value="">All Issue Types</option>
+      </select>
+      <select id="case-source" onchange="filterCases()" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;min-width:140px">
+        <option value="">All Sources</option>
+        <option value="actual">Actual Patient Bills</option>
+        <option value="kff">KFF / Investigative</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="case-table" id="cases-table">
+        <thead>
+          <tr>
+            <th onclick="sortCases('provider')">Provider <span class="sort-arrow">↕</span></th>
+            <th onclick="sortCases('billed')" style="text-align:right">Billed <span class="sort-arrow">↕</span></th>
+            <th onclick="sortCases('balance')" style="text-align:right">Balance <span class="sort-arrow">↕</span></th>
+            <th onclick="sortCases('issue_category')">Issue Type <span class="sort-arrow">↕</span></th>
+            <th>Emergency</th>
+            <th>Title / Details</th>
+          </tr>
+        </thead>
+        <tbody id="cases-tbody"></tbody>
+      </table>
+    </div>
+    <div id="case-count" style="margin-top:10px;font-size:.82rem;color:var(--gray)"></div>
+  </div>
+</div>
+
+<!-- TAB 7: GFE / PRICE LOOKUP -->
+<div id="tab-pricelookup" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">🔍</span> Good Faith Estimate — Fair Price Lookup</div>
+    <div class="alert alert-blue" style="margin-bottom:16px">
+      Uses 2026 Medicare Physician Fee Schedule (CMS Oct. release) + geographic adjustment factors. Medicare rates are the federal floor — hospitals typically charge 2.5–5× Medicare for self-pay patients. Use this to benchmark any charge on your bill.
+    </div>
+    <div class="form-row triple">
+      <div class="form-group">
+        <label>Search CPT / HCPCS Code or Description</label>
+        <input type="text" id="cpt-search" placeholder="e.g. 99284 or 'emergency'" oninput="searchCPT()" style="font-family:inherit">
+      </div>
+      <div class="form-group">
+        <label>Your State</label>
+        <select id="cpt-state" onchange="searchCPT()">
+          <option value="">— Select State —</option>
+          <option value="AL">AL – Alabama</option><option value="AK">AK – Alaska</option><option value="AZ">AZ – Arizona</option><option value="AR">AR – Arkansas</option><option value="CA">CA – California</option><option value="CO">CO – Colorado</option><option value="CT">CT – Connecticut</option><option value="DC">DC – Washington D.C.</option><option value="DE">DE – Delaware</option><option value="FL">FL – Florida</option><option value="GA">GA – Georgia</option><option value="ID">ID – Idaho</option><option value="IL">IL – Illinois</option><option value="IN">IN – Indiana</option><option value="IA">IA – Iowa</option><option value="KS">KS – Kansas</option><option value="KY">KY – Kentucky</option><option value="LA">LA – Louisiana</option><option value="ME">ME – Maine</option><option value="MD">MD – Maryland</option><option value="MA">MA – Massachusetts</option><option value="MI">MI – Michigan</option><option value="MN">MN – Minnesota</option><option value="MS">MS – Mississippi</option><option value="MO">MO – Missouri</option><option value="MT">MT – Montana</option><option value="NE">NE – Nebraska</option><option value="NV">NV – Nevada</option><option value="NH">NH – New Hampshire</option><option value="NJ">NJ – New Jersey</option><option value="NM">NM – New Mexico</option><option value="NY">NY – New York</option><option value="NC">NC – North Carolina</option><option value="ND">ND – North Dakota</option><option value="OH">OH – Ohio</option><option value="OK">OK – Oklahoma</option><option value="OR">OR – Oregon</option><option value="PA">PA – Pennsylvania</option><option value="RI">RI – Rhode Island</option><option value="SC">SC – South Carolina</option><option value="SD">SD – South Dakota</option><option value="TN">TN – Tennessee</option><option value="TX">TX – Texas</option><option value="UT">UT – Utah</option><option value="VT">VT – Vermont</option><option value="VA">VA – Virginia</option><option value="WA">WA – Washington</option><option value="WV">WV – West Virginia</option><option value="WI">WI – Wisconsin</option><option value="WY">WY – Wyoming</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Insurance Status</label>
+        <select id="cpt-ins">
+          <option value="selfpay">Self-Pay / Uninsured</option>
+          <option value="insured">Insured (private)</option>
+          <option value="medicare">Medicare</option>
+          <option value="medicaid">Medicaid</option>
+        </select>
+      </div>
+    </div>
+    <div id="cpt-results" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📊</span> How to Read These Numbers</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="background:#EFF6FF;border-radius:8px;padding:14px">
+        <div style="font-weight:700;color:#1D4ED8;margin-bottom:6px">Medicare Rate (Floor)</div>
+        <div style="font-size:.85rem;color:#374151">What Medicare pays the provider. Adjusted by your state's Geographic Practice Cost Index (GPCI). This is the federal benchmark — providers cannot charge Medicare patients above this rate.</div>
+      </div>
+      <div style="background:#FFF7ED;border-radius:8px;padding:14px">
+        <div style="font-weight:700;color:#C2410C;margin-bottom:6px">Hospital Charge Range</div>
+        <div style="font-size:.85rem;color:#374151">Hospitals typically charge 2.5–5× Medicare for uninsured/self-pay patients. The "chargemaster" (list price) is the starting point — always negotiate or dispute from Medicare rates up.</div>
+      </div>
+      <div style="background:#F0FDF4;border-radius:8px;padding:14px">
+        <div style="font-weight:700;color:#15803D;margin-bottom:6px">Self-Pay Discount Target</div>
+        <div style="font-size:.85rem;color:#374151">Hospitals with 501(c)(3) status must offer financial assistance. For self-pay patients, target 50–70% off the chargemaster. Many hospitals will accept 1.5–2× Medicare with a prompt-pay discount.</div>
+      </div>
+      <div style="background:#FAF5FF;border-radius:8px;padding:14px">
+        <div style="font-weight:700;color:#7C3AED;margin-bottom:6px">PPDR Trigger</div>
+        <div style="font-size:.85rem;color:#374151">If your final bill exceeds your Good Faith Estimate by more than $400, you can file a Patient-Provider Dispute Resolution (PPDR) through HHS within 120 days. Use the Medicare rate to anchor your counter-offer.</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:.8rem;color:var(--gray)">Source: CMS 2026 National Physician Fee Schedule (Oct. release). Conversion factor: $33.29. Geographic adjustments use 2026 GPCI by state. Hospital charge multiples are based on CMS and HCCI research. This is a price benchmark tool, not a binding estimate.</div>
+  </div>
+</div>
+
+<!-- TAB 8: AI & OCR GUIDE -->
+<div id="tab-aiocr" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">🤖</span> Building the AI + OCR System: Roadmap</div>
+    <div class="alert alert-blue" style="margin-bottom:16px">This is an internal build guide for the ZenBill/Atrilium engineering team — what components, data sources, and tools are needed to automate the bill analysis pipeline.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📸</span> Step 1 — OCR (Bill Scanning)</div>
+    <div style="font-size:.9rem;color:#374151;line-height:1.7">
+      <strong>What to extract from a bill scan:</strong>
+      <ul style="margin:8px 0 8px 20px">
+        <li>Provider name, NPI, address</li>
+        <li>Patient name, DOB, account number</li>
+        <li>Date(s) of service</li>
+        <li>CPT / HCPCS codes + units + charges</li>
+        <li>Revenue codes (facility bills)</li>
+        <li>Diagnosis codes (ICD-10)</li>
+        <li>Insurer name, claim number, EOB payment</li>
+        <li>Adjustments, discounts, patient balance</li>
+        <li>Good Faith Estimate amount (if present)</li>
+      </ul>
+      <strong>Recommended OCR tools:</strong><br>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+        <div style="background:#F9FAFB;border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-weight:600;margin-bottom:4px">AWS Textract</div>
+          <div style="font-size:.82rem">Best for structured medical bills. Has "Analyze Document" API for tables + forms. ~$1.50/1,000 pages for form extraction.</div>
+        </div>
+        <div style="background:#F9FAFB;border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-weight:600;margin-bottom:4px">Azure Form Recognizer</div>
+          <div style="font-size:.82rem">Pre-built invoice model. Good for EOBs. ~$1.50/1,000 pages.</div>
+        </div>
+        <div style="background:#F9FAFB;border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-weight:600;margin-bottom:4px">Google Cloud Vision / Document AI</div>
+          <div style="font-size:.82rem">Strong general OCR. Document AI has healthcare processor. ~$1.50/1,000 pages.</div>
+        </div>
+        <div style="background:#F9FAFB;border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-weight:600;margin-bottom:4px">Tesseract.js (browser, free)</div>
+          <div style="font-size:.82rem">Open source, runs in browser. Good enough for clean PDFs. Free but slower.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🧠</span> Step 2 — AI Analysis Engine</div>
+    <div style="font-size:.9rem;color:#374151;line-height:1.7">
+      <strong>What the AI does with extracted data:</strong>
+      <ul style="margin:8px 0 8px 20px">
+        <li><strong>CPT Validation:</strong> Does the CPT code match the described procedure in the medical record?</li>
+        <li><strong>Price Benchmarking:</strong> Compare each line item vs. Medicare rate + GPCI. Flag any charge >3× Medicare as high.</li>
+        <li><strong>Unbundling Detection:</strong> Check CMS NCCI (National Correct Coding Initiative) edit tables for codes that should be bundled.</li>
+        <li><strong>Duplicate Detection:</strong> Same CPT code, same date, same provider = likely duplicate.</li>
+        <li><strong>GFE Comparison:</strong> If GFE on file, compare line-by-line. Flag any new codes not in GFE. Calculate total overage.</li>
+        <li><strong>No Surprises Act Check:</strong> Was service emergency? Was provider out-of-network? Automatic NSA flagging.</li>
+        <li><strong>Charity Care Eligibility:</strong> Based on income info, calculate FPL% and recommend financial assistance programs.</li>
+        <li><strong>Dispute Path Scoring:</strong> Score each detected issue by savings potential and dispute likelihood.</li>
+      </ul>
+      <strong>Recommended AI components:</strong>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+        <div style="background:#F9FAFB;border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-weight:600;margin-bottom:4px">Claude API (Anthropic)</div>
+          <div style="font-size:.82rem">Best for unstructured analysis, letter generation, and complex reasoning about billing rules. ~$0.003 per bill with claude-haiku-4-5.</div>
+        </div>
+        <div style="background:#F9FAFB;border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-weight:600;margin-bottom:4px">GPT-4o / OpenAI</div>
+          <div style="font-size:.82rem">Good for structured extraction with JSON mode. ~$0.005/bill for extraction tasks.</div>
+        </div>
+        <div style="background:#F9FAFB;border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-weight:600;margin-bottom:4px">CMS NCCI Edits DB</div>
+          <div style="font-size:.82rem">Free CMS database of code pairs that cannot be billed together. Essential for unbundling detection. Download quarterly from CMS.gov.</div>
+        </div>
+        <div style="background:#F9FAFB;border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-weight:600;margin-bottom:4px">Medicare PFS RVU File (this tool)</div>
+          <div style="font-size:.82rem">Already embedded: 1,653 CPT codes with 2026 Medicare rates. Update quarterly from CMS.gov.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">💾</span> Step 3 — Data Sources to Integrate</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:.85rem">
+      <div style="background:#F0FDF4;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#15803D;margin-bottom:6px">Free / Public</div>
+        <ul style="margin-left:16px;line-height:1.8">
+          <li>CMS PFS RVU File (Medicare rates) — already here</li>
+          <li>CMS Hospital Price Transparency files</li>
+          <li>CMS NCCI Edit Tables (bundling rules)</li>
+          <li>CMS DHS Code List Addendums — already here</li>
+          <li>CMS OPPS GPCI files</li>
+          <li>IMR Determination Trends (CA, 42k cases)</li>
+          <li>MEPS 2024 Inpatient Survey Data — already here</li>
+          <li>Medicare Part B claims (via CMS open data)</li>
+        </ul>
+      </div>
+      <div style="background:#FFF7ED;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#C2410C;margin-bottom:6px">Paid / Licensed</div>
+        <ul style="margin-left:16px;line-height:1.8">
+          <li>FAIR Health (commercial claims benchmarks)</li>
+          <li>Turquoise Health (negotiated rates)</li>
+          <li>PayerPrice (payer-specific contracted rates)</li>
+          <li>AMA CPT codes (descriptions, full set)</li>
+          <li>Change Healthcare / Availity (eligibility checks)</li>
+          <li>Availity / RelayHealth (claim status checks)</li>
+        </ul>
+      </div>
+      <div style="background:#EFF6FF;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#1D4ED8;margin-bottom:6px">Estimated Cost per Bill Processed</div>
+        <ul style="margin-left:16px;line-height:1.8">
+          <li>OCR: ~$0.002–0.005</li>
+          <li>AI analysis (Claude/GPT): ~$0.003–0.01</li>
+          <li>Human QA review: ~$10–25/bill</li>
+          <li>Certified mail: ~$3.50</li>
+          <li>Phone calls: ~$2–5</li>
+          <li><strong>Total per bill: $13–$31 (team estimate)</strong></li>
+        </ul>
+      </div>
+      <div style="background:#FAF5FF;border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:#7C3AED;margin-bottom:6px">Tech Stack Recommendation</div>
+        <ul style="margin-left:16px;line-height:1.8">
+          <li>Frontend: React / Next.js</li>
+          <li>Backend: Node.js or Python (FastAPI)</li>
+          <li>OCR: AWS Textract or Google Document AI</li>
+          <li>AI: Claude API (letters + reasoning)</li>
+          <li>DB: PostgreSQL (bills) + Redis (cache)</li>
+          <li>File storage: S3 (HIPAA-compliant bucket)</li>
+          <li>Auth: Auth0 or Supabase</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔐</span> HIPAA Compliance Requirements</div>
+    <div style="font-size:.88rem;color:#374151;line-height:1.7">
+      <strong>Required for handling PHI (Protected Health Information):</strong>
+      <ul style="margin:8px 0 8px 20px">
+        <li>BAA (Business Associate Agreement) with all vendors: AWS, Google, OpenAI/Anthropic, Twilio, etc.</li>
+        <li>Encryption at rest (AES-256) and in transit (TLS 1.2+)</li>
+        <li>Access controls: role-based, audit logs, MFA</li>
+        <li>Minimum necessary standard: only collect what's needed</li>
+        <li>Breach notification policy (60 days)</li>
+        <li>HIPAA Security Officer designation</li>
+        <li>Annual risk assessments</li>
+        <li>Employee training (annually)</li>
+        <li>No training AI on patient PHI without explicit consent + de-identification</li>
+      </ul>
+      <strong>Recommended HIPAA-compliant infrastructure:</strong> AWS GovCloud, Google Healthcare API (PHI-ready), Azure HIPAA blueprint.
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<div class="footer">
+  <strong style="color:#F9FAFB">ZenBill / Atrilium — Internal Customer Service Tool</strong><br>
+  <strong>Disclaimer:</strong> ZenBill provides information and dispute support, not legal advice. For complex cases, consult a healthcare attorney or patient advocate.<br>
+  <strong>Privacy:</strong> We only use billing information you share with us voluntarily to help you dispute your bill (HIPAA-aligned).<br>
+  Business model: 20% of savings, capped at $1,000 per case. &copy; 2026 ZenBill / Atrilium Health.
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const CASES = [
+  {id:"KFF-2026-01",provider:"Steinhauer Family Eye Clinic SC (Madison, WI)",billed:340,balance:340,service:"Glaucoma follow-up; visual field testing; optic nerve imaging",issue_category:"Medical vs vision network mismatch",dispute_step:"Check specific medical benefit network and directory on service date; appeal with listing screenshot and claim documents.",title:"Blurry Line Between Medical and Vision Insurance Leaves Patient With Unexpected Bill",emergency:"No",bill_type:"Insurance denial"},
+  {id:"KFF-2025-09",provider:"Bozeman Health Deaconess Regional Medical Center (MT)",billed:97998,balance:78398,service:"Uninsured outpatient surgery - left distal humerus fracture repair",issue_category:"Good-faith estimate exceeded / uninsured surgical bill",dispute_step:"Compare initial good-faith estimate against final itemized charges; evaluate federal PPDR eligibility and deadline. Audit OR time, implant units and anesthesia.",title:"She Had a Broken Arm, No Insurance — And a $97,000 Bill",emergency:"Yes",bill_type:"Hospital surgery bill"},
+  {id:"KFF-2026-05",provider:"Abrazo Health — Arrowhead Campus (Glendale, AZ)",billed:59181,balance:15312,service:"Emergency evaluation and hospital admission following air transfer",issue_category:"Air ambulance / transport",dispute_step:"Compare transport provider bill and insurer EOB; check emergency coverage and applicable No Surprises Act protections.",title:"After Her Bout of Amnesia, a $59,000 Billing Dispute Wouldn't Go Away",emergency:"Yes",bill_type:"Hospital inpatient + EOB"},
+  {id:"KFF-2024-03",provider:"REACH Air Medical Services",billed:97599,balance:97599,service:"Interfacility fixed-wing air ambulance transport of infant",issue_category:"Air-ambulance medical necessity denial",dispute_step:"Challenge necessity denial with transfer clinician evidence and time-critical transport records; pursue external review.",title:"A Mom's $97,000 Question: How Was Her Baby's Air-Ambulance Ride Not Medically Necessary?",emergency:"Yes",bill_type:"Air ambulance bill"},
+  {id:"KFF-2026-04",provider:"Atrium Health Lake Norman (NC)",billed:6746,balance:3100,service:"ED observation after urgent care treated anaphylaxis",issue_category:"Emergency department level / facility fee",dispute_step:"Compare treatment timeline, coded services, facility billing, and itemization; request coding review if evidence supports it.",title:"An Urgent Care Treated Her Allergic Reaction. An ER Monitored Her — For $3,100.",emergency:"Yes",bill_type:"Hospital ED bill"},
+  {id:"KFF-2025-12",provider:"Mercy Regional Medical Center (Durango, CO)",billed:8127,balance:2460,service:"ER evaluation for sudden severe abdominal pain: CT, lab, ER fee",issue_category:"Late medical billing / ghost bill",dispute_step:"Compare date of service to first bill, check state billing deadlines; seek written cancellation or correction.",title:"Scorpion Peppers Caused Him Crippling Pain. Two Years Later, the ER Bill Stung Him Again.",emergency:"Yes",bill_type:"Late-presented ER bill"},
+  {id:"KFF-2026-09",provider:"Carle Foundation Hospital (Urbana, IL)",billed:410,balance:410,service:"ER triage/Level 1 — left before physician evaluation",issue_category:"Emergency department level / facility fee",dispute_step:"Request itemized claim, ED nursing triage notes, physician encounter record, EOB; check CPT 99281 usage.",title:"She Left After Waiting Hours in the Emergency Room. The ER Billed Her Anyway.",emergency:"Yes",bill_type:"ER facility charge"},
+  {id:"KFF-2026-02",provider:"OptumRx / UnitedHealthcare",billed:5253,balance:0,service:"Otezla 30mg for psoriatic arthritis — copay card accumulator issue",issue_category:"Pharmacy copay card / accumulator mismatch",dispute_step:"Reconcile pharmacy EOB, plan payment and copay-card application; confirm whether manufacturer assistance counts toward deductible/OOP max.",title:"He Needs an Expensive Drug. A Copay Card Helped — Until It Didn't.",emergency:"No",bill_type:"Pharmacy/PBM dispute"},
+  {id:"KFF-2026-08",provider:"Vancouver Clinic (Vancouver, WA)",billed:1205,balance:1191,service:"Preventive breast MRI — prior auth granted but not covered",issue_category:"Authorization / denied coverage",dispute_step:"Request MRI itemization, EOB, preauthorization letter, plan preventive-services language and test indication.",title:"Her Breast MRI Was Approved, But That Didn't Mean Her Insurance Would Pay",emergency:"No",bill_type:"Outpatient imaging"},
+  {id:"KFF-2026-03",provider:"Health First Health Plans (FL)",billed:0.05,balance:0.05,service:"ACA marketplace premium — $0.05 unpaid led to cancellation",issue_category:"Coverage cancellation / premium discrepancy",dispute_step:"Validate premium ledger and coverage dates; request insurer eligibility review and corrected claims.",title:"She Owed Her Insurer a Nickel, So It Canceled Her Coverage",emergency:"No",bill_type:"Insurance premium dispute"},
+  {id:"KFF-2022-04",provider:"Yuma Regional Medical Center (Yuma, AZ)",billed:107905,balance:3894,service:"18-day inpatient COVID-19 hospitalization",issue_category:"Pandemic insurance waiver / charity care",dispute_step:"Check insurer waiver in force at date of service; appeal/claim reprocessing; request financial assistance and charity care application.",title:"COVID Patient Faces $107,905 Hospital Bill",emergency:"No",bill_type:"Inpatient hospital"},
+  {id:"REAL-013",provider:"Parkland Health",billed:19543,balance:1000,service:"Abdominal pain at freestanding emergency department",issue_category:"Emergency department level / facility fee",dispute_step:"Compare treatment timeline, coded services; request itemized bill and coding review.",title:"Freestanding ER Facility Fee Dispute",emergency:"Unknown",bill_type:"Freestanding ER"},
+  {id:"KFF-2026-07",provider:"MaineHealth Maine Medical Center",billed:23046,balance:0,service:"Good-faith estimate for laparoscopic inguinal hernia repair",issue_category:"Estimate vs actual billed amount",dispute_step:"Separate unperformed estimates from claims and compare against actual itemized statement; invoke PPDR if final bill exceeds GFE by more than $400.",title:"$2,900 Self-Pay Hernia Repair vs $23,046 Hospital Estimate",emergency:"No",bill_type:"Good Faith Estimate"},
+  {id:"KFF-ADD-032",provider:"Unnamed Hospital ER",billed:1012,balance:1012,service:"Emergency evaluation for hand burn — doctor did not show up",issue_category:"Emergency department level / facility fee",dispute_step:"Compare treatment timeline, coded services; contest facility fee if physician never evaluated patient.",title:"The Doctor Did Not Show Up, but the Hospital ER Still Charged $1,012",emergency:"Yes",bill_type:"ER facility charge"},
+  {id:"DEEP-001",provider:"Northwestern Medicine",billed:9004,balance:9004,service:"ED visit: lab tests, spine imaging, ketorolac, injection",issue_category:"Emergency department level / facility fee",dispute_step:"Compare treatment timeline, coded services, facility billing, and itemization; request coding review.",title:"Northwestern Medicine $9,000 ED Itemization",emergency:"Yes",bill_type:"Hospital ED bill"},
+// ---- ACTUAL PATIENT BILLS (from [Train AI] Real and Hypo Bills folder) ----
+  {id:"ACTUAL-NYU-DUPEKG",provider:"NYU Langone Hospitals (Brooklyn, NY)",billed:3844,insurer_paid:2679,balance:1164.93,service:"Emergency Follow-Up Inpatient Care; Radiology (CT chest, GI scan); EKG (CPT 93010) billed 3× on same dates by 3 different providers",issue_category:"Duplicate charges",dispute_step:"EKG/routine interpretation (CPT 93010) appears on 06/20/2022 and 06/21/2022 from multiple providers on the same date. Cross-check each provider EKG charge date with medical records. File itemized bill request (HIPAA). Healthfirst applied contractual adjustments — confirm all were posted. Duplicate EKG = likely $44–$88 recoverable.",title:"NYU Langone Brooklyn: EKG Billed 3× Same Dates + Multi-Encounter Balance $1,164",emergency:"Yes",bill_type:"Multi-encounter hospital statement (actual)"},
+  {id:"ACTUAL-NYU-CATH",provider:"NYU Langone Hospitals (Brooklyn, NY)",billed:97156,insurer_paid:87846,balance:4310,service:"Inpatient: Med-Surg room 3 days, IV Therapy, CT, ER, Cardiac Cath Lab (177 units at $551 = $26,108), Recovery Room, Cardiac Cath, Observation, Surgery, EKG",issue_category:"Emergency department level / facility fee",dispute_step:"Cardiac Cath Lab (rev code 0480) billed at 177 units × $551.17 = $97,000+. Verify unit count in medical records — 177 units for a single procedure is atypical and warrants itemized audit. Healthfirst paid $11,707 and adjusted $76,138. Request itemized statement and medical records. Any units not documented = billable error.",title:"NYU Langone Inpatient: 177 Cardiac Cath Lab Units ($97K), $4,310 Balance After Insurance",emergency:"Yes",bill_type:"Hospital inpatient statement (actual)"},
+  {id:"ACTUAL-BOZEMAN-ROLET",provider:"Bozeman Health Deaconess Regional Medical Center (Bozeman, MT)",billed:12953,insurer_paid:5763,balance:7190,service:"ED 03/15/25: CT Scan/General $7,902 · ER Room $1,730 · Professional Fees $634 · Pharmacy $367+$12 · Lab $97 · Med/Surg Supplies $17",issue_category:"Emergency department level / facility fee",dispute_step:"CT Scan at $7,902 is 37× Medicare rate (~$215 for CPT 74177). Challenge with itemized bill and fair-price letter anchored to Medicare. United Healthcare reversed its Jan 2026 payment ($8,807) — appeal reversal immediately with appeal deadlines. Farm Bureau Auto insurance = auto accident; ensure auto injury coordination of benefits is correct. File PPDR if GFE was issued and exceeded by >$400.",title:"Bozeman Health: $7,902 CT Scan + UHC Payment Reversed — Nicole Rolet Owes $7,190",emergency:"Yes",bill_type:"Hospital ED itemized statement (actual — Nicole Rolet, Cambridge MA)"},
+  {id:"ACTUAL-YUMA-MEDICARE",provider:"Yuma Regional Medical Center (Yuma, AZ)",billed:21266.70,insurer_paid:0,balance:21266.70,service:"Inpatient 02/27–03/02/09 (Medicare): Med-Surg room $3,552 · CT Scan/Body $3,200 · Lab $777 · Echocardiography $1,078 · Respiratory Therapy $1,101 · Physical Therapy $369 · Peripheral Vascular Lab $998 · IV Therapy $1,393 · ER $964 · EKG $315 · Pharmacy $1,750",issue_category:"Emergency department level / facility fee",dispute_step:"Sent to Medicare HMO — no payments posted yet. If Medicare denies, verify all revenue codes are correct. Peripheral Vascular Lab ($998) + Echocardiography ($1,078) + CT Scan ($3,200) together = $5,276; request itemized CPT codes for each. Under Medicare, echocardiography and peripheral vascular lab on same inpatient stay may be bundled.",title:"Yuma Regional Medical: $21,267 Medicare Inpatient — CT Scan, Echo, Peripheral Vascular Lab",emergency:"Yes",bill_type:"Hospital inpatient statement — Medicare HMO (actual)"},
+  {id:"ACTUAL-CHLA-LA",provider:"CHLA Medical Group (Los Angeles, CA)",billed:3778,insurer_paid:3666.59,balance:111.41,service:"Laparoscopy w/fulguration (CPT 58661) $2,200; Laparoscopy w/fulguration/excision (CPT 58565) $975; High complexity E&M (CPT 99095) $603; Anesthesia adjustment",issue_category:"Authorization / denied coverage",dispute_step:"United Healthcare paid $1,120.27 on the first laparoscopy and applied adjustments. Confirm CPT 58661 and 58565 were both preauthorized — when two laparoscopic procedures done in same surgical session, one may be modifier-50 or bundled. Verify anesthesia adjustment was correct. Balance of $111.41 may be copay or unbundled charge.",title:"CHLA Medical Group (LA): Dual Laparoscopy Procedures — $111.41 After UHC Payments",emergency:"No",bill_type:"Multi-procedure physician statement (actual — Jane Doe)"},
+  {id:"ACTUAL-ERLANGER",provider:"Erlanger Health System (Chattanooga, TN)",billed:2000,insurer_paid:1640,balance:360,service:"Hospital services 2016. Collections threat issued.",issue_category:"Emergency department level / facility fee",dispute_step:"Erlanger's own Financial Assistance Policy printed on this bill states: 'Emergency medical care is provided to everyone, regardless of ability to pay.' Apply NOW at erlanger.org/fap or 423-778-5150. Collections window is 10 days. Financial assistance can eliminate or dramatically reduce remaining $360.",title:"Erlanger Health: Collections Threat Despite Financial Assistance Policy Printed On Bill",emergency:"No",bill_type:"Hospital statement — delinquent (actual)"},
+  {id:"ACTUAL-FROEDTERT",provider:"Froedtert Hospital (Milwaukee, WI)",billed:1059.40,insurer_paid:959.40,balance:100,service:"ER visit 04/24/04: Pharmacy $28.40 · Emergency Room $947.00 · EKG/ECG $84.00. Primary: WPS. Secondary: Blue Cross.",issue_category:"Emergency department level / facility fee",dispute_step:"Physician charges (Medical College of Wisconsin) billed SEPARATELY from this hospital bill — confirm you have received and reviewed both bills. ER facility fee ($947) is the dominant charge. Verify secondary Blue Cross was billed for any residual after WPS payment. EKG charge ($84) is reasonable.",title:"Froedtert Hospital ER: $947 Facility Fee — Physician Bill Sent Separately By Medical College",emergency:"Yes",bill_type:"Hospital invoice (actual — sample patient)"},
+  {id:"ACTUAL-THANA-ITEMIZED",provider:"Jackson Purchase Medical Center (Mayfield, KY)",billed:6500,insurer_paid:0,balance:6500,service:"Inpatient 10/11–10/12/2022: Room & Care $1,545.34 · Venipuncture ×2 $138 · Arterial Puncture $372 · ABS/Comp/Basic Metabolic Panels $991 · CBC Auto Diff ×2 $441 · Chest X-ray 2 views $256 · Inhalation TX + Hand Held Neb ×4 + Chest Physio ×4 + additional Neb",issue_category:"Unbundling (Services That Should Be Combined)",dispute_step:"Respiratory: Hand Held Neb (CPT 94640) billed ×4 same day AND Chest Physio ×4 same day — CMS NCCI edits may require bundling. Three metabolic panels (ABS, Comp, Basic) on same day may overlap — verify CPT codes 80048/80053/80074 were not all separately billable. Arterial puncture + venipuncture same day: audit medical necessity. Request complete itemized statement with HCPCS codes.",title:"Jackson Purchase MC Inpatient: Thana McGary — Respiratory Unbundling, Triple Metabolic Panel",emergency:"No",bill_type:"Detailed itemized hospital statement (actual — Thana McGary, Mayfield KY)"},
+  {id:"ACTUAL-VCU",provider:"VCU Medical Center (Richmond, VA)",billed:5427,insurer_paid:5277,balance:150,service:"Hospital services Nov 2021",issue_category:"Unclassified / needs document review",dispute_step:"$5,277 in adjustments reduced a $5,427 bill to $150. Request itemized statement to verify all adjustments applied correctly. The $150 remaining may be a copay — confirm it matches your plan's cost-sharing. If Savicsa Robinson is low-income, VCU (nonprofit) must offer charity care under IRS 501(r).",title:"VCU Medical Center: $5,427 → $150 After Adjustments (Savicsa Robinson)",emergency:"No",bill_type:"Hospital statement (actual)"},
+  {id:"ACTUAL-BCBS-TN",provider:"Tennessee Provider (BCBS insured)",billed:1200,insurer_paid:762.26,balance:437.74,service:"2021 encounters: 99204 New patient visit · 80050 General health panel · 80061 Lipid panel · 81001 Urinalysis · 82306 Vitamin D ($106) · 36415 Venipuncture · 99214 Office visit",issue_category:"Incorrect CPT / HCPCS Codes",dispute_step:"Vitamin D (CPT 82306) at $106 is frequently denied without diagnosis code E55.9 (Vit D deficiency) or Z13.88 (screening). Verify BCBS applied correct contractual rates to each line. Encounter balance for 99204 ($223.65) is aging 30–60 days — may now be in internal appeal window. This is an annotated training bill showing complete BCBS payment/adjustment structure.",title:"Tennessee BCBS: 7 CPT Codes — Vitamin D Likely Deniable, $437.74 Aging Balance",emergency:"No",bill_type:"Multi-encounter physician statement (actual — anonymized)"},
+  {id:"ACTUAL-ALLINA-HOMECARE",provider:"Allina Health Home Care Services (Minneapolis, MN)",billed:892.38,insurer_paid:0,balance:892.38,service:"Home care services, April 2013 (Jane DOE)",issue_category:"Unclassified / needs document review",dispute_step:"Request itemized bill listing each home care visit, date, service type, nurse/aide level, and hourly rate. If Medicare/Medicaid was not billed first, that is a billing error. Apply for Allina financial assistance at allinahealth.org. Home care services are frequently overbilled — compare to Medicare home health rate.",title:"Allina Health Home Care: $892.38 — Itemized Visit Breakdown Needed",emergency:"No",bill_type:"Home care statement (actual — sample patient)"},
+  {id:"ACTUAL-JACKSON-PHYSICIAN",provider:"Jackson Purchase Medical Center Physician Group (Mayfield, KY)",billed:197.56,insurer_paid:0,balance:197.56,service:"Multiple encounters 2008: 73120 Hand X-ray 2 views $119.59 · 25600 Closed Fx treatment · 99215 High complexity office visit · 73521 Hip X-ray bilateral · 99214 Office visit",issue_category:"Incorrect CPT / HCPCS Codes",dispute_step:"73120 (Hand X-ray right) at $119.59 is above Medicare rate (~$23) — if uninsured, negotiate down to self-pay rate. 25600 (Fracture casting) on same date as 99215 (office visit) — verify modifier -25 was applied to the E&M code to allow billing both. Without modifier -25, this may be an unbundling violation. Request modifier documentation.",title:"Jackson Purchase Physician: 5 CPT Codes — X-Ray + Fracture Care + Possible Modifier Issue",emergency:"No",bill_type:"Multi-encounter physician statement (actual)"}
+];
+
+const ERRORS = [
+  {id:"duplicate",label:"Duplicate Charges",desc:"Same service or procedure billed more than once on the same date.",rights:"You have the right to an itemized bill (HIPAA). Duplicates must be removed immediately upon request.",savings:"$50–$5,000+",color:"red"},
+  {id:"never-received",label:"Services Never Received",desc:"Billed for a service, test, medication, or supply you did not actually receive.",rights:"Hospitals must only bill for services actually rendered. This may also be Medicare/Medicaid fraud if federal programs are involved.",savings:"$100–$10,000+",color:"red"},
+  {id:"upcoding",label:"Upcoding (Higher Level of Care Billed)",desc:"Charged for a more complex service than what was actually provided (e.g., Level 4 ER visit when care was Level 2).",rights:"Upcoding violates the False Claims Act. Request itemized records and compare coded services to your medical records.",savings:"$500–$8,000",color:"red"},
+  {id:"unbundling",label:"Unbundling (Services That Should Be Combined)",desc:"Billing separately for procedures that should be billed together under one code — artificially inflating the total.",rights:"CMS and AMA CPT rules require appropriate bundling. Dispute with itemized bill and CPT code reference.",savings:"$200–$3,000",color:"orange"},
+  {id:"wrong-info",label:"Incorrect Patient or Insurance Information",desc:"Errors in name, DOB, insurance ID, or policy number that caused claim denial or incorrect billing.",rights:"Errors must be corrected and claim reprocessed at no cost to you.",savings:"Full bill may be corrected",color:"orange"},
+  {id:"balance-billing",label:"Balance Billing Violation (No Surprises Act)",desc:"Out-of-network provider charged you more than in-network cost-sharing for emergency services or surprise bills.",rights:"The No Surprises Act (effective 2022) prohibits balance billing for emergency services. You owe only your in-network cost-sharing amount.",savings:"Potentially thousands",color:"red"},
+  {id:"gfe-exceeded",label:"Good Faith Estimate Exceeded by >$400",desc:"Final bill is more than $400 higher than the Good Faith Estimate you received before the service.",rights:"Under the No Surprises Act, you can file a Patient-Provider Dispute Resolution (PPDR) through HHS within 120 days of receiving the bill.",savings:"Full overage amount",color:"red"},
+  {id:"late-billing",label:"Bill Arrived More Than 12 Months After Service",desc:"Received a bill for a service performed more than a year ago (a 'ghost bill').",rights:"Many states limit billing windows to 6–12 months. Some insurers also have timely filing limits. This bill may be legally unenforceable.",savings:"Potentially the full bill",color:"orange"},
+  {id:"oon-emergency",label:"Out-of-Network Emergency Charges",desc:"Charged out-of-network rates for emergency care at a facility or by a provider you could not choose.",rights:"No Surprises Act limits your cost-sharing to in-network amounts for emergency services, regardless of network status.",savings:"Thousands of dollars",color:"red"},
+  {id:"wrong-cpt",label:"Incorrect CPT / HCPCS Codes",desc:"Procedure or diagnosis codes on the claim don't match the services described in your medical records.",rights:"You can request your Explanation of Benefits (EOB), itemized bill, and medical records to verify codes. Errors must be corrected.",savings:"$200–$5,000+",color:"orange"},
+  {id:"facility-fee",label:"Facility Fee for Simple Outpatient Visit",desc:"Charged a separate 'facility fee' for a routine outpatient visit at a hospital-owned clinic.",rights:"Many states require advance notice of facility fees. If not disclosed, you may be able to dispute. Some states ban facility fees for certain outpatient visits.",savings:"$100–$1,500",color:"orange"},
+  {id:"lwbs",label:"Left Without Being Seen / No Physician Evaluation",desc:"Billed for ER services but left before a physician actually evaluated you, or was never evaluated.",rights:"Facility fees may be inappropriate if only triage occurred with no physician evaluation. CPT 99281 requires physician evaluation.",savings:"$200–$2,000",color:"orange"}
+];
+
+const FPL_BASE = 15650;
+const FPL_PER_PERSON = 5380;
+
+// 2026 FPL lookup
+function getFPL(householdSize) {
+  const size = parseInt(householdSize) || 1;
+  return FPL_BASE + (Math.max(size,1) - 1) * FPL_PER_PERSON;
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'pathway') renderPathways();
+  if (id === 'letters') previewLetter();
+  if (id === 'cases') 
+  renderCases();
+}
+
+function toggleGFE() {
+  const v = document.getElementById('i-gfe').value;
+  document.getElementById('gfe-amount-group').style.display = v === 'yes' ? 'block' : 'none';
+}
+
+function getFPLCategory(income, householdSize) {
+  const fpl = getFPL(householdSize);
+  const pct = (income / fpl) * 100;
+  return {pct, fpl};
+}
+
+function checkFPL() {
+  const income = parseFloat(document.getElementById('i-income').value) || 0;
+  const household = parseInt(document.getElementById('i-household').value) || 1;
+  if (!income) return;
+  const {pct, fpl} = getFPLCategory(income, household);
+  const box = document.getElementById('fpl-result-box');
+  let cls = 'fpl-result';
+  let msg = '';
+  if (pct <= 100) {
+    msg = `<strong>Under 100% FPL (${pct.toFixed(0)}% — FPL: $${fpl.toLocaleString()})</strong><br>Likely eligible for <strong>FREE care</strong> at nonprofit hospitals. Request charity care application immediately.`;
+  } else if (pct <= 200) {
+    msg = `<strong>101–200% FPL (${pct.toFixed(0)}% — FPL: $${fpl.toLocaleString()})</strong><br>Likely eligible for <strong>sliding-scale 50–100% reduction</strong>. Request charity care application.`;
+    cls += ' warning';
+  } else if (pct <= 400) {
+    msg = `<strong>201–400% FPL (${pct.toFixed(0)}% — FPL: $${fpl.toLocaleString()})</strong><br>May qualify for <strong>significant discount</strong>. Many nonprofits cover up to 400% FPL.`;
+    cls += ' warning';
+  } else {
+    msg = `<strong>Over 400% FPL (${pct.toFixed(0)}% — FPL: $${fpl.toLocaleString()})</strong><br>Charity care less likely but still possible. Focus on billing error disputes and negotiation.`;
+    cls += ' danger';
+  }
+  box.innerHTML = `<div class="${cls}">${msg}</div>`;
+}
+
+document.getElementById('i-income').addEventListener('input', checkFPL);
+document.getElementById('i-household').addEventListener('input', checkFPL);
+
+function analyzeIntake() {
+  const name = document.getElementById('i-name').value || 'Patient';
+  const billed = parseFloat(document.getElementById('i-billed').value) || 0;
+  const balance = parseFloat(document.getElementById('i-balance').value) || 0;
+  const ins = document.getElementById('i-insurance').value;
+  const service = document.getElementById('i-service').value;
+  const gfe = document.getElementById('i-gfe').value;
+  const gfeAmt = parseFloat(document.getElementById('i-gfe-amount').value) || 0;
+  const income = parseFloat(document.getElementById('i-income').value) || 0;
+  const household = parseInt(document.getElementById('i-household').value) || 1;
+  const dos = document.getElementById('i-dos').value;
+  const collections = document.getElementById('i-collections').value;
+
+  const flags = [];
+  if (gfe === 'yes' && gfeAmt > 0 && billed > gfeAmt + 400) flags.push(`GFE exceeded by $${(billed - gfeAmt).toLocaleString()} — PPDR eligible`);
+  if (service === 'emergency' || service === 'ambulance') flags.push('Emergency/ambulance services — No Surprises Act may apply');
+  if (ins === 'uninsured') flags.push('Uninsured — check charity care eligibility and PPDR rights');
+  if (collections === 'yes') flags.push('In collections — send Debt Validation letter immediately (FDCPA)');
+  if (dos) {
+    const dosDate = new Date(dos);
+    const monthsDiff = (new Date() - dosDate) / (1000 * 60 * 60 * 24 * 30);
+    if (monthsDiff > 12) flags.push(`Bill is ${Math.round(monthsDiff)} months old — check state late-billing rules`);
+  }
+  if (income > 0) {
+    const {pct} = getFPLCategory(income, household);
+    if (pct <= 400) flags.push(`Income at ${pct.toFixed(0)}% FPL — charity care application recommended`);
+  }
+
+  const potentialSavings = balance * 0.4;
+  const zbFee = Math.min(potentialSavings * 0.2, 1000);
+  const netSavings = potentialSavings - zbFee;
+
+  const summary = document.getElementById('intake-summary');
+  summary.style.display = 'block';
+  document.getElementById('intake-summary-content').innerHTML = `
+    <div class="result-grid">
+      <div class="result-item"><div class="label">Patient</div><div class="value">${name}</div></div>
+      <div class="result-item"><div class="label">Current Balance</div><div class="value orange">$${balance.toLocaleString()}</div></div>
+      <div class="result-item"><div class="label">Insurance</div><div class="value">${ins || 'Not specified'}</div></div>
+      <div class="result-item"><div class="label">Service Type</div><div class="value">${service || 'Not specified'}</div></div>
+    </div>
+    ${flags.length ? `<div style="margin-top:16px"><div class="section-header">Action Flags</div>${flags.map(f => `<div class="alert alert-orange" style="margin-bottom:8px">⚡ ${f}</div>`).join('')}</div>` : ''}
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+      <div class="section-header">Estimated ZenBill Value</div>
+      <div class="calc-row"><span>Estimated savings potential (40% of balance)</span><span class="savings-num">$${potentialSavings.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>
+      <div class="calc-row"><span>ZenBill fee (20% of savings, max $1,000)</span><span>$${zbFee.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>
+      <div class="calc-row"><span><strong>Your estimated net savings</strong></span><span class="savings-num"><strong>$${netSavings.toLocaleString(undefined,{maximumFractionDigits:0})}</strong></span></div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="document.querySelectorAll('.tab-btn')[2].click();document.querySelectorAll('.tab-btn')[2].dispatchEvent(new MouseEvent('click'))">View Dispute Pathway →</button>
+      <button class="btn btn-secondary" onclick="document.querySelectorAll('.tab-btn')[3].click();document.querySelectorAll('.tab-btn')[3].dispatchEvent(new MouseEvent('click'))">Generate Letter →</button>
+    </div>
+  `;
+  summary.scrollIntoView({behavior:'smooth'});
+}
+
+// Tab button click handlers for nav
+document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+  btn.addEventListener('click', function() {
+    const tabs = ['intake','errors','pathway','letters','calculator','cases'];
+    switchTab(tabs[i], this);
+  });
+});
+
+// ============================================================
+// ERROR DETECTOR
+// ============================================================
+function renderErrors() {
+  const list = document.getElementById('error-list');
+  list.innerHTML = ERRORS.map((e,i) => `
+    <div class="error-item" id="err-${e.id}" onclick="toggleError('${e.id}')">
+      <div class="error-item-header">
+        <input type="checkbox" id="chk-${e.id}" onclick="event.stopPropagation();toggleError('${e.id}')">
+        <span class="error-item-label">${e.label}</span>
+        <span class="badge badge-${e.color==='red'?'red':'orange'}" style="margin-left:auto">${e.color==='red'?'High Priority':'Medium'}</span>
+      </div>
+      <div class="error-detail" id="detail-${e.id}">
+        <p><strong>What it is:</strong> ${e.desc}</p>
+        <p><strong>Your rights:</strong> ${e.rights}</p>
+        <p class="savings"><strong>Estimated savings potential:</strong> ${e.savings}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleError(id) {
+  const item = document.getElementById('err-' + id);
+  const chk = document.getElementById('chk-' + id);
+  const detail = document.getElementById('detail-' + id);
+  chk.checked = !chk.checked;
+  item.classList.toggle('checked', chk.checked);
+  detail.classList.toggle('show', chk.checked);
+  updateErrorSummary();
+}
+
+function updateErrorSummary() {
+  const checked = ERRORS.filter(e => document.getElementById('chk-' + e.id)?.checked);
+  const summary = document.getElementById('error-summary');
+  if (checked.length === 0) { summary.style.display = 'none'; return; }
+  summary.style.display = 'block';
+  const highPriority = checked.filter(e => e.color === 'red').length;
+  summary.innerHTML = `
+    <div class="alert alert-orange">
+      <strong>${checked.length} error type(s) flagged</strong> — ${highPriority} high priority.<br>
+      Recommended next step: Request an <strong>itemized bill</strong>, then document each error.<br>
+      ${checked.some(e => e.id === 'balance-billing' || e.id === 'oon-emergency') ? '<strong>No Surprises Act violations detected — file NSA dispute with CMS.</strong><br>' : ''}
+      ${checked.some(e => e.id === 'gfe-exceeded') ? '<strong>GFE exceeded — PPDR filing recommended (file within 120 days).</strong>' : ''}
+    </div>
+    <button class="btn btn-primary" onclick="document.querySelectorAll('.tab-btn')[3].click()">Generate Dispute Letter →</button>
+  `;
+}
+
+renderErrors();
+
+// ============================================================
+// PATHWAY
+// ============================================================
+const PATHWAYS = {
+  ppdr: {
+    title: "PPDR — Patient-Provider Dispute Resolution",
+    icon: "⚖️",
+    when: "Best for: Uninsured/self-pay patients whose final bill exceeds their Good Faith Estimate by more than $400.",
+    law: "No Surprises Act, 45 CFR Part 149",
+    steps: [
+      "Request a detailed itemized bill in writing from the provider.",
+      "Compare itemized bill against your Good Faith Estimate (GFE) line by line.",
+      "File a PPDR with HHS at cms.gov/nosurprises within 120 days of receiving the bill.",
+      "Pay the undisputed amount (the GFE amount) while dispute is pending.",
+      "Provider CANNOT send your bill to collections while PPDR is active.",
+      "An independent arbitrator will determine the correct amount within 30 business days."
+    ]
+  },
+  nsa: {
+    title: "No Surprises Act Dispute — Surprise Billing",
+    icon: "🚨",
+    when: "Best for: Emergency services, air ambulance, or out-of-network providers at in-network facilities (surprise bills).",
+    law: "No Surprises Act (2022), 45 CFR Part 149",
+    steps: [
+      "Request an itemized bill and Explanation of Benefits (EOB) from your insurer.",
+      "Confirm the provider is out-of-network and service was emergency or at an in-network facility.",
+      "You owe only your in-network cost-sharing (deductible/copay) — not the full balance.",
+      "If you received a larger bill, file a complaint at cms.gov/nosurprises or call 1-800-985-3059.",
+      "Provider must negotiate with your insurer — not you.",
+      "If unresolved, insurer and provider go to independent dispute resolution (IDR)."
+    ]
+  },
+  appeal: {
+    title: "Insurance Appeal — Denied Claim",
+    icon: "📨",
+    when: "Best for: Claims denied by insurance — wrong coding, prior auth issues, network mismatches, medical necessity denials.",
+    law: "ACA Section 2719, ERISA (employer plans)",
+    steps: [
+      "Get the official denial letter — it must state the specific reason for denial.",
+      "Request your insurer's internal appeal form and submission address.",
+      "File internal appeal within 30 days of denial (check your plan — some allow 180 days).",
+      "Include: denial letter, EOB, itemized bill, medical records, physician letter if needed.",
+      "If internal appeal fails, request external review by independent organization.",
+      "External review decision is binding on the insurer under ACA."
+    ]
+  },
+  charity: {
+    title: "Charity Care Application — Financial Hardship",
+    icon: "🤝",
+    when: "Best for: Low-to-moderate income patients at nonprofit hospitals, especially under 400% FPL.",
+    law: "ACA Section 501(r) (requires nonprofit hospitals to offer charity care)",
+    steps: [
+      "Request a charity care / financial assistance application from the hospital's billing department.",
+      "Gather: proof of income (pay stubs, tax return), household size documentation.",
+      "Complete and submit application — hospital must process within 30 days.",
+      "Under 100% FPL: Request free care. 101–200% FPL: Request sliding scale reduction.",
+      "Nonprofit hospitals (501(c)(3)) are REQUIRED by IRS to have a financial assistance policy.",
+      "If denied, appeal to hospital administration and state health department."
+    ]
+  },
+  latebill: {
+    title: "Late Billing Dispute",
+    icon: "🕐",
+    when: "Best for: Bills arriving more than 12 months after service (or after state billing deadlines).",
+    law: "State billing statutes (varies), insurer timely filing limits",
+    steps: [
+      "Document the date of service and the date you first received the bill.",
+      "Check your state's hospital billing deadline (many states: 6–12 months; some: 180 days).",
+      "Send a written dispute stating the bill is outside the timely billing window.",
+      "Reference any state law or insurer contract that limits billing time.",
+      "Request written confirmation that the bill will be waived or adjusted.",
+      "If sent to collections: Dispute as potentially time-barred and request debt validation."
+    ]
+  },
+  tricare: {
+    title: "TRICARE / VA — Military & Veterans",
+    icon: "🎖️",
+    when: "Best for: Active duty military, veterans, and dependents covered by TRICARE or VA benefits.",
+    law: "TRICARE regulations, 38 CFR (VA benefits)",
+    steps: [
+      "Confirm whether the service should have been covered under TRICARE or VA.",
+      "Contact TRICARE at 1-844-866-9378 or your regional contractor.",
+      "Request claim reprocessing if provider billed incorrectly.",
+      "VA care: Contact the VA billing department or patient advocate at your local VA.",
+      "TRICARE wrongful billing: File complaint with Defense Health Agency.",
+      "Consider contacting your Congressional representative's office for VA billing issues."
+    ]
+  },
+  collections: {
+    title: "Collections Defense",
+    icon: "🛡️",
+    when: "Best for: Bills already referred to a collection agency — rights under FDCPA.",
+    law: "Fair Debt Collection Practices Act (FDCPA), FCRA",
+    steps: [
+      "Within 30 days of first contact, send a Debt Validation Letter via certified mail.",
+      "Collection agency must stop collection activity until they verify the debt.",
+      "Request proof: original creditor, amount, that it's within the statute of limitations.",
+      "If the underlying bill has billing errors, dispute those simultaneously.",
+      "Medical debt under $500 cannot be reported to credit bureaus (CFPB rule, 2024).",
+      "If you qualify for charity care, pursue that application — may eliminate the debt entirely."
+    ]
+  }
+};
+
+function renderPathways() {
+  const ins = document.getElementById('i-insurance').value;
+  const service = document.getElementById('i-service').value;
+  const gfe = document.getElementById('i-gfe').value;
+  const gfeAmt = parseFloat(document.getElementById('i-gfe-amount').value) || 0;
+  const billed = parseFloat(document.getElementById('i-billed').value) || 0;
+  const collections = document.getElementById('i-collections').value;
+  const dos = document.getElementById('i-dos').value;
+  const income = parseFloat(document.getElementById('i-income').value) || 0;
+  const household = parseInt(document.getElementById('i-household').value) || 1;
+
+  let recommended = null;
+  const secondary = [];
+
+  // Logic
+  if (collections === 'yes') { recommended = 'collections'; }
+  else if (ins === 'tricare') { recommended = 'tricare'; }
+  else if (ins === 'uninsured' && gfe === 'yes' && billed > gfeAmt + 400) { recommended = 'ppdr'; }
+  else if (service === 'emergency' || service === 'ambulance') { recommended = 'nsa'; }
+  else if (ins === 'private') { recommended = 'appeal'; }
+  else if (ins === 'uninsured') {
+    if (income > 0 && (income / getFPL(household)) <= 4) { recommended = 'charity'; }
+    else recommended = 'ppdr';
+  }
+  else if (dos) {
+    const months = (new Date() - new Date(dos)) / (1000 * 60 * 60 * 24 * 30);
+    if (months > 12) { recommended = 'latebill'; }
+  }
+
+  // Build secondary
+  Object.keys(PATHWAYS).forEach(k => { if (k !== recommended) secondary.push(k); });
+
+  const recDiv = document.getElementById('pathway-recommendation');
+  const allDiv = document.getElementById('all-pathways');
+
+  if (recommended) {
+    const p = PATHWAYS[recommended];
+    recDiv.innerHTML = `
+      <div class="alert alert-green"><strong>Recommended based on your intake:</strong> ${p.title}</div>
+      <div class="pathway-card pathway-primary">
+        <div class="pathway-title"><span>${p.icon}</span> ${p.title} <span class="badge badge-green">Recommended</span></div>
+        <div style="font-size:.85rem;color:#374151;margin-bottom:4px"><strong>When to use:</strong> ${p.when}</div>
+        <div style="font-size:.82rem;color:var(--gray)"><strong>Legal basis:</strong> ${p.law}</div>
+        <div class="pathway-steps">${p.steps.map((s,i)=>`<div class="step"><div class="step-num">${i+1}</div><div class="step-text">${s}</div></div>`).join('')}</div>
+      </div>
+    `;
+  } else {
+    recDiv.innerHTML = `<div class="alert alert-blue">Complete Tab 1 (Bill Intake) for a personalized recommendation. All pathways are shown below.</div>`;
+  }
+
+  allDiv.innerHTML = `<div class="section-header" style="margin-top:8px">All Available Pathways</div>` +
+    secondary.map(k => {
+      const p = PATHWAYS[k];
+      return `
+        <div class="pathway-card pathway-secondary" style="margin-bottom:12px">
+          <div class="pathway-title" onclick="this.closest('.pathway-card').querySelector('.pathway-steps').style.display=this.closest('.pathway-card').querySelector('.pathway-steps').style.display==='none'?'block':'none'" style="cursor:pointer">
+            <span>${p.icon}</span> ${p.title} <span style="margin-left:auto;font-size:.8rem;color:var(--gray)">▼ expand</span>
+          </div>
+          <div style="font-size:.82rem;color:var(--gray)">${p.when}</div>
+          <div class="pathway-steps" style="display:none">${p.steps.map((s,i)=>`<div class="step"><div class="step-num">${i+1}</div><div class="step-text">${s}</div></div>`).join('')}</div>
+        </div>
+      `;
+    }).join('');
+}
+
+renderPathways();
+
+// ============================================================
+// LETTER GENERATOR
+// ============================================================
+const LETTER_DESCS = {
+  itemized: "Always the first step. Request an itemized statement showing every charge, CPT code, and line item. HIPAA guarantees you this right.",
+  ppdr: "For self-pay/uninsured patients whose final bill exceeds their Good Faith Estimate by more than $400. References the No Surprises Act PPDR process.",
+  nsa: "For surprise bills from out-of-network emergency providers or air ambulance. Invokes No Surprises Act protections.",
+  appeal: "For insurance claim denials. References ACA internal appeal rights and external review options.",
+  charity: "For financial hardship situations. References IRS 501(r) requirement for nonprofit hospital charity care.",
+  debt: "For bills already in collections. Invokes FDCPA debt validation rights.",
+  latebill: "For bills received more than 12 months after service. Challenges enforceability based on timely billing rules."
+};
+
+function getIntakeValues() {
+  return {
+    name: document.getElementById('i-name').value || '[PATIENT NAME]',
+    ref: document.getElementById('i-ref').value || '',
+    provider: document.getElementById('i-provider').value || '[PROVIDER NAME]',
+    dos: document.getElementById('i-dos').value || '[DATE OF SERVICE]',
+    billed: document.getElementById('i-billed').value || '[BILLED AMOUNT]',
+    balance: document.getElementById('i-balance').value || '[BALANCE]',
+    ins: document.getElementById('i-insurance').value,
+    service: document.getElementById('i-service').value,
+    desc: document.getElementById('i-desc').value || '[SERVICE DESCRIPTION]',
+    gfe: document.getElementById('i-gfe').value,
+    gfeAmt: document.getElementById('i-gfe-amount').value || '[GFE AMOUNT]',
+    income: document.getElementById('i-income').value || '[INCOME]',
+    household: document.getElementById('i-household').value || '[HOUSEHOLD SIZE]'
+  };
+}
+
+const TODAY = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+
+function buildLetter(type) {
+  const v = getIntakeValues();
+  const refLine = v.ref ? `\nCase Reference: ${v.ref}` : '';
+  const header = `${v.name}
+[Patient Address]
+[City, State ZIP]
+[Phone Number]
+[Email Address]
+
+${TODAY}
+
+${v.provider}
+Billing Department
+[Provider Address]
+[City, State ZIP]
+
+Re: Dispute of Medical Bill — Patient: ${v.name}${refLine}
+    Date of Service: ${v.dos}
+    Service: ${v.desc}
+`;
+
+  if (type === 'itemized') return header + `
+To Whom It May Concern:
+
+I am writing to request a complete, itemized statement for the above-referenced medical services rendered on ${v.dos} at ${v.provider}.
+
+Under the Health Insurance Portability and Accountability Act (HIPAA) and applicable state law, I have the right to receive an itemized bill that includes:
+
+  1. Each service provided, with the date it was rendered
+  2. The Current Procedural Terminology (CPT) or HCPCS code for each service
+  3. The diagnosis code(s) (ICD-10)
+  4. The name and credentials of each provider who rendered services
+  5. The charge for each individual service
+  6. Any payments applied (insurance, adjustments, credits)
+  7. The National Drug Code (NDC) for any medications billed
+
+I have received a bill for $${v.billed || '[AMOUNT]'} but cannot verify its accuracy without an itemized statement. I dispute the current bill pending receipt and review of this information.
+
+Please provide the itemized statement within 30 days. Until I receive and review this document, please place any collection activity on hold. Do not report this account to any credit bureau while the dispute is pending.
+
+Thank you for your prompt attention to this matter.
+
+Sincerely,
+
+${v.name}
+(Signature)
+
+Enclosures: Copy of bill received
+`;
+
+  if (type === 'ppdr') return header + `
+To Whom It May Concern:
+
+I am writing to formally dispute this bill under the federal Patient-Provider Dispute Resolution (PPDR) process established by the No Surprises Act, 42 U.S.C. § 300gg-111 and 45 CFR Part 149.
+
+I received a Good Faith Estimate (GFE) from ${v.provider} on or before my scheduled service date in the amount of $${v.gfeAmt}. The final bill I received is $${v.billed}, which exceeds my Good Faith Estimate by $${(parseFloat(v.billed) - parseFloat(v.gfeAmt)).toLocaleString() || '[OVERAGE AMOUNT]'} — more than the $400 threshold established by federal regulation.
+
+Under 45 CFR § 149.620, I have the right to initiate a PPDR dispute within 120 days of receiving this bill. I am exercising that right.
+
+NOTICE: Per 45 CFR § 149.620(b):
+  - I am paying the Good Faith Estimate amount of $${v.gfeAmt} as the undisputed amount.
+  - You may NOT send this disputed amount to collections while the PPDR is pending.
+  - You may NOT take adverse action against me for initiating this dispute.
+
+I am simultaneously filing a PPDR request with the U.S. Department of Health and Human Services at cms.gov/nosurprises.
+
+I request the following documentation within 10 business days:
+  1. Complete itemized bill with CPT codes and charge descriptions
+  2. Original Good Faith Estimate provided to me
+  3. Explanation of any variance between the GFE and final bill
+  4. Contact information for your PPDR coordinator
+
+Sincerely,
+
+${v.name}
+(Signature)
+`;
+
+  if (type === 'nsa') return header + `
+To Whom It May Concern:
+
+I am writing to dispute this bill under the No Surprises Act (NSA), Pub. L. 116-260, effective January 1, 2022, which prohibits surprise billing for emergency services and certain out-of-network care.
+
+FACTS:
+  - I received ${v.desc} on ${v.dos} at ${v.provider}.
+  - This was an emergency medical situation in which I could not have reasonably selected an in-network provider.
+  - I am being billed as an out-of-network patient for what should be subject to in-network cost-sharing limits.
+
+LEGAL NOTICE — No Surprises Act Protections:
+Under 45 CFR § 149.410, for emergency services:
+  - My cost-sharing is limited to my in-network cost-sharing amount (deductible, copay, or coinsurance).
+  - You may NOT balance bill me for the difference between your charges and my insurer's payment.
+  - Violation of the NSA is subject to a civil monetary penalty of up to $10,000 per violation.
+
+DEMAND: Please immediately reprocess this claim at in-network cost-sharing rates and issue a corrected bill. If you disagree, the matter must be resolved through the federal Independent Dispute Resolution (IDR) process — not by billing me.
+
+I am filing a simultaneous complaint with the Centers for Medicare & Medicaid Services (CMS) NSA complaint portal at cms.gov/nosurprises and the No Surprises Help Desk at 1-800-985-3059.
+
+Sincerely,
+
+${v.name}
+(Signature)
+`;
+
+  if (type === 'appeal') return header + `
+Re: FORMAL INTERNAL APPEAL — Denied Claim
+
+To Whom It May Concern:
+
+I am writing to formally appeal the denial of the above-referenced claim for ${v.desc} rendered on ${v.dos}.
+
+I received a denial notice / Explanation of Benefits (EOB) indicating this claim was denied. I believe this denial is incorrect for the following reasons:
+
+[STATE YOUR REASONS — examples:]
+  - The service was medically necessary as documented by my treating physician.
+  - The provider is in-network or the service qualifies as emergency care.
+  - Prior authorization was obtained in advance of the service.
+  - The claim was incorrectly coded and should be reprocessed.
+
+LEGAL RIGHTS INVOKED:
+Under the Affordable Care Act (ACA), Section 2719, I have the right to:
+  1. An internal appeal reviewed within 30 days (urgent) or 60 days (standard).
+  2. An independent external review if internal appeal is denied.
+  3. A written explanation of any denial in plain language.
+
+DOCUMENTS ENCLOSED:
+  - Copy of the Explanation of Benefits (EOB)
+  - Copy of the itemized bill
+  - Medical records supporting medical necessity (if applicable)
+  - Prior authorization approval (if applicable)
+  - Letter of medical necessity from treating physician (if applicable)
+
+Please process this appeal within the timeframes required by law and your plan documents. Contact me at the address above with any questions.
+
+Sincerely,
+
+${v.name}
+(Signature)
+`;
+
+  if (type === 'charity') return header + `
+Re: APPLICATION FOR FINANCIAL ASSISTANCE / CHARITY CARE
+
+To Whom It May Concern:
+
+I am writing to request financial assistance for the above-referenced medical bill for services rendered on ${v.dos}. I am experiencing significant financial hardship and am unable to pay the full amount of $${v.balance || v.billed}.
+
+FINANCIAL INFORMATION:
+  - Household size: ${v.household} person(s)
+  - Annual household income: $${v.income}
+  - Employment status: ${document.getElementById('i-employment').value || '[EMPLOYMENT STATUS]'}
+
+LEGAL NOTICE — Nonprofit Hospital Requirements:
+Under the Internal Revenue Code Section 501(r), tax-exempt hospitals are REQUIRED to:
+  1. Maintain a written financial assistance policy (FAP).
+  2. Make the FAP widely available to patients.
+  3. Not charge more than "amounts generally billed" to patients who qualify for financial assistance.
+  4. Limit extraordinary collection actions (lawsuits, wage garnishment, credit reporting) for patients who may qualify.
+
+I request:
+  1. A complete copy of your financial assistance / charity care policy.
+  2. A financial assistance application form.
+  3. A temporary hold on all collection activity while my application is reviewed.
+  4. Consideration for full or partial forgiveness of this bill based on my financial circumstances.
+
+Please provide the application materials within 10 business days. I am prepared to submit all required documentation promptly.
+
+Sincerely,
+
+${v.name}
+(Signature)
+
+Documents to Enclose with Application:
+  [ ] Most recent federal tax return (Form 1040)
+  [ ] Recent pay stubs or proof of income
+  [ ] Proof of household size
+  [ ] Any other income documentation requested
+`;
+
+  if (type === 'debt') return header + `
+SENT VIA CERTIFIED MAIL — RETURN RECEIPT REQUESTED
+
+Re: DEBT VALIDATION REQUEST — Fair Debt Collection Practices Act
+
+To Whom It May Concern:
+
+I am writing in response to your collection notice regarding an alleged debt related to medical services at ${v.provider} on ${v.dos}.
+
+NOTICE: This is NOT a refusal to pay. This is a formal request for debt validation under the Fair Debt Collection Practices Act (FDCPA), 15 U.S.C. § 1692g.
+
+Under 15 U.S.C. § 1692g(a), I have the right to request verification of this debt within 30 days of receiving your first notice. I am exercising this right.
+
+YOU ARE REQUIRED TO:
+  1. CEASE all collection activity until you provide verification.
+  2. NOT report this debt to any credit bureau while the dispute is pending.
+  3. Provide the name and address of the original creditor.
+  4. Provide documentation that you are licensed to collect debts in this state.
+
+I REQUEST THE FOLLOWING VERIFICATION:
+  1. The name and address of the original creditor (${v.provider}).
+  2. A copy of the original agreement or itemized bill creating this alleged debt.
+  3. Proof that the statute of limitations has not expired.
+  4. Your license to collect debts in this state.
+  5. Verification that the amount claimed ($${v.balance}) is accurate and includes no unauthorized fees.
+
+NOTE: Medical debt under $500 cannot be reported to consumer credit bureaus per CFPB guidance (2024). Medical debt resulting from billing errors may be disputed with the original creditor simultaneously.
+
+If you cannot verify this debt, you must cease collection activity and remove any credit reporting permanently.
+
+Sincerely,
+
+${v.name}
+(Signature)
+
+CC: Original Creditor — ${v.provider}
+    State Attorney General Consumer Protection Division
+    Consumer Financial Protection Bureau (consumerfinance.gov)
+`;
+
+  if (type === 'latebill') return header + `
+Re: DISPUTE — BILL RECEIVED OUTSIDE TIMELY BILLING WINDOW
+
+To Whom It May Concern:
+
+I am writing to dispute this bill for services allegedly rendered on ${v.dos} at ${v.provider}.
+
+TIMELINE CONCERN:
+I received this bill on approximately [DATE BILL RECEIVED] — approximately [NUMBER] months after the date of service. This exceeds the timely billing window established by:
+  - [Your state] state law limiting hospital billing to [X] months from date of service.
+  - Applicable insurance plan contract timely filing requirements.
+  - Standard industry practice of billing within 12 months of service.
+
+LEGAL BASIS FOR DISPUTE:
+Many states have enacted statutes of limitations and timely billing requirements for medical services. Bills presented outside these windows may be legally unenforceable. Additionally, if this was a covered service, the insurer's timely filing deadline may have already passed, making the claim uncollectable from either the insurer or me as the patient.
+
+DEMAND:
+I request that ${v.provider}:
+  1. Provide written documentation of the date this bill was first generated and mailed.
+  2. Explain why this bill was not presented within standard billing timelines.
+  3. Consider waiving or reducing this bill given the extraordinary delay.
+  4. Confirm in writing whether this account has been or will be reported to any credit bureau.
+
+Please respond within 30 days. I will consider non-response as agreement to waive this claim.
+
+Sincerely,
+
+${v.name}
+(Signature)
+`;
+  return 'Select a letter type to generate.';
+}
+
+function previewLetter() {
+  const type = document.getElementById('letter-type').value;
+  const descDiv = document.getElementById('letter-desc');
+  const wrap = document.getElementById('letter-output-wrap');
+  if (!type) { descDiv.style.display = 'none'; wrap.style.display = 'none'; return; }
+  descDiv.style.display = 'block';
+  descDiv.textContent = LETTER_DESCS[type] || '';
+  wrap.style.display = 'none';
+}
+
+function generateLetter() {
+  const type = document.getElementById('letter-type').value;
+  if (!type) { alert('Please select a letter type.'); return; }
+  const wrap = document.getElementById('letter-output-wrap');
+  const output = document.getElementById('letter-output');
+  output.textContent = buildLetter(type);
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({behavior:'smooth'});
+}
+
+function copyLetter() {
+  const text = document.getElementById('letter-output').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy to Clipboard', 2000);
+  });
+}
+
+// ============================================================
+// SAVINGS CALCULATOR
+// ============================================================
+function calcSavings() {
+  const billed = parseFloat(document.getElementById('c-billed').value) || 0;
+  const negotiated = parseFloat(document.getElementById('c-negotiated').value) || 0;
+  const insPaid = parseFloat(document.getElementById('c-ins-paid').value) || 0;
+  const area = document.getElementById('calc-result-area');
+  if (!billed || !negotiated) { area.innerHTML = ''; return; }
+  const grossSavings = billed - negotiated - insPaid;
+  if (grossSavings <= 0) { area.innerHTML = '<div class="alert alert-blue">No savings calculated — negotiated amount equals or exceeds billed amount.</div>'; return; }
+  const zbFee = Math.min(grossSavings * 0.2, 1000);
+  const netSavings = grossSavings - zbFee;
+  area.innerHTML = `
+    <div class="calc-result">
+      <div style="font-size:.9rem;color:#92400E;margin-bottom:12px">Savings Breakdown</div>
+      <div class="calc-row"><span>Total amount billed</span><span>$${billed.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+      <div class="calc-row"><span>Insurance paid</span><span>$${insPaid.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+      <div class="calc-row"><span>Negotiated / settled amount</span><span>$${negotiated.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+      <div class="calc-row"><span>Gross savings</span><span class="savings-num">$${grossSavings.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+      <div class="calc-row"><span>ZenBill fee (20% of savings, max $1,000)</span><span>$${zbFee.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+      <div class="calc-row"><span><strong>Your net savings</strong></span><span class="savings-num"><strong>$${netSavings.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></span></div>
+    </div>
+    <div class="alert alert-green" style="margin-top:12px">
+      <strong>ZenBill fee: $${zbFee.toLocaleString(undefined,{maximumFractionDigits:0})}</strong> &nbsp;|&nbsp; <strong>Your savings: $${netSavings.toLocaleString(undefined,{maximumFractionDigits:0})}</strong> &nbsp;|&nbsp; <strong>Total you keep: $${(netSavings).toLocaleString(undefined,{maximumFractionDigits:0})}</strong>
+    </div>
+  `;
+}
+
+function calcGFE() {
+  const gfe = parseFloat(document.getElementById('c-gfe').value) || 0;
+  const final = parseFloat(document.getElementById('c-final').value) || 0;
+  const area = document.getElementById('gfe-result-area');
+  if (!gfe || !final) { area.innerHTML = ''; return; }
+  const overage = final - gfe;
+  if (overage <= 0) {
+    area.innerHTML = '<div class="alert alert-green">Final bill is within or below the Good Faith Estimate. No PPDR dispute needed.</div>';
+  } else if (overage <= 400) {
+    area.innerHTML = `<div class="alert alert-yellow">Final bill exceeds GFE by <strong>$${overage.toLocaleString(undefined,{maximumFractionDigits:2})}</strong> — under the $400 PPDR threshold. Consider negotiating directly with the provider.</div>`;
+  } else {
+    const zbFee = Math.min(overage * 0.2, 1000);
+    area.innerHTML = `
+      <div class="alert alert-red">
+        <strong>PPDR Eligible!</strong> Final bill exceeds GFE by <strong>$${overage.toLocaleString(undefined,{maximumFractionDigits:2})}</strong> — over the $400 federal threshold.<br>
+        File a Patient-Provider Dispute Resolution (PPDR) at <strong>cms.gov/nosurprises</strong> within 120 days of receiving the bill.
+      </div>
+      <div class="calc-result">
+        <div class="calc-row"><span>Good Faith Estimate</span><span>$${gfe.toLocaleString(undefined,{minimumFractionDigits:2})}</span></div>
+        <div class="calc-row"><span>Final bill</span><span>$${final.toLocaleString(undefined,{minimumFractionDigits:2})}</span></div>
+        <div class="calc-row"><span>Overage (disputeable)</span><span class="savings-num">$${overage.toLocaleString(undefined,{minimumFractionDigits:2})}</span></div>
+        <div class="calc-row"><span>ZenBill fee (20%, max $1,000)</span><span>$${zbFee.toLocaleString(undefined,{minimumFractionDigits:2})}</span></div>
+        <div class="calc-row"><span><strong>Your potential net savings</strong></span><span class="savings-num"><strong>$${(overage - zbFee).toLocaleString(undefined,{minimumFractionDigits:2})}</strong></span></div>
+      </div>
+    `;
+  }
+}
+
+// ============================================================
+// CASE LIBRARY
+// ============================================================
+let caseSortKey = 'billed';
+let caseSortDir = -1;
+let filteredCases = [...CASES];
+
+function renderCases() {
+  // Populate filter
+  const filter = document.getElementById('case-filter');
+  if (filter.options.length <= 1) {
+    const cats = [...new Set(CASES.map(c => c.issue_category))].sort();
+    cats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; filter.appendChild(o); });
+  }
+  applyAndRenderCases();
+}
+
+function filterCases() { applyAndRenderCases(); }
+
+function applyAndRenderCases() {
+  const q = (document.getElementById('case-search').value || '').toLowerCase();
+  const cat = document.getElementById('case-filter').value;
+  const src = document.getElementById('case-source') ? document.getElementById('case-source').value : '';
+  filteredCases = CASES.filter(c => {
+    const matchQ = !q || c.provider.toLowerCase().includes(q) || c.title.toLowerCase().includes(q) || c.issue_category.toLowerCase().includes(q) || c.service.toLowerCase().includes(q);
+    const matchCat = !cat || c.issue_category === cat;
+    const matchSrc = !src || (src === 'actual' && c.id.startsWith('ACTUAL-')) || (src === 'kff' && !c.id.startsWith('ACTUAL-'));
+    return matchQ && matchCat && matchSrc;
+  });
+  filteredCases.sort((a,b) => {
+    let av = a[caseSortKey], bv = b[caseSortKey];
+    if (typeof av === 'number') return caseSortDir * (av - bv);
+    return caseSortDir * String(av).localeCompare(String(bv));
+  });
+  const tbody = document.getElementById('cases-tbody');
+  tbody.innerHTML = filteredCases.map(c => {
+    const emergBadge = c.emergency === 'Yes' ? '<span class="badge badge-red">Emergency</span>' : c.emergency === 'No' ? '<span class="badge badge-gray">No</span>' : '<span class="badge badge-gray">Unknown</span>';
+    const reduction = c.balance < c.billed ? Math.round((1 - c.balance/c.billed)*100) + '% reduced' : 'No reduction';
+    return `
+      <tr>
+        <td><strong>${c.provider}</strong><br><span style="font-size:.78rem;color:var(--gray)">${c.id}</span></td>
+        <td style="text-align:right;font-weight:600">$${c.billed.toLocaleString()}</td>
+        <td style="text-align:right"><span style="color:${c.balance===0?'#059669':'#DC2626'};font-weight:600">$${c.balance.toLocaleString()}</span><br><span style="font-size:.75rem;color:var(--gray)">${reduction}</span></td>
+        <td><span class="badge badge-orange">${c.issue_category}</span>${c.id.startsWith('ACTUAL-') ? '<br><span class="badge" style="background:#D1FAE5;color:#065F46;font-size:.7rem;margin-top:3px">Actual Bill</span>' : ''}</td>
+        <td>${emergBadge}</td>
+        <td><div style="font-weight:500;font-size:.82rem;line-height:1.4">${c.title}</div><div style="font-size:.78rem;color:var(--gray);margin-top:3px">${c.bill_type}</div><div style="font-size:.78rem;color:#374151;margin-top:4px">${c.dispute_step}</div></td>
+      </tr>
+    `;
+  }).join('');
+  document.getElementById('case-count').textContent = `Showing ${filteredCases.length} of ${CASES.length} cases`;
+}
+
+function sortCases(key) {
+  if (caseSortKey === key) caseSortDir *= -1;
+  else { caseSortKey = key; caseSortDir = -1; }
+  applyAndRenderCases();
+}
+
+
+
+
+// ============================================================
+// CPT / GFE PRICE LOOKUP DATA (CMS 2026 PFS Oct. Release)
+// Format: code -> [description, medicare_national_rate]
+// ============================================================
+const CPT_RATES={"29830":["Elbow arthroscopy",437.76],"72072":["X-ray exam thorac spine 3vws",38.62],"G0101":["Ca screen;pelvic/breast exam",39.62],"77086":["Vrt fracture assmt via dxa",34.62],"77790":["Radiation handling",18.64],"27696":["Repair of ankle ligaments",508.67],"27337":["Exc thigh/knee les sc 3 cm/>",406.8],"73110":["X-ray exam of wrist",42.61],"28008":["Incision of foot fascia",420.79],"88188":["Flowcytometry/read 9-15",58.26],"73221":["Mri joint upr extrem w/o dye",204.4],"75774":["Artery x-ray each vessel",94.88],"99477":["Init day hosp neonate care",294.28],"11602":["Exc tr-ext mal+marg 1.1-2 cm",239.69],"27457":["Realignment of knee",877.19],"70030":["X-ray eye for foreign body",32.62],"72198":["Mr angio pelvis w/o & w/dye",334.9],"71260":["Ct thorax dx c+",166.12],"27487":["Revise/replace knee joint",1569.29],"99470":["Rpm tx mgmt 1st 10 min",25.97],"27027":["Dcmprn fasct pel compartment",806.95],"G0397":["Alcohol/subs interv >30 min",67.25],"27840":["Treat ankle dislocation",451.41],"99496":["Transj care mgmt high f2f 7d",297.61],"77768":["Hdr rdncl skn surf brachytx",367.85],"29550":["Strapping of toes",19.31],"27500":["Treatment of thigh fracture",572.59],"77412":["Radiation tx delivery lvl 3",442.09],"75705":["Artery x-rays spine",289.96],"28615":["Repair foot dislocation",790.64],"28264":["Release of midfoot joint",956.42],"G0283":["Elec stim other than wound",12.65],"G0666":["TEAM Remote E/M est. pt 15mins",94.88],"11620":["Exc h-f-nk-sp mal+marg 0.5/<",198.08],"75870":["Vein x-ray skull",183.43],"G0444":["Depression screen annual",18.64],"99462":["Sbsq nb em per day hosp",35.29],"70320":["Full mouth x-ray of teeth",56.59],"28737":["Revision of foot bones",629.85],"27045":["Exc hip/pelv tum deep 5 cm/>",689.44],"11606":["Exc tr-ext mal+marg >4 cm",462.07],"27036":["Capsulectomy/capsulotomy hip",939.78],"11901":["Inject skin lesions >7",68.58],"75716":["Artery x-rays arms/legs",162.12],"27360":["Partial removal leg bone(s)",853.89],"G0276":["Pild/placebo control clin tr",357.53],"99215":["Office o/p est hi 40 min",191.75],"27170":["Repair/graft femur head/neck",1061.62],"73721":["Mri jnt of lwr extre w/o dye",203.73],"27267":["Cltx thigh fx",429.77],"88302":["Tissue exam by pathologist",32.29],"11312":["Shave skin lesion 1.1-2.0 cm",150.14],"73720":["Mri lwr extremity w/o&w/dye",333.9],"88120":["Cytp urne 3-5 probes ea spec",540.3],"99309":["Sbsq nf care moderate mdm 30",114.18],"13121":["Cmplx rpr s/a/l 2.6-7.5 cm",416.46],"71100":["X-ray exam ribs uni 2 views",35.95],"27335":["Remove knee joint lining",716.73],"10061":["I&d abscess comp/multiple",219.38],"70010":["Contrast x-ray of brain",49.27],"29891":["Arthr ank ostchn df tal&/tib",631.84],"27556":["Treat knee dislocation",795.96],"72070":["X-ray exam thorac spine 2vws",32.96],"88313":["Special stains group 2",80.56],"10006":["Fna bx w/us gdn ea addl",59.92],"27303":["Drainage of bone lesion",601.88],"88358":["Analysis tumor",129.83],"28576":["Treat foot dislocation",385.17],"70554":["Fmri brain by tech",376.51],"28107":["Remove/graft foot lesion",496.02],"27222":["Treat hip socket fracture",912.48],"77081":["Dxa bone density appendiculr",31.63],"73592":["X-ray exam of leg infant",30.63],"27846":["Treat ankle dislocation",672.79],"73092":["X-ray exam of arm infant",30.63],"74178":["Ct abd&plv wo cntr flwd cntr",336.89],"27730":["Repair of tibia epiphysis",559.27],"11008":["Rmv prstc mtrl/mesh abd wall",243.68],"11300":["Shave skin lesion 0.5 cm/<",96.21],"29730":["Windowing of cast",66.91],"74410":["Urography nfs drip&/bolus",144.15],"G0318":["Prolong home eval add 15m",33.96],"28660":["Treat toe dislocation",148.81],"99483":["Assmt & care pln pt cog imp",291.95],"G0413":["Pelvic ring fracture uni/bil",974.73],"77402":["Radiation tx delivery lvl 1",81.89],"99474":["Self-meas bp 2 readg bid 30d",18.31],"77333":["Radiation treatment aid(s)",137.15],"G0180":["Md certification hha patient",56.59],"27284":["Arthrodesis hip joint",1431.47],"72220":["X-ray exam sacrum tailbone",31.96],"27808":["Treatment of ankle fracture",381.17],"29345":["Application of long leg cast",148.47],"27091":["Removal of hip prosthesis",1432.47],"27250":["Treat hip dislocation",174.11],"72240":["Myelography neck spine",111.52],"76802":["Ob us < 14 wks addl fetus",60.25],"28675":["Repair of toe dislocation",585.9],"G0270":["Mnt subs tx for change dx",31.63],"77002":["Needle localization by xray",120.84],"99459":["Pelvic examination",17.31],"27709":["Osteotomy tibia & fibula",1047.64],"G0663":["TEAM Remote E/M new pt 45mins",176.77],"72132":["Ct lumbar spine w/dye",168.11],"29880":["Arthrs kne srg mnisectmy m&l",531.31],"27254":["Treat hip dislocation",1153.17],"29881":["Arthrs kne srg mnisectmy m/l",514.0],"11463":["Exc skn hdrdnt ing complex",572.26],"27692":["Revise additional leg tendon",89.22],"75825":["Vein x-ray trunk",113.19],"11740":["Evacuation subungual hmtma",57.26],"27228":["Treat hip fracture(s)",1680.15],"99234":["Hosp ip/obs sm dt sf/low 45",87.89],"27415":["Osteochondral knee allograft",1254.37],"29916":["Hip arthro w/labral repair",927.46],"76019":["Mr safety implt pos&/immoblj",152.8],"28092":["Removal of toe lesions",421.12],"74018":["Radex abdomen 1 view",29.63],"73220":["Mri uppr extremity w/o&w/dye",405.47],"99424":["Prin care mgmt phys 1st 30",87.22],"27458":["Osteot femur imed lngth dev",1725.75],"99347":["Home/res vst est sf mdm 20",45.94],"88185":["Flowcytometry/tc add-on",22.97],"28122":["Partial removal of foot bone",597.22],"27385":["Repair of thigh muscle",586.57],"G0296":["Visit to determ ldct elig",28.63],"88360":["Tumor immunohistochem/manual",119.84],"27506":["Treatment of thigh fracture",1219.08],"29822":["Sho arthrs srg lmtd dbrdmt",514.33],"27570":["Fixation of knee joint",149.47],"G0540":["Train for caregiver add 15",25.97],"28555":["Repair foot dislocation",881.19],"27244":["Treat thigh fracture",1117.55],"88332":["Path consltj surg ea add blk",53.26],"88160":["Cytopath smear other source",81.23],"99391":["Per pm reeval est pat infant",102.2],"27824":["Treat lower leg fracture",355.54],"27745":["Reinforce tibia",676.45],"11426":["Exc h-f-nk-sp b9+marg >4 cm",338.89],"27558":["Treat knee dislocation",1063.95],"G0545":["Inherent visit to inpt",48.27],"28715":["Arthrodesis triple",880.85],"G0423":["Intens cardiac rehab no exer",131.16],"11441":["Exc face-mm b9+marg 0.6-1 cm",173.11],"70310":["X-ray exam of teeth",42.61],"27715":["Ostpl tibfib lngth/shrt",1357.57],"27409":["Repair of knee ligaments",893.17],"99487":["Cplx chrnc care 1st 60 min",143.81],"99204":["Office o/p new mod 45 min",176.77],"11043":["Dbrdmt musc&/fsca 1st 20/<",238.69],"11201":["Rmvl skin tags ea addl 10",18.31],"29040":["Appl bdy cst sho to hip head",338.23],"29075":["Appl cst elbw fngr short arm",97.21],"27620":["Explore/treat ankle joint",434.1],"74263":["Ct colonography screening",832.25],"G0109":["Diab manage trn ind/group",15.98],"28570":["Treat foot dislocation",266.32],"77262":["Ther radiology tx plng intrm",106.86],"11057":["Parng/cutg b9 hyprkr les >4",88.55],"72295":["X-ray of lower spine disk",121.84],"27780":["Treatment of fibula fracture",352.21],"27394":["Lengthening of thigh tendons",617.2],"12034":["Intmd rpr s/tr/ext 7.6-12.5",333.57],"77046":["Mri breast c- unilateral",212.39],"G0509":["Crit care telehea consult 50",175.77],"28297":["Cor hlx vlgs jt arthrd",1027.33],"11403":["Exc tr-ext b9+marg 2.1-3cm",199.07],"28360":["Reconstruct cleft foot",1021.67],"29405":["Appl short leg cast",87.55],"99387":["Init pm e/m new pat 65+ yrs",168.11],"27598":["Amputate lower leg at knee",643.16],"G0024":["Pin srv add 30 min pr m",54.26],"G0140":["Nav srv peer sup 60 min pr m",88.88],"28090":["Removal of foot lesion",467.72],"29847":["Wrist arthroscopy/surgery",515.33],"29843":["Wrist arthroscopy/surgery",468.06],"G0248":["Demonstrate use home inr mon",105.2],"27047":["Exc hip/pelvis les sc < 3 cm",532.97],"27605":["Incision of achilles tendon",335.9],"29915":["Hip arthro acetabuloplasty",929.12],"73020":["X-ray exam of shoulder",21.64],"74290":["Contrast x-ray gallbladder",80.89],"27516":["Treat thigh fx growth plate",571.26],"28725":["Arthrodesis subtalar",726.72],"70380":["X-ray exam of salivary gland",36.62],"99445":["Rem mntr physiol param 2-15",51.93],"11730":["Avulsion nail plate simple 1",111.19],"G0556":["Adv prim care mgmt lvl 1",16.31],"99454":["Rem mntr physiol param 16-30",51.93],"27645":["Resect tibia tumor",1583.94],"G0539":["Initial care training 30 m",52.93],"99386":["Prev visit new age 40-64",155.13],"G0571":["Intraop nerve cryoablation",65.25],"85060":["Blood smear interpretation",18.98],"28193":["Removal of foot foreign body",509.34],"76800":["Us exam spinal canal",189.75],"11762":["Reconstruction of nail bed",293.28],"G0407":["Inpt/tele follow up 25",63.58],"G0138":["Iv cipaglucosidase alfa-atga",195.75],"13122":["Cmplx rpr s/a/l addl 5 cm/>",127.83],"99451":["Ntrprof ph1/ntrnet/ehr 5/>",35.29],"28510":["Treatment of toe fracture",130.5],"99284":["Emergency dept visit mod mdm",117.85],"28291":["Corrj halux rigdus w/implt",668.13],"99231":["Sbsq hosp ip/obs sf/low 25",43.94],"75565":["Card mri veloc flow mapping",45.27],"G0146":["Nav srv peer sup add 30 pr m",53.26],"70100":["X-ray exam of jaw <4views",40.28],"11104":["Punch bx skin single lesion",120.84],"10040":["Extraction",112.85],"80505":["Path clin consltj high 41-60",93.88],"G0560":["Safety plan interven",42.28],"99285":["Emergency dept visit hi mdm",170.78],"29130":["Appl finger splint static",45.94],"76936":["Echo guide for artery repair",263.99],"28260":["Release of midfoot joint",755.68],"29584":["Appl mltlay cmprn sys up arm",74.24],"12055":["Intmd rpr face/mm 12.6-20 cm",543.96],"G0537":["Risk ascvd tst once pr 12 mo",19.97],"75557":["Cardiac mri for morph",278.64],"G0342":["Laparoscopy islet cell trans",716.07],"27025":["Fasciotomy hip/thigh any typ",876.19],"29845":["Wrist arthroscopy/surgery",544.96],"27430":["Revision of thigh muscles",696.76],"28050":["Biopsy of foot joint lining",405.81],"27158":["Revision of pelvis",1263.36],"29879":["Arthrs kne srg abrasj arthrp",621.19],"27420":["Revision of unstable kneecap",702.75],"28446":["Opn osteochondrl agrft talus",1121.87],"27641":["Partial removal of fibula",607.88],"72196":["Mri pelvis w/dye",267.32],"76513":["Oph us dx ant sgm us uni/bi",76.23],"70240":["X-ray exam pituitary saddle",31.96],"75880":["Vein x-ray eye socket",104.86],"88363":["Xm archive tissue molec anal",22.64],"27603":["Drain lower leg lesion",542.96],"G0085":["Care man h v ext pt 75 m",216.38],"76705":["Echo exam of abdomen",85.89],"G0404":["Ekg tracing for initial prev",6.99],"29515":["Application short leg splint",82.23],"77615":["Hyperthermia ntrstl prb>5",1058.62],"27200":["Treat tail bone fracture",212.39],"99439":["Chrnc care mgmt staf ea addl",50.27],"70549":["Mr angiograph neck w/o&w/dye",342.22],"74420":["Urography rtrgr +-kub",80.89],"27440":["Revision of knee joint",743.37],"76120":["Cine/video x-rays",113.19],"G0445":["High inten beh couns std 30m",34.29],"77438":["Surf rad thr orthvlt>150-500",110.19],"76805":["Ob us >/= 14 wks sngl fetus",135.49],"27538":["Treat knee fracture(s)",536.97],"27654":["Repair of achilles tendon",673.79],"70220":["X-ray exam of sinuses",37.62],"29440":["Adding walker to prev cast",43.94],"12011":["Rpr f/e/e/n/l/m 2.5 cm/<",139.15],"29851":["Knee arthroscopy/surgery",858.88],"99341":["Home/res vst new sf mdm 15",48.94],"88305":["Tissue exam by pathologist",69.91],"72114":["X-ray exam l-s spine bending",61.59],"71045":["X-ray exam chest 1 view",25.3],"28666":["Treat toe dislocation",163.45],"99392":["Prev visit est age 1-4",108.53],"99403":["Prev med cnsl indiv apprx 45",87.89],"27095":["Injection for hip x-ray",324.58],"12006":["Rpr s/n/a/gen/trk20.1-30.0cm",239.36],"99238":["Hosp ip/obs dschrg mgmt 30/<",74.57],"27607":["Treat lower leg bone lesion",565.26],"27198":["Clsd tx pelvic ring fx",283.3],"G0086":["Care man home care plan 30 m",73.57],"G0427":["Inpt/ed teleconsult70",167.78],"75898":["Follow-up angiography",271.98],"27278":["Arthrd si jt plmt iartic dev",13709.15],"G0281":["Elec stim unattend for press",11.65],"88377":["M/phmtrc alys ishquant/semiq",382.83],"27615":["Resect leg/ankle tum < 5 cm",939.78],"27310":["Exploration of knee joint",686.77],"75833":["Vein x-ray kidneys",156.13],"29836":["Elbow arthroscopy/surgery",546.29],"88333":["Path consltj surg cyto xm 1",87.89],"27441":["Revision of knee joint",766.0],"73218":["Mri upper extremity w/o dye",302.27],"99493":["Sbsq psyc collab care mgmt",144.48],"27557":["Treat knee dislocation",940.11],"70300":["X-ray exam of teeth",14.31],"28292":["Cor hlx vlgs rsc prx phlx bs",700.75],"99214":["Office o/p est mod 30 min",135.16],"G0473":["Group behave couns 2-10",12.65],"28636":["Treat toe dislocation",386.83],"74150":["Ct abdomen w/o contrast",135.82],"88184":["Flowcytometry/ tc 1 marker",80.89],"27823":["Treatment of ankle fracture",920.14],"73718":["Mri lower extremity w/o dye",221.71],"29866":["Autgrft implnt knee w/scope",976.06],"29883":["Arthrs kne srg mnisc rpr m&l",783.31],"27076":["Resect hip tum incl acetabul",2225.44],"70487":["Ct maxillofacial w/dye",151.14],"27161":["Incision of neck of femur",1111.89],"76519":["Echo exam of eye",69.24],"29899":["Ankle arthroscopy/surgery",918.14],"77293":["Respirator motion mgmt simul",400.48],"76813":["Ob us nuchal meas 1 gest",115.18],"77770":["Hdr rdncl ntrstl/icav brchtx",348.21],"12047":["Intmd rpr n-hf/genit >30.0cm",608.21],"70390":["X-ray exam of salivary duct",110.19],"10081":["I&d pilonidal cyst comp",378.84],"86079":["Phys blood bank serv authrj",50.93],"28322":["Repair of metatarsals",811.28],"70328":["X-ray exam of jaw joint",33.96],"99452":["Ntrprof ph1/ntrnet/ehr rfrl",36.95],"28070":["Removal of foot joint lining",516.66],"27111":["Transfer of iliopsoas muscle",837.91],"28234":["Incision of foot tendon",410.47],"28011":["Incision of toe tendons",319.58],"28106":["Remove/graft foot lesion",395.49],"88311":["Decalcify tissue",19.64],"27256":["Treat hip dislocation",402.48],"28730":["Fusion of foot bones",676.12],"72255":["Myelography thoracic spine",103.86],"99394":["Prev visit est age 12-17",118.85],"G0402":["Initial preventive exam",174.11],"99449":["Ntrprof ph1/ntrnet/ehr 31/>",75.9],"77373":["Strtctc bdy rad ther tx dlvr",975.4],"70482":["Ct orbit/ear/fossa w/o&w/dye",208.4],"99407":["Behav chng smoking > 10 min",28.96],"76948":["Echo guide ova aspiration",81.89],"28262":["Revision of foot and ankle",1475.41],"27707":["Osteotomy fibula",391.16],"28307":["Incision of metatarsal",841.9],"70336":["Magnetic image jaw joint",258.33],"29863":["Hip arthr0 w/synovectomy",754.68],"27390":["Incision of thigh tendon",419.45],"70496":["Ct angiography head",272.98],"27340":["Removal of kneecap bursa",368.52],"27347":["Remove knee cyst",506.34],"76511":["Oph us dx quan a-scan only",57.26],"73202":["Ct uppr extremity w/o&w/dye",245.35],"99212":["Office o/p est sf 10 min",59.26],"75989":["Abscess drainage under x-ray",112.19],"27884":["Amputation follow-up surgery",545.96],"73564":["X-ray exam knee 4 or more",49.27],"G0023":["Pin service 60m per month",86.89],"99491":["Chrnc care mgmt phys 1st 30",88.88],"28052":["Biopsy of foot joint lining",379.84],"27100":["Transfer of abdominal muscle",775.66],"88344":["Imhchem/imcytchm ea mlt antb",172.78],"77300":["Radiation therapy dose plan",66.91],"99213":["Office o/p est low 20 min",94.88],"77001":["Fluoroguide for vein device",98.21],"74485":["Dilation urtr/urt rs&i",123.17],"72159":["Mr angio spine w/o&w/dye",336.23],"28750":["Fusion of big toe joint",1036.65],"71130":["X-ray strenoclavic jt 3/>vws",41.28],"70492":["Ct sft tsue nck w/o & w/dye",219.05],"77318":["Brachytx isodose complex",461.4],"27238":["Treat thigh fracture",456.07],"27825":["Treat lower leg fracture",602.22],"29126":["Appl short arm splint dyn",85.22],"G0557":["Adv prim care mgmt lvl 2",53.6],"11200":["Rmvl skin tags up to&inc 15",91.88],"72082":["X-ray exam entire spi 2/3 vw",71.57],"99348":["Home/res vst est low mdm 30",78.56],"99425":["Prin care mgmt phys ea addl",61.25],"71271":["Ct thorax lung cancer scr c-",135.82],"G0182":["Hospice care supervision",108.19],"73030":["X-ray exam of shoulder",35.62],"27305":["Incise thigh tendon & fascia",462.73],"G0664":["TEAM Remote E/M new pt 60mins",236.03],"27054":["Removal of hip joint lining",649.15],"27893":["Decompression of leg",585.57],"28320":["Repair of foot bones",575.92],"28665":["Treat toe dislocation",154.47],"72126":["Ct neck spine w/dye",167.78],"72130":["Ct chest spine w/o & w/dye",197.41],"75831":["Vein x-ray kidney",118.51],"73080":["X-ray exam of elbow",32.96],"11971":["Rmvl tis xpndr wo insj implt",514.0],"27067":["Remove/graft hip bone lesion",954.09],"28270":["Release of foot contracture",487.03],"28119":["Removal of heel spur",528.65],"11952":["Subq njx fil matrl 5.1-10cc",156.13],"11719":["Trim nail(s) any number",14.31],"27450":["Incision of thigh",925.46],"99235":["Hosp ip/obs same date mod 70",142.48],"76510":["Oph us dx b-scan&quan a-scan",68.58],"74280":["X-ray xm colon 2cntrst std",210.73],"28230":["Incision of foot tendon(s)",429.11],"28445":["Optx talus fracture",973.07],"29700":["Rmvl/bivlv gauntlet boot/cst",68.91],"29838":["Elbow arthroscopy/surgery",556.61],"73565":["X-ray exam of knees",41.95],"29820":["Sho arthrs srg prtl synvct",500.02],"27648":["Injection for ankle x-ray",206.07],"99345":["Home/res vst new high mdm 75",209.39],"27096":["Inject sacroiliac joint",175.11],"88361":["Tumor immunohistochem/comput",114.18],"71555":["Mri angio chest w or w/o dye",333.23],"27496":["Decompression of thigh/knee",529.31],"28300":["Incision of heel bone",609.21],"27134":["Revise hip joint replacement",1689.8],"99308":["Sbsq nf care low mdm 20",78.56],"70350":["X-ray head for orthodontia",18.31],"27792":["Treatment of ankle fracture",605.88],"27435":["Incision of knee joint",758.01],"73600":["X-ray exam of ankle",32.29],"76641":["Ultrasound breast complete",99.87],"13132":["Cmplx rpr f/c/c/m/n/ax/g/h/f",460.73],"70488":["Ct maxillofacial w/o & w/dye",183.43],"11976":["Remove contraceptive capsule",146.14],"G0323":["Care manage beh svs 20mins",57.59],"74712":["Mri fetal sngl/1st gestation",404.81],"29804":["Jaw arthroscopy/surgery",539.96],"73660":["X-ray exam of toe(s)",28.63],"28810":["Amputation toe & metatarsal",395.49],"27403":["Repair of knee cartilage",608.54],"76512":["Oph us dx b-scan",48.6],"28200":["Repair of foot tendon",502.68],"27333":["Removal of knee cartilage",562.6],"85396":["Clotting assay whole blood",15.65],"77772":["Hdr rdncl ntrstl/icav brchtx",911.81],"99411":["Preventive counseling group",20.31],"99316":["Nf dschrg mgmt 30 min+",137.82],"76830":["Transvaginal us non-ob",117.18],"76098":["X-ray exam surgical specimen",42.94],"99222":["1st hosp ip/obs moderate 55",116.52],"28645":["Repair toe dislocation",664.14],"11642":["Exc f/e/e/n/l mal+mrg 1.1-2",265.99],"88331":["Path consltj surg 1 blk 1spc",96.87],"77439":["Surf rad thr img gdn us plmt",15.98],"27395":["Lengthening of thigh tendons",819.6],"99382":["Init pm e/m new pat 1-4 yrs",118.18],"27618":["Exc leg/ankle tum < 3 cm",516.66],"28302":["Incision of ankle bone",671.79],"86580":["Tb intradermal test",10.99],"12041":["Intmd rpr n-hf/genit 2.5cm/<",261.99],"72129":["Ct chest spine w/dye",168.78],"11440":["Exc face-mm b9+marg 0.5 cm/<",141.48],"27447":["Total knee arthroplasty",1155.5],"28755":["Fusion of big toe joint",915.14],"88314":["Histochemical stains add-on",81.56],"G0550":["Phone/inter for dx/treat >5m",34.95],"73610":["X-ray exam of ankle",36.95],"27704":["Removal of ankle implant",527.65],"75889":["Vein x-ray liver w/hemodynam",121.84],"G0548":["Phone/inter svs 21-30 m",56.59],"76377":["3d render w/intrp postproces",78.56],"29105":["Application long arm splint",96.87],"11765":["Wedge excision skn nail fold",162.46],"27369":["Njx cntrst kne arthg/ct/mri",181.1],"12054":["Intmd rpr face/mm 7.6-12.5cm",390.16],"28280":["Fusion of toes",496.35],"70473":["Ct cere prfu aly c+wo ct/cta",240.35],"G0559":["Unrelat prac follow up visit",9.65],"11421":["Exc h-f-nk-sp b9+marg 0.6-1",158.79],"99498":["Advncd care plan addl 30 min",77.9],"11644":["Exc f/e/e/n/l mal+mrg 3.1-4",391.49],"27788":["Treatment of ankle fracture",497.02],"76391":["Mr elastography",196.74],"28225":["Release of foot tendon",409.13],"76831":["Echo exam uterus",116.85],"99457":["Rpm tx mgmt 1st 20 min",51.6],"12044":["Intmd rpr n-hf/genit7.6-12.5",386.83],"11302":["Shave skin lesion 1.1-2.0 cm",131.16],"70355":["Panoramic x-ray of jaws",19.31],"71250":["Ct thorax dx c-",132.16],"99307":["Sbsq nf care sf mdm 10",41.95],"27246":["Treat thigh fracture",426.44],"28455":["Tx tarsal b1 fx w/mnpj each",259.33],"27810":["Treatment of ankle fracture",560.27],"29520":["Strapping of hip",34.62],"29877":["Arthrs knee surg dbrdmt/shvg",584.91],"88291":["Cyto/molecular report",32.96],"27226":["Treat hip wall fracture",964.08],"27245":["Treat thigh fracture",1114.55],"27580":["Fusion of knee",1350.24],"G0455":["Fecal microbiota prep instil",145.81],"12017":["Rpr fe/e/en/l/m 20.1-30.0 cm",153.8],"27380":["Repair of kneecap tendon",595.89],"G0662":["TEAM Remote E/M new pt 30mins",117.18],"76604":["Us exam chest",60.92],"27412":["Autochondrocyte implant knee",1489.73],"G0396":["Alcohol/subs interv 15-30mn",36.95],"27355":["Remove femur lesion",575.58],"11005":["Dbrdmt skin abdominal wall",690.43],"11451":["Exc skn hdrdnt ax complex",572.26],"72127":["Ct neck spine w/o & w/dye",195.41],"73552":["X-ray exam of femur 2/>",35.62],"27151":["Incision of hip bones",1423.81],"99344":["Home/res vst new mod mdm 60",146.14],"11401":["Exc tr-ext b9+marg 0.6-1 cm",154.47],"G0549":["Phone/inter for treat>31m",76.23],"12053":["Intmd rpr face/mm 5.1-7.5 cm",359.86],"G0078":["Care manag h vst new pt 45 m",119.84],"27892":["Decompression of leg",516.33],"72285":["Discography cerv/thor spine",144.48],"73630":["X-ray exam of foot",33.96],"74175":["Cta abdomen w/contrast",303.27],"71120":["X-ray exam breastbone 2/>vws",32.96],"70486":["Ct maxillofacial w/o dye",127.83],"77437":["Surf radj ther supfc<=150kv",109.19],"76145":["Med physic dos eval rad exps",1035.65],"73040":["Contrast x-ray of shoulder",134.16],"70120":["X-ray exam of mastoids",38.62],"75894":["X-rays transcath therapy",315.59],"73115":["Contrast x-ray of wrist",132.83],"77306":["Telethx isodose plan simple",149.81],"73700":["Ct lower extremity w/o dye",129.83],"27503":["Treatment of thigh fracture",748.03],"11604":["Exc tr-ext mal+marg 3.1-4 cm",309.93],"99461":["Init nb em per day non-fac",93.54],"27372":["Removal of foreign body",636.84],"27220":["Treat hip socket fracture",449.41],"28116":["Revision of foot",668.8],"G0084":["Care man h v ext pt 60 m",181.76],"27517":["Treat thigh fx growth plate",651.49],"76529":["Echo exam of eye",86.89],"29848":["Wrist endoscopy/surgery",484.04],"27137":["Revise hip joint replacement",1313.29],"28150":["Removal of toe",412.8],"G0077":["Care manag h vst new pt 30 m",74.24],"27600":["Decompression of lower leg",374.51],"28476":["Prq skel fix metar fx w/mnpj",386.5],"27724":["Repair/graft of tibia",1130.86],"27078":["Rsect hip tum incl femur",1827.62],"27752":["Treatment of tibia fracture",606.21],"72191":["Ct angiograph pelv w/o&w/dye",302.94],"76816":["Ob us follow-up per fetus",110.86],"76376":["3d render w/intrp postproces",25.3],"G0443":["Brief alcohol misuse counsel",34.29],"73070":["X-ray exam of elbow",29.3],"27290":["Amputation of leg at hip",1461.76],"G0451":["Devlopment test interpt&rep",12.32],"88141":["Cytopath c/v interpret",23.97],"27125":["Partial hip replacement",1032.32],"27120":["Reconstruction of hip socket",1178.8],"76380":["Cat scan follow-up study",131.83],"27612":["Exploration of ankle joint",539.63],"27454":["Realignment of thigh bone",1177.47],"G0558":["Adv prim care mgmt lvl 3",116.85],"75860":["Vein x-ray neck",129.17],"27138":["Revise hip joint replacement",1362.56],"76983":["Use ea addl target lesion",60.59],"70330":["X-ray exam of jaw joints",53.26],"88369":["M/phmtrc alysishquant/semiq",128.5],"G0408":["Inpt/tele follow up 35",93.21],"71550":["Mri chest w/o dye",331.9],"27416":["Osteochondral knee autograft",899.5],"72202":["X-ray exam si joints 3/> vws",38.62],"27691":["Revise lower leg tendon",700.09],"74261":["Ct colonography dx",407.8],"72020":["X-ray exam of spine 1 view",23.64],"28202":["Repair/graft of foot tendon",606.54],"74174":["Cta abd&plvs w/contrast",377.18],"76801":["Ob us < 14 wks single fetus",116.52],"77778":["Apply interstit radiat compl",929.79],"27659":["Repair of leg tendon each",445.09],"10004":["Fna bx w/o img gdn ea addl",52.93],"G0247":["Routine footcare pt w lops",80.56],"12032":["Intmd rpr s/a/t/ext 2.6-7.5",298.94],"11308":["Shave skin lesion >2.0 cm",140.15],"27400":["Revise thigh muscles/tendons",656.81],"11402":["Exc tr-ext b9+marg 1.1-2 cm",170.44],"28160":["Partial removal of toe",405.47],"77470":["Special radiation treatment",144.48],"71110":["X-ray exam ribs bil 3 views",42.61],"74283":["Ther nma rdctj intus/obstrcj",279.3],"27197":["Clsd tx pelvic ring fx",123.17],"76818":["Fetal biophys profile w/nst",121.51],"29897":["Ankle arthroscopy/surgery",463.4],"29855":["Tibial arthroscopy/surgery",727.39],"27080":["Removal of tail bone",499.02],"76965":["Echo guidance radiotherapy",96.21],"27756":["Treatment of tibia fracture",562.6],"70546":["Mr angiograph head w/o&w/dye",326.57],"76819":["Fetal biophys profil w/o nst",87.55],"99472":["Ped critical care subsq",350.54],"G0546":["Phone/internet ehr assess",18.98],"99447":["Ntrprof ph1/ntrnet/ehr 11-20",37.95],"27727":["Repair of lower leg",954.76],"71048":["X-ray exam chest 4+ views",44.94],"27001":["Tenotomy adductor hip open",512.33],"99349":["Home/res vst est mod mdm 40",131.83],"75726":["Artery x-rays abdomen",167.12],"11422":["Exc h-f-nk-sp b9+marg 1.1-2",179.1],"75563":["Card mri w/stress img & dye",428.44],"72084":["X-ray exam entire spi 6/> vw",98.21],"28635":["Treat toe dislocation",174.11],"27510":["Treatment of thigh fracture",670.46],"27407":["Repair of knee ligament",745.7],"27442":["Revision of knee joint",802.29],"99468":["Neonate crit care initial",775.99],"27722":["Repair/graft of tibia",830.59],"27652":["Repair/graft achilles tendon",614.53],"70140":["X-ray exam of facial bones",31.63],"G0245":["Initial foot exam pt lops",65.25],"71046":["X-ray exam chest 2 views",32.96],"11623":["Exc s/n/h/f/g mal+mrg 2.1-3",294.28],"G0079":["Care manag h vst new pt 60 m",163.12],"76814":["Ob us nuchal meas add-on",74.57],"76700":["Us exam abdom complete",113.85],"27720":["Repair of tibia",808.61],"28400":["Cltx calcaneal fx w/o mnpj",270.31],"28525":["Treat toe fracture",571.59],"74183":["Mri abd w/o cntr flwd cntr",334.9],"28060":["Partial removal foot fascia",523.32],"27508":["Treatment of thigh fracture",579.58],"27530":["Treat knee fracture",347.88],"G0660":["TEAM Remote E/M new pt 10mins",74.9],"28192":["Removal of foot foreign body",455.41],"70200":["X-ray exam of eye sockets",46.61],"11750":["Excision nail&nail matrix",157.13],"11301":["Shave skin lesion 0.6-1.0 cm",115.85],"27769":["Optx post ankle fx",673.46],"G0136":["Adm of pa/n assess 5-15 m",19.97],"88364":["Insitu hybridization (fish)",126.17],"70134":["X-ray exam of middle ear",60.92],"99310":["Sbsq nf care high mdm 45",162.79],"99489":["Cplx chrnc care ea addl 30",77.9],"75822":["Vein x-ray arms/legs",132.83],"99304":["1st nf care sf/low mdm 25",80.89],"77047":["Mri breast c- bilateral",215.72],"27632":["Exc leg/ankle les sc 3 cm/>",391.82],"28024":["Exploration of toe joint",471.72],"12031":["Intmd rpr s/a/t/ext 2.5 cm/<",259.0],"77063":["Breast tomosynthesis bi",50.93],"G0019":["Comm hlth intg svs sdoh 60mn",85.89],"27829":["Treat lower leg joint",670.79],"27334":["Remove knee joint lining",647.82],"77091":["Tbs techl calculation only",26.63],"76882":["Us lmtd jt/fcl evl nvasc xtr",63.92],"28289":["Corrj halux rigdus w/o implt",700.42],"27140":["Transplant femur ridge",827.59],"29846":["Wrist arthroscopy/surgery",486.37],"27050":["Biopsy of sacroiliac joint",398.48],"27156":["Revision of hip bones",1528.34],"27734":["Repair lower leg epiphyses",620.19],"72265":["Myelography l-s spine",109.86],"28890":["Hi enrgy eswt plantar fascia",302.94],"77067":["Scr mammo bi incl cad",125.84],"G0117":["Glaucoma scrn hgh risk direc",64.25],"73522":["X-ray exam hips bi 3-4 views",54.26],"99412":["Preventive counseling group",25.3],"99281":["Emr dpt vst mayx req phy/qhp",10.99],"27690":["Revise lower leg tendon",606.21],"74251":["X-ray xm sm int 2cntrst std",342.55],"28450":["Tx tarsal b1 fx w/o mnpj ea",230.7],"88312":["Special stains group 1",109.19],"11423":["Exc h-f-nk-sp b9+marg 2.1-3",208.06],"27740":["Repair of leg epiphyses",665.13],"11770":["Exc pilonidal cyst simple",388.83],"86078":["Phys blood bank serv reactj",51.27],"27477":["Surgery to stop leg growth",685.11],"11103":["Tangntl bx skin ea sep/addl",48.6],"G0022":["Comm hlth intg svs add 30 m",53.93],"75605":["Contrast exam thoracic aorta",120.51],"29875":["Arthrs knee surg synvct lmtd",472.72],"71552":["Mri chest w/o & w/dye",464.4],"99205":["Office o/p new hi 60 min",236.03],"G0544":["Post d/c phone follow up",66.58],"11970":["Rplcmt tiss xpndr perm implt",515.66],"88177":["Cytp fna eval ea addl",28.96],"27519":["Treat thigh fx growth plate",808.28],"99239":["Hosp ip/obs dschrg mgmt >30",106.2],"27147":["Revision of hip bone",1321.61],"27681":["Release of lower leg tendons",488.03],"27725":["Repair of lower leg",1119.88],"70480":["Ct orbit/ear/fossa w/o dye",157.79],"29904":["Subtalar arthro w/fb rmvl",600.22],"28308":["Incision of metatarsal",583.57],"70332":["X-ray exam of jaw joint",79.56],"76017":["Mr sfty med physics xm cstmz",221.05],"88329":["Path consltj drg surg",51.93],"86077":["Phys blood bank serv xmatch",51.27],"75887":["Vein x-ray liver w/o hemodyn",135.16],"G0420":["Ed svc ckd ind per session",113.19],"27350":["Removal of kneecap",618.2],"28575":["Treat foot dislocation",421.12],"77321":["Special teletx port plan",94.21],"G0341":["Percutaneous islet celltrans",1571.95],"75630":["X-ray aorta leg arteries",155.13],"70370":["Throat x-ray & fluoroscopy",99.87],"29085":["Appl cast hand&lwr forearm",106.53],"G0080":["Care manag h vst new pt 75 m",216.38],"71047":["X-ray exam chest 3 views",40.95],"27888":["Amputation of foot at ankle",531.31],"G0517":["Remove drug implant",197.74],"28005":["Treat foot bone lesion",532.97],"27640":["Partial removal of tibia",766.0],"70160":["X-ray exam of nasal bones",37.28],"76018":["Mr safety implant elec prepj",114.52],"70545":["Mr angiography head w/dye",225.71],"27269":["Optx thigh fx",1117.55],"11983":["Remove/insert drug implant",144.15],"G0081":["Care man h v ext pt 20 mi",49.27],"27364":["Resect thigh/knee tum 5 cm/>",1425.81],"28088":["Excise foot tendon sheath",480.04],"75984":["Xray control catheter change",93.54],"28490":["Treat big toe fracture",158.13],"99422":["Ol dig e/m svc 11-20 min",30.63],"27077":["Resect hip tum w/innom bone",2474.78],"29898":["Ankle arthroscopy/surgery",521.99],"11450":["Exc skn hdrdnt ax smpl/ntrm",459.73],"72141":["Mri neck spine w/o dye",190.09],"27329":["Resect thigh/knee tum < 5 cm",962.75],"76514":["Echo exam of eye thickness",11.65],"73090":["X-ray exam of forearm",28.96],"29365":["Appl cylinder cast",138.49],"29844":["Wrist arthroscopy/surgery",469.39],"88375":["Optical endomicroscpy interp",44.94],"27647":["Resect talus/calcaneus tum",904.16],"28086":["Excise foot tendon sheath",538.63],"11000":["Dbrdmt ecz/infected skin<10%",58.92],"11641":["Exc f/e/e/n/l mal+mrg 0.6-1",236.36],"28313":["Repair deformity of toe",543.96],"27332":["Removal of knee cartilage",612.87],"11470":["Exc skn h/p/p/u smpl/ntrm",499.68],"28039":["Exc foot/toe tum sc 1.5 cm/>",475.05],"85097":["Bone marrow interpretation",67.58],"G0426":["Inpt/ed teleconsult50",116.85],"G0409":["Corf related serv 15 mins ea",23.97],"76826":["Echo exam of fetal heart",157.79],"75736":["Artery x-rays pelvis",142.81],"11444":["Exc face-mm b9+marg 3.1-4 cm",287.29],"27590":["Amputate leg at thigh",718.73],"29914":["Hip arthro w/femoroplasty",912.15],"27535":["Treat knee fracture",812.61],"29530":["Strapping of knee",28.63],"76942":["Echo guide for biopsy",63.92],"27357":["Remove femur lesion/graft",764.01],"86510":["Histoplasmosis skin test",8.32],"11424":["Exc h-f-nk-sp b9+marg 3.1-4",243.02],"77620":["Hyperthermia gen intrcv prb",729.38],"27356":["Remove femur lesion/graft",694.43],"70190":["X-ray exam of eye sockets",36.62],"12057":["Intmd rpr face/mm >30.0 cm",646.49],"29840":["Wrist arthroscopy",439.76],"29805":["Sho arthrs dx +- synovial bx",447.42],"27397":["Transplants of thigh tendons",853.56],"76817":["Transvaginal us obstetric",92.55],"11311":["Shave skin lesion 0.6-1.0 cm",131.83],"27060":["Removal of ischial bursa",449.08],"99306":["1st nf care high mdm 50",192.42],"28309":["Incision of metatarsals",832.92],"27760":["Cltx medial ankle fx",375.18],"74021":["Radex abdomen 3+ views",41.95],"G0414":["Pelvic ring fx treat int fix",921.13],"75809":["Nonvascular shunt x-ray",84.89],"G0083":["Care man h v ext pt 45 m",128.17],"99473":["Self-meas bp pt educaj/train",15.31],"28485":["Optx metatarsal fx each",540.3],"28080":["Removal of foot lesion",545.62],"27236":["Treat thigh fracture",1086.25],"77427":["Radiation tx management x5",194.75],"29874":["Arthrs knee surg rmv loos/fb",504.34],"G0547":["Phone/internet svs 11-20 m",37.62],"27424":["Revision/removal of kneecap",701.75],"27766":["Optx medial ankle fx",577.91],"29200":["Strapping thorax",31.29],"11443":["Exc face-mm b9+marg 2.1-3 cm",229.37],"29871":["Arthrs knee surg for infctj",489.7],"28299":["Cor hlx vlgs double osteot",1032.99],"28306":["Incision of metatarsal",626.18],"73523":["X-ray exam hips bi 5/> views",61.25],"73120":["X-ray exam of hand",31.29],"11603":["Exc tr-ext mal+marg 2.1-3 cm",275.31],"99495":["Transj care mgmt mod f2f 14d",219.38],"28114":["Removal of metatarsal heads",1109.56],"73525":["Contrast x-ray of hip",132.83],"27540":["Treat knee fracture",760.01],"99350":["Home/res vst est high mdm 60",192.42],"G0128":["Corf skilled nursing service",10.99],"88112":["Cytopath cell enhance tech",65.25],"88365":["Insitu hybridization (fish)",168.45],"27606":["Incision of achilles tendon",254.0],"29000":["Appl halo type body cast",463.4],"75635":["Ct angio abdominal arteries",409.8],"77074":["Radex osseous survey lmtd",64.58],"73130":["X-ray exam of hand",37.95],"G0415":["Open tx post pelvic fxcture",1235.06],"76775":["Us exam abdo back wall lim",60.59],"27030":["Arthrotomy hip w/drainage",857.88],"73100":["X-ray exam of wrist",34.29],"70210":["X-ray exam of sinuses",32.29],"73206":["Ct angio upr extrm w/o&w/dye",294.62],"27832":["Treat lower leg dislocation",714.4],"99384":["Prev visit new age 12-17",138.15],"28054":["Biopsy of toe joint lining",356.54],"76886":["Us exam infant hips static",96.87],"76981":["Use parenchyma",112.19],"27391":["Incision of thigh tendons",549.95],"28108":["Removal of toe lesions",429.77],"29862":["Hip arthr0 w/debridement",757.35],"27650":["Repair achilles tendon",622.19],"76506":["Echo exam of head",108.53],"73501":["X-ray exam hip uni 1 view",33.62],"28110":["Part removal of metatarsal",465.73],"27345":["Removal of knee cyst",466.73],"77280":["Ther rad simulaj field smpl",268.65],"75710":["Artery x-rays arm/leg",148.81],"29884":["Arthrs knee surg lysis ads",584.24],"73701":["Ct lower extremity w/dye",165.45],"27495":["Reinforce thigh",1032.32],"27703":["Reconstruction ankle joint",1014.35],"27830":["Treat lower leg dislocation",433.77],"27043":["Exc hip pelvis les sc 3 cm/>",452.41],"11006":["Dbrdmt skin xtrnl gent per",621.86],"76937":["Us guide vascular access",40.28],"72190":["X-ray exam of pelvis",43.28],"G0012":["Injection of hiv prep drug",15.31],"74185":["Mra abd w or w/o cntrst",334.56],"G0542":["No pt prsnt train add 15",25.97],"77763":["Apply intrcav radiat compl",789.31],"28035":["Decompression of tibia nerve",543.63],"28286":["Repair of hammertoe",428.78],"77090":["Tbs techl prep&transmis data",3.0],"G0667":["TEAM Remote E/M est. pt 25mins",135.16],"28546":["Treat foot dislocation",635.51],"G0337":["Hospice evaluation preelecti",70.57],"28001":["Drainage of bursa of foot",166.78],"27635":["Remove lower leg bone lesion",543.96],"27680":["Release of lower leg tendon",407.14],"77073":["Bone length studies",46.27],"29058":["Appl cast plaster velpeau",137.82],"29889":["Arthrs aid pcl rpr/agmntj",1128.53],"76010":["X-ray nose to rectum",28.63],"13100":["Cmplx rpr trunk 1.1-2.5 cm",336.89],"29305":["Appl hip spica cast 1 leg",283.63],"99437":["Chrnc care mgmt phys ea addl",62.92],"27479":["Surgery to stop leg growth",846.56],"27232":["Treat thigh fracture",694.43],"29827":["Sho arthrs srg rt8tr cuf rpr",973.07],"99494":["1st/sbsq psyc collab care",61.25],"11404":["Exc tr-ext b9+marg 3.1-4 cm",230.37],"27422":["Revision of unstable kneecap",696.43],"27658":["Repair of leg tendon each",355.87],"76872":["Us transrectal",119.84],"27514":["Treatment of thigh fracture",872.2],"76979":["Us trgt dyn mbubb ea addl",106.53],"99233":["Sbsq hosp ip/obs high 50",106.53],"99232":["Sbsq hosp ip/obs moderate 35",70.24],"29046":["Appl bdy cst sho to hip b th",362.86],"11462":["Exc skn hdrdnt ing smpl/ntrm",448.08],"27472":["Repair/graft of thigh",1152.17],"29895":["Ankle arthroscopy/surgery",432.1],"29893":["Endoscopic plantr fasciotomy",663.14],"28515":["Treatment of toe fracture",173.77],"74740":["X-ray female genital tract",89.88],"10036":["Plmt sft tiss loclzj dev ea",289.62],"75743":["Artery x-rays lungs",145.48],"74160":["Ct abdomen w/contrast",229.37],"27499":["Decompression of thigh/knee",661.47],"28020":["Exploration of foot joint",561.94],"76812":["Ob us detailed addl fetus",193.75],"75872":["Vein x-ray skull epidural",125.17],"12020":["Tx supfc wnd dehsn smpl clsr",315.59],"88334":["Path consltj surg cyto xm ea",53.6],"27448":["Incision of thigh",760.01],"G0250":["Md inr test revie inter mgmt",8.99],"72158":["Mri lumbar spine w/o & w/dye",317.25],"27470":["Repair of thigh",1081.59],"76815":["Ob us limited fetus(s)",81.23],"12037":["Intmd rpr s/tr/ext >30.0 cm",534.3],"99202":["Office o/p new sf 15 min",74.9],"88161":["Cytopath smear other source",82.56],"27475":["Surgery to stop leg growth",625.19],"74210":["X-ray xm phrnx&/crv esoph c+",90.88],"74248":["X-ray sm int f-thru std",79.23],"27181":["Treat slipped epiphysis",1028.99],"75600":["Contrast exam thoracic aorta",176.77],"27098":["Transfer tendon to pelvis",655.81],"76827":["Echo exam of fetal heart",69.58],"27052":["Biopsy of hip joint",554.61],"99409":["Audit/dast over 30 min",67.25],"27393":["Lengthening of thigh tendon",475.38],"74019":["Radex abdomen 2 views",35.95],"76978":["Us trgt dyn mbubb 1st les",170.78],"77338":["Design mlc device for imrt",473.38],"27328":["Exc thigh/knee tum deep <5cm",588.23],"74230":["X-ray xm swlng funcj c+",119.84],"75625":["Contrast exam abdominl aorta",124.84],"11624":["Exc s/n/h/f/g mal+mrg 3.1-4",338.23],"27392":["Incision of thigh tendons",671.46],"99282":["Emergency dept visit sf mdm",40.28],"27093":["Injection for hip x-ray",231.7],"27003":["Tnot adductr subq opn neurct",569.59],"27686":["Revise lower leg tendons",501.35],"70150":["X-ray exam of facial bones",46.61],"76883":["Us nrv&acc strux 1xtr compre",74.24],"G0412":["Open tx iliac spine uni/bil",666.8],"11046":["Dbrdmt musc&/fsca ea addl",76.23],"G0127":["Trim nail(s)",23.64],"28465":["Optx tarsal bone fx each",617.53],"27062":["Remove femur lesion/bursa",431.44],"74022":["Radex compl aqt abd series",49.27],"12045":["Intmd rpr n-hf/genit12.6-20",452.08],"99221":["1st hosp ip/obs sf/low 40",74.24],"86486":["Skin test unlisted antign ea",6.66],"75733":["Artery x-rays adrenals",174.44],"77372":["Srs linear based",930.79],"88187":["Flowcytometry/read 2-8",34.95],"27405":["Repair of knee ligament",635.17],"28047":["Resect foot/toe tumor 3 cm/>",954.09],"77054":["X-ray of mammary ducts",68.24],"72156":["Mri neck spine w/o & w/dye",316.92],"77263":["Ther radiology tx plng cplx",167.78],"27187":["Reinforce hip bones",916.81],"88304":["Tissue exam by pathologist",40.95],"27165":["Incision/fixation of femur",1255.37],"29065":["Appl cst sho to hand lng arm",107.86],"73223":["Mri joint upr extr w/o&w/dye",381.84],"74177":["Ct abd & pelvis w/contrast",299.28],"76820":["Umbilical artery echo",44.94],"28062":["Removal of foot fascia",585.24],"27279":["Arthrd si jt plmt tartclr dv",756.02],"27552":["Treat knee dislocation",604.21],"76881":["Us compl joint r-t w/img",53.6],"29885":["Arthrs kne srg drlg ost diss",710.08],"29750":["Wedging of clubfoot cast",117.51],"G0406":["Inpt/tele follow up 15",35.95],"28111":["Part removal of metatarsal",471.39],"27307":["Incision of thigh tendons",374.85],"11102":["Tangntl bx skin single les",95.21],"72083":["X-ray exam entire spi 4/5 vw",79.56],"72170":["X-ray exam of pelvis",27.96],"77336":["Radiation physics consult",91.88],"76810":["Ob us >/= 14 wks addl fetus",88.22],"27259":["Treat hip dislocation",1395.85],"76856":["Us exam pelvic complete",104.86],"11446":["Exc face-mm b9+marg >4 cm",397.15],"74181":["Mri abdomen w/o contrast",193.08],"99471":["Ped critical care initial",672.13],"70130":["X-ray exam of mastoids",60.92],"27687":["Revision of calf tendon",432.77],"99203":["Office o/p new low 30 min",117.18],"88189":["Flowcytometry/read 16 & >",78.9],"77432":["Stereotactic radiation trmt",422.78],"G0268":["Removal of impacted wax md",50.27],"72040":["X-ray exam neck spine 2-3 vw",39.62],"70543":["Mri orbt/fac/nck w/o &w/dye",335.9],"88323":["Consltj&reprt matrl prep sld",112.52],"99315":["Nf dschrg mgmt 30 min/less",85.56],"72081":["X-ray exam entire spi 1 vw",43.94],"G0108":["Diab manage trn  per indiv",55.59],"72131":["Ct lumbar spine w/o dye",129.5],"27591":["Amputate leg at thigh",886.18],"27488":["Removal of knee prosthesis",1096.24],"27275":["Manipulation of hip joint",178.1],"28072":["Removal of foot joint lining",500.68],"27443":["Revision of knee joint",759.34],"99467":["Ped crit care transport addl",100.87],"99383":["Prev visit new age 5-11",123.51],"76828":["Echo exam of fetal heart",49.27],"77301":["Radiotherapy dose plan imrt",1953.79],"27105":["Transfer of spinal muscle",809.95],"28435":["Cltx talus fracture w/mnpj",412.46],"29825":["Sho arthrs srg lss&rescj ads",551.62],"73722":["Mri joint of lwr extr w/dye",313.92],"76821":["Middle cerebral artery echo",89.88],"88374":["M/phmtrc alys ishquant/semiq",265.32],"13160":["Sec clsr surg wnd/dehsn xtn",738.37],"12004":["Rpr s/n/ax/gen/trk7.6-12.5cm",161.46],"77084":["Mri bone marrow blood supply",312.59],"75573":["Ct hrt c+ strux cgen hrt ds",308.27],"74220":["X-ray xm esophagus 1cntrst",93.88],"G0372":["Md service required for pmd",9.32],"72148":["Mri lumbar spine w/o dye",191.08],"73580":["Contrast x-ray of knee joint",116.85],"27286":["Arthrd hip jt sbtrchc osteot",1475.75],"G0121":["Colon ca scrn not hi rsk ind",377.18],"99360":["Physician standby services",51.27],"27630":["Removal of tendon lesion",565.26],"11980":["Implant hormone pellet(s)",96.21],"72120":["X-ray bend only l-s spine",41.95],"10080":["I&d pilonidal cyst simple",268.65],"27087":["Remove hip foreign body",594.56],"G0329":["Electromagntic tx for ulcers",10.65],"28470":["Cltx metatarsal fx wo mnp ea",236.36],"29819":["Sho arthrs srg rmvl loose/fb",548.29],"G0465":["Autolog prp diab wound ulcer",1059.95],"74170":["Ct abd wo cntrst flwd cntrst",258.0],"27396":["Transplant of thigh tendon",586.57],"28043":["Exc foot/toe tum sc < 1.5 cm",380.84],"27266":["Treat hip dislocation",555.94],"99402":["Prev med cnsl indiv apprx 30",64.58],"G0168":["Wound closure by adhesive",105.2],"77387":["Guidance for radj tx dlvr",36.29],"72100":["X-ray exam l-s spine 2/3 vws",40.28],"G0661":["TEAM Remote E/M new pt 20mins",74.9],"11471":["Exc skn h/p/p/u complex",583.57],"28232":["Incision of toe tendon",372.85],"28312":["Revision of toe",593.89],"28420":["Optx calcaneal fx w/bone grf",1204.77],"27619":["Exc leg/ankle tum deep <5 cm",434.77],"28825":["Partial amputation of toe",288.96],"27498":["Decompression of thigh/knee",622.86],"88356":["Analysis nerve",223.04],"27122":["Reconstruction of hip socket",1007.36],"76536":["Us exam of head and neck",108.19],"27324":["Biopsy thigh soft tissues",401.14],"27656":["Repair leg fascia defect",529.98],"G0246":["Followup eval of foot pt lop",38.62],"88319":["Enzyme histochemistry",131.5],"88108":["Cytopath concentrate tech",68.58],"77080":["Dxa bone density axial",39.28],"28112":["Part removal of metatarsal",480.37],"99484":["Care mgmt svc bhvl hlth cond",57.26],"27871":["Fusion of tibiofibular joint",644.83],"11643":["Exc f/e/e/n/l mal+mrg 2.1-3",314.92],"29900":["Mcp joint arthroscopy dx",492.36],"75574":["Ct angio hrt w/3d image",324.58],"99464":["Attendance at delivery",62.92],"10120":["Inc&rmvl fb subq tiss smpl",156.8],"27428":["Reconstruction knee",1036.98],"77334":["Radiation treatment aid(s)",125.84],"G0453":["Cont intraop neuro monitor",27.3],"88321":["Consltj&reprt sld prep elswr",93.54],"99401":["Prev med cnsl indiv apprx 15",39.62],"88362":["Nerve teasing preparations",217.72],"27818":["Treatment of ankle fracture",582.91],"28120":["Part removal of ankle/heel",684.44],"72133":["Ct lumbar spine w/o & w/dye",196.08],"77767":["Hdr rdncl skn surf brachytx",250.01],"72195":["Mri pelvis w/o dye",226.7],"73723":["Mri joint lwr extr w/o&w/dye",380.17],"28100":["Removal of ankle/heel lesion",643.16],"75731":["Artery x-rays adrenal gland",150.47],"73725":["Mr ang lwr ext w or w/o dye",335.9],"27327":["Exc thigh/knee les sc < 3 cm",537.63],"27880":["Amputation of lower leg",819.93],"29044":["Appl bdy cst sho to hip 1thi",332.9],"29581":["Appl multlayer cmprn sys leg",83.22],"11044":["Dbrdmt bone 1st 20 sq cm/<",319.58],"27033":["Arthrt hip expl/rmv loose/fb",890.51],"27822":["Treatment of ankle fracture",823.59],"77789":["Apply surf ldr radionuclide",132.49],"G0429":["Dermal filler injection(s)",99.2],"11772":["Exc pilonidal cyst comp",844.57],"27664":["Repair of leg tendon each",342.89],"11004":["Dbrdmt skin xtrnl gent&per",503.01],"76982":["Use 1st target lesion",92.21],"27695":["Repair of ankle ligament",464.06],"27507":["Treatment of thigh fracture",880.52],"G0317":["Prolong nursin fac eval 15m",33.62],"75820":["Vein x-ray arm/leg",106.86],"73719":["Mri lower extremity w/dye",260.33],"77431":["Radiation therapy management",106.2],"G0130":["Single energy x-ray study",39.62],"99211":["Off/op est may x req phy/qhp",24.3],"27762":["Cltx med ankle fx w/mnpj",587.24],"29901":["Mcp joint arthroscopy surg",521.99],"11982":["Remove drug implant device",114.18],"G0082":["Care man h v ext pt 30 m",80.56],"77085":["Dxa bone density axl vrt fx",54.26],"27550":["Treat knee dislocation",616.2],"27637":["Remove/graft leg bone lesion",705.42],"G0271":["Group mnt 2 or more 30 mins",16.98],"12021":["Tx supfc wnd dehsn w/packing",185.09],"75893":["Venous sampling by catheter",110.19],"27179":["Revise head/neck of femur",900.83],"75827":["Vein x-ray chest",118.51],"76706":["Us abdl aorta screen aaa",105.53],"77316":["Brachytx isodose plan simple",248.01],"29740":["Wedging of cast",109.19],"74250":["X-ray xm sm int 1cntrst std",117.85],"G0403":["Ekg for initial prevent exam",15.31],"10030":["Img gid flu coll drg sft tis",618.86],"28208":["Repair of foot tendon",496.69],"88173":["Cytopath eval fna report",166.12],"27306":["Incision of thigh tendon",323.91],"72142":["Mri neck spine w/dye",272.98],"76015":["Mr sfty mplt&/fb asmt stf ea",52.93],"76873":["Echograp trans r pros study",178.1],"28406":["Prq skel fix clcnl fx w/mnpj",547.62],"73502":["X-ray exam hip uni 2-3 views",48.6],"76776":["Us exam k transpl w/doppler",142.81],"28124":["Partial removal of toe",472.72],"27616":["Resect leg/ankle tum 5 cm/>",1154.83],"27881":["Amputation of lower leg",756.35],"74440":["X-ray male genital tract",100.54],"27870":["Fusion of ankle joint open",924.8],"27048":["Exc hip/pelv tum deep < 5 cm",584.91],"27626":["Remove ankle joint lining",562.27],"11771":["Exc pilonidal cyst xtnsv",690.1],"28045":["Exc foot/toe tum deep <1.5cm",483.37],"28605":["Treat foot dislocation",382.5],"11107":["Incal bx skn ea sep/addl",70.57],"99465":["Nb resuscitation",123.17],"G0668":["TEAM Remote E/M est. pt 40mins",191.75],"13131":["Cmplx rpr f/c/c/m/n/ax/g/h/f",383.17],"99469":["Neonate crit care subsq",335.56],"27675":["Repair lower leg tendons",467.72],"G0087":["Care man home care plan 60 m",102.87],"70490":["Ct soft tissue neck w/o dye",149.14],"88373":["M/phmtrc alys ishquant/semiq",63.25],"99305":["1st nf care moderate mdm 35",140.48],"28735":["Fusion of foot bones",726.05],"99415":["Prolng clin staff svc 1st hr",22.97],"29906":["Subtalar arthro w/deb",623.85],"99446":["Ntrprof ph1/ntrnet/ehr 5-10",18.98],"29850":["Knee arthroscopy/surgery",591.56],"11720":["Debride nail 1-5",32.62],"28175":["Resect phalanx of toe tumor",435.43],"11622":["Exc s/n/h/f/g mal+mrg 1.1-2",249.01],"G0506":["Comp asses care plan ccm svc",66.25],"27814":["Treatment of ankle fracture",712.07],"27230":["Treat thigh fracture",534.64],"29826":["Sho arthrs srg decompression",147.14],"11981":["Insertion drug dlvr implant",107.19],"13133":["Cmplx rpr f/c/c/m/n/ax/g/h/f",167.45],"77011":["Ct scan for localization",220.71],"77092":["Tbs i&r fx rsk qhp",9.99],"29837":["Elbow arthroscopy/surgery",505.01],"11011":["Debride skin musc at fx site",535.97],"74221":["X-ray xm esophagus 2cntrst",105.2],"10021":["Fna bx w/o img gdn 1st les",100.54],"27594":["Amputation follow-up surgery",476.38],"29886":["Arthrs knee surg drlg od les",602.88],"G0421":["Ed svc ckd grp per session",27.3],"27301":["Drain thigh/knee lesion",717.73],"12018":["Rpr f/e/e/n/l/m >30.0 cm",173.44],"74415":["Urography nfs drip&/bls w/nf",151.14],"73050":["X-ray exam of shoulders",30.29],"27425":["Lat retinacular release open",441.43],"27005":["Tenotomy hip flexor open",671.79],"28805":["Amputation thru metatarsal",647.16],"29856":["Tibial arthroscopy/surgery",914.81],"G0237":["Therapeutic procd strg endur",12.65],"28415":["Optx calcaneal fracture",1045.31],"12016":["Rpr fe/e/en/l/m 12.6-20.0 cm",266.65],"27676":["Repair lower leg tendons",572.26],"77600":["Hyperthermia ext gen supfc",546.29],"11732":["Avlsn nail plate simple each",32.29],"72080":["X-ray exam thoracolmb 2/> vw",34.95],"74713":["Mri fetal ea addl gestation",196.41],"27466":["Lengthening of thigh bone",1364.89],"74430":["Contrast x-ray bladder",41.61],"70540":["Mri orbit/face/neck w/o dye",223.71],"27882":["Amputation of lower leg",550.62],"73503":["X-ray exam hip uni 4/> views",62.59],"72125":["Ct neck spine w/o dye",130.16],"27601":["Decompression of lower leg",416.79],"29876":["Arthrs knee surg synvct maj",612.87],"28002":["Treatment of foot infection",241.35],"27040":["Biopsy of soft tissues",340.89],"27323":["Biopsy thigh soft tissues",273.98],"28344":["Repair extra toe(s)",408.8],"29358":["Appl long leg cast brace",182.43],"99475":["Ped crit care age 2-5 init",472.39],"11400":["Exc tr-ext b9+marg 0.5 cm<",127.5],"27041":["Biopsy of soft tissues",652.82],"27614":["Biopsy lower leg soft tissue",608.21],"27240":["Treat thigh fracture",895.17],"27768":["Cltx post ankle fx w/mnpj",440.76],"77610":["Hyperthermia ntrstl prb 5/<",671.46],"28295":["Cor hlx vlgs prx mtar osteot",1061.62],"70491":["Ct soft tissue neck w/dye",182.76],"27613":["Biopsy lower leg soft tissue",259.99],"88346":["Imfluor 1st 1antb stain px",136.49],"99397":["Per pm reeval est pat 65+ yr",138.49],"28600":["Treat foot dislocation",189.75],"72192":["Ct pelvis w/o dye",132.16],"99497":["Advncd care plan 30 min",86.55],"27446":["Revision of knee joint",1043.97],"27185":["Revision of femur epiphysis",674.79],"10180":["I&d complex po wound infctj",287.29],"27713":["Osteot tibia imed lngth dev",1748.06],"27455":["Realignment of knee",889.84],"28046":["Resect foot/toe tumor < 3 cm",659.47],"27698":["Repair of ankle ligament",594.89],"27502":["Treatment of thigh fracture",750.02],"27524":["Treat kneecap fracture",702.75],"70110":["X-ray exam of jaw 4/> views",42.94],"29240":["Strapping of shoulder",28.63],"11001":["Dbrdmt ecz/infct skn ea addl",26.96],"29505":["Application long leg splint",109.19],"73225":["Mr angio upr extr w/o&w/dye",322.58],"27646":["Resect fibula tumor",1385.2],"77077":["Joint survey single view",47.27],"28345":["Repair webbed toe(s)",501.01],"77605":["Hyperthermia ext gen deep",1031.99],"72146":["Mri chest spine w/o dye",189.75],"77072":["Bone age studies",25.3],"75901":["Remove cva device obstruct",227.04],"27610":["Explore/treat ankle joint",607.54],"11010":["Debride skin at fx site",467.72],"29892":["Arthrs aid rpr od les/tib fx",595.56],"77407":["Radiation tx delivery lvl 2",308.93],"27560":["Treat kneecap dislocation",465.06],"G0454":["Md document visit by npp",8.99],"77066":["Dx mammo incl cad bi",156.46],"28118":["Removal of heel bone",629.85],"29450":["Application clubfoot cast",145.14],"80504":["Path clin consltj mod 21-40",50.93],"72052":["X-ray exam neck spine 6/>vws",62.59],"99490":["Chrnc care mgmt staff 1st 20",65.91],"27130":["Total hip arthroplasty",1158.16],"11047":["Dbrdmt bone each addl",128.17],"27509":["Treatment of thigh fracture",650.49],"29907":["Subtalar arthro w/fusion",817.27],"27252":["Treat hip dislocation",716.07],"G0017":["Crisis psychotherapy 60m",217.72],"76100":["X-ray exam of body section",85.89],"27066":["Remove hip bone les deep",756.02],"G0541":["No pt prsnt train initial 30",52.93],"12005":["Rpr s/n/a/gen/trk12.6-20.0cm",210.39],"74400":["Urography iv +-kub tomog",131.5],"70260":["X-ray exam of skull",43.61],"88125":["Forensic cytopathology",27.63],"29580":["Strapping unna boot",62.92],"12036":["Intmd rpr s/a/t/ext 20.1-30",478.38],"11056":["Parng/cutg b9 hyprkr les 2-4",80.89],"G0076":["Care manag h vst new pt 20 m",49.27],"29860":["Hip arthroscopy dx",613.2],"27742":["Repair of leg epiphyses",728.05],"28585":["Repair foot dislocation",945.77],"75580":["N-invas est c ffr sw aly cta",883.85],"G0554":["Add 20 m of monthly tx",41.28],"71551":["Mri chest w/dye",370.18],"77295":["3-d radiotherapy plan",483.7],"77065":["Dx mammo incl cad uni",123.51],"27202":["Treat tail bone fracture",495.02],"70371":["Speech evaluation complex",110.86],"29882":["Arthrs kne srg mnisc rpr m/l",639.83],"28113":["Part removal of metatarsal",582.57],"74262":["Ct colonography dx w/dye",458.07],"G0422":["Intens cardiac rehab w/exerc",131.16],"27596":["Amputation follow-up surgery",657.81],"12051":["Intmd rpr face/mm 2.5 cm/<",281.97],"G0316":["Prolong inpt eval add15 m",34.62],"G0018":["Crisis psychotherapy add 30m",104.86],"88309":["Tissue exam by pathologist",412.13],"12042":["Intmd rpr n-hf/genit2.6-7.5",303.94],"28226":["Release of foot tendons",663.14],"27501":["Treatment of thigh fracture",548.62],"27110":["Transfer of iliopsoas muscle",896.17],"10060":["I&d abscess simple/single",128.17],"27381":["Repair/graft kneecap tendon",772.66],"G0447":["Behavior counsel obesity 15m",33.96],"70498":["Ct angiography neck",272.98],"77761":["Apply intrcav radiat simple",422.78],"G0543":["Group train w/o patient",21.97],"99406":["Behav chng smoking 3-10 min",15.31],"29086":["Application cast finger",82.23],"11106":["Incal bx skn single les",150.8],"29821":["Sho arthrs srg compl synvct",555.61],"70544":["Mr angiography head w/o dye",214.05],"27280":["Arthr si jt opn b1grf instrm",1279.33],"27712":["Osteot mlt relignmt imed rod",1013.35],"28305":["Incise/graft midfoot bones",623.19],"76516":["Echo exam of eye",47.6],"88325":["Consltj compre rvw rec reprt",152.8],"28171":["Resect tarsal tumor",1009.02],"88355":["M/phmtrc alys skeletal musc",139.82],"27248":["Treat thigh fracture",683.44],"27536":["Treat knee fracture",1087.25],"99404":["Prev med cnsl indiv apprx 60",112.85],"99408":["Audit/dast 15-30 min",34.95],"88387":["Macroscopic xm dsj&prep tiss",32.62],"72149":["Mri lumbar spine w/dye",268.65],"29260":["Strapping of elbow or wrist",28.63],"28436":["Prq skel fix talus fx w/mnpj",495.36],"G0446":["Intens behave ther cardio dx",33.96],"77261":["Ther radiology tx plng smpl",69.58],"27602":["Decompression of lower leg",442.42],"77053":["X-ray of mammary duct",52.93],"27685":["Revision of lower leg tendon",679.45],"70250":["X-ray exam of skull",35.62],"77012":["Ct scan for needle biopsy",122.51],"27732":["Repair of fibula epiphysis",440.43],"29828":["Sho arthrs srg bicp tenodsis",840.91],"28540":["Treat foot dislocation",198.41],"29010":["Appl risser jacket body only",316.25],"74246":["X-ray xm upr gi trc 2cntrst",134.16],"27860":["Fixation of ankle joint",154.13],"77370":["Radiation physics consult",150.47],"G0405":["Ekg interpret & report preve",8.32],"G0459":["Telehealth inpt pharm mgmt",39.62],"29325":["Appl hip spica cast1&1/2",312.26],"77078":["Ct bone density axial",98.54],"77332":["Radiation treatment aid(s)",40.61],"29894":["Ankle arthroscopy/surgery",473.38],"27511":["Treatment of thigh fracture",897.83],"11303":["Shave skin lesion >2.0 cm",146.81],"70450":["Ct head/brain w/o dye",106.2],"73562":["X-ray exam of knee 3",42.28],"29807":["Sho arthrs srg rpr slap les",948.76],"29902":["Mcp joint arthroscopy surg",550.62],"70360":["X-ray exam of neck",30.96],"74425":["Urography antegrade rs&i",133.49],"12052":["Intmd rpr face/mm 2.6-5.0 cm",310.93],"G0105":["Colorectal scrn; hi risk ind",376.84],"28630":["Treat toe dislocation",171.11],"29873":["Arthrs knee surg w/lat rls",519.32],"27827":["Treat lower leg fracture",1049.63],"77331":["Special radiation dosimetry",64.92],"70470":["Ct head/brain w/o & w/dye",172.44],"28606":["Treat foot dislocation",385.83],"29867":["Allgrft implnt knee w/scope",1174.8],"75571":["Ct hrt w/o dye w/ca test",99.2],"75756":["Artery x-rays chest",166.78],"27035":["Denervation of hip joint",1031.99],"71275":["Ct angiography chest",279.64],"29824":["Sho arthrs srg dstl claviclc",636.84],"74240":["X-ray xm upr gi trc 1cntrst",121.51],"10035":["Plmt sft tiss loclzj dev 1st",344.22],"70552":["Mri brain stem w/dye",267.98],"10010":["Fna bx w/ct gdn ea addl",234.36],"27758":["Treatment of tibia fracture",830.59],"77469":["Io radiation tx management",265.65],"29887":["Arthrs knee srg drlg od fixj",708.08],"99291":["Critical care first hour",307.93],"70460":["Ct head/brain w/dye",147.81],"88350":["Imfluor ea addl 1antb stn px",106.53],"12015":["Rpr f/e/e/n/l/m 7.6-12.5 cm",210.06],"27339":["Exc thigh/knee tum dep 5cm/>",712.07],"27325":["Neurectomy hamstring",538.63],"73222":["Mri joint upr extrem w/dye",311.59],"99453":["Rem mntr physiol param setup",21.64],"77436":["Surf radj ther tx planning",78.23],"11954":["Subq njx fil matrl>10.0 cc",172.78],"73620":["X-ray exam of foot",28.63],"G0452":["Molecular pathology interpr",46.61],"27842":["Treat ankle dislocation",489.36],"28496":["Treat big toe fracture",546.62],"27889":["Ankle disarticulation",595.56],"77049":["Mri breast c-+ w/cad bi",338.56],"11646":["Exc f/e/e/n/l mal+mrg >4 cm",513.66],"12056":["Intmd rpr face/mm 20.1-30.0",621.52],"G0425":["Inpt/ed teleconsult30",83.89],"27831":["Treat lower leg dislocation",401.48],"74455":["X-ray urethra/bladder",105.2],"99492":["1st psyc collab care mgmt",159.79],"76885":["Us exam infant hips dynamic",131.16],"27604":["Drain lower leg bursa",476.05],"99476":["Ped crit care age 2-5 subsq",305.27],"G0118":["Glaucoma scrn hgh risk direc",40.28],"27828":["Treat lower leg fracture",1226.07],"76857":["Us exam pelvic limited",50.93],"28800":["Amputation of midfoot",489.7],"75891":["Vein x-ray liver",122.51],"28250":["Revision of foot fascia",597.22],"73560":["X-ray exam of knee 1 or 2",34.29],"27532":["Treat knee fracture",676.79],"27625":["Remove ankle joint lining",546.29],"72270":["Myelogphy 2/> spine regions",133.16],"27634":["Exc leg/ankle tum dep 5 cm/>",621.19],"29705":["Rmvl/bivlv full arm/leg cast",69.24],"27086":["Remove hip foreign body",338.56],"G0538":["Ascvd rsk mng clin stf pr mo",16.98],"88380":["Microdissection laser",117.18],"28104":["Removal of foot lesion",538.97],"70472":["Ct cere prfu alys c+w/ct/cta",155.8],"27816":["Treatment of ankle fracture",380.84],"71111":["X-ray exam ribs/chest4/> vws",51.27],"12013":["Rpr f/e/e/n/l/m 2.6-5.0 cm",145.14],"G0508":["Crit care telehea consult 60",184.09],"99423":["Ol dig e/m svc 21+ min",48.6],"88172":["Cytp dx eval fna 1st ea site",53.93],"27513":["Treatment of thigh fracture",1103.23],"76946":["Echo guide for amniocentesis",33.96],"29905":["Subtalar arthro w/exc",476.05],"29540":["Strapping ankle &/foot",27.96],"73140":["X-ray exam of finger(s)",39.28],"72050":["X-ray exam neck spine 4/5vws",54.93],"29868":["Meniscal trnspl knee w/scpe",1507.37],"27049":["Resect hip/pelv tum < 5 cm",1287.66],"10007":["Fna bx w/fluor gdn 1st les",343.22],"27326":["Neurectomy popliteal",502.68],"80503":["Path clin consltj sf 5-20",26.3],"27386":["Repair/graft of thigh muscle",804.62],"27090":["Removal of hip prosthesis",770.66],"74182":["Mri abdomen w/contrast",299.28],"27702":["Reconstruct ankle joint",882.18],"72193":["Ct pelvis w/dye",225.04],"11960":["Insert tissue expander(s)",945.1],"27006":["Tenotomy abductor&/xtnsr hip",650.49],"77048":["Mri breast c-+ w/cad uni",332.9],"28740":["Fusion of foot bones",845.57],"77285":["Ther rad simulaj field intrm",451.41],"11640":["Exc f/e/e/n/l mal+mrg 0.5cm<",201.74],"99393":["Prev visit est age 5-11",108.19],"11442":["Exc face-mm b9+marg 1.1-2 cm",193.41],"28220":["Release of foot tendon",445.09],"99223":["1st hosp ip/obs high 75",155.8],"77021":["Mri guidance ndl plmt rs&i",425.45],"28222":["Release of foot tendons",541.63],"27358":["Remove femur lesion/fixation",235.69],"28210":["Repair/graft of foot tendon",595.89],"27848":["Treat ankle dislocation",735.38],"99427":["Prin care mgmt staff ea addl",53.93],"27437":["Revise kneecap",622.86],"88367":["Insitu hybridization auto",104.53],"27253":["Treat hip dislocation",866.87],"11921":["Correct skn color 6.1-20.0cm",232.7],"99426":["Prin care mgmt staff 1st 30",67.58],"27265":["Treat hip dislocation",491.69],"73551":["X-ray exam of femur 1",29.3],"77071":["Mnl appl strs jt radiography",58.26],"99416":["Prolng clin staff svc ea add",12.65],"88162":["Cytopath smear other source",127.17],"29720":["Repair spica body cst/jacket",97.87],"70481":["Ct orbit/ear/fossa w/dye",179.1],"27786":["Treatment of ankle fracture",348.88],"74270":["X-ray xm colon 1cntrst std",148.14],"27418":["Repair degenerated kneecap",760.68],"77317":["Brachytx isodose intermed",324.91],"99236":["Hosp ip/obs same date hi 85",189.09],"G0181":["Home health care supervision",109.52],"88348":["Electron microscopy dx",476.38],"70553":["Mri brain stem w/o & w/dye",315.92],"29888":["Arthrs aid acl rpr/agmntj",886.51],"99463":["Same day nb discharge",94.54],"76080":["X-ray exam of fistula",58.59],"28340":["Resect enlarged toe tissue",555.28],"12046":["Intmd rpr n-hf/genit20.1-30",555.28],"27750":["Treatment of tibia fracture",394.15],"27176":["Treat slipped epiphysis",853.89],"11922":["Correct skin color ea 20.0cm",65.91],"27784":["Treatment of fibula fracture",670.79],"27592":["Amputate leg at thigh",626.18],"12007":["Rpr s/n/ax/gen/trnk >30.0 cm",255.0],"27826":["Treat lower leg fracture",810.28],"99283":["Emergency dept visit low mdm",69.24],"27235":["Treat thigh fracture",833.58],"75746":["Artery x-rays lung",133.83],"12002":["Rpr s/n/ax/gen/trnk2.6-7.5cm",138.82],"27726":["Repair fibula nonunion",872.2],"12001":["Rpr s/n/ax/gen/trnk 2.5cm/<",113.52],"11950":["Subq njx filling matrl 1cc/<",87.89],"G0102":["Prostate ca screening; dre",24.3],"27562":["Treat kneecap dislocation",474.72],"28705":["Arthrodesis pantalar",1102.9],"75559":["Cardiac mri w/stress img",378.84],"28238":["Revision of foot tendon",683.11],"99448":["Ntrprof ph1/ntrnet/ehr 21-30",56.59],"10160":["Pnxr aspir absc hmtma bulla",131.16],"28153":["Partial removal of toe",397.15],"99421":["Ol dig e/m svc 5-10 min",15.65],"72147":["Mri chest spine w/dye",270.31],"27178":["Treat slipped epiphysis",853.89],"27065":["Remove hip bone les super",506.67],"28055":["Neurectomy foot",370.52],"73060":["X-ray exam of humerus",31.96],"72110":["X-ray exam l-2 spine 4/>vws",53.26],"27886":["Amputation follow-up surgery",599.89],"77003":["Fluoroguide for spine inject",104.2],"77307":["Telethx isodose plan cplx",289.29],"70542":["Mri orbit/face/neck w/dye",265.65],"28531":["Treat sesamoid bone fracture",322.25],"76977":["Us bone density measure",7.66],"27227":["Treat hip fracture(s)",1484.4],"G0553":["Monthly tx for dmht 20mins",53.93],"27295":["Amputation of leg at hip",1143.18],"28405":["Cltx calcaneal fx w/mnpj",500.35],"88182":["Cell marker study",148.47],"75577":["Quan&char c athrosclrtc plaq",1008.69],"27705":["Osteotomy tibia",690.43],"27429":["Reconstruction knee",1168.15],"76825":["Echo exam of fetal heart",260.99],"76016":["Mr safety deter phys/qhp",71.57],"99385":["Prev visit new age 18-39",134.16],"13153":["Cmplx rpr e/n/e/l addl 5cm/<",188.42],"75840":["Vein x-ray adrenal gland",125.17],"13101":["Cmplx rpr trunk 2.6-7.5 cm",389.16],"28190":["Removal of foot foreign body",238.69],"29870":["Arthrs knee dx w/wo syn bx",600.88],"88104":["Cytopath fl nongyn smears",83.89],"27070":["Part remove hip bone super",823.26],"27486":["Revise/replace knee joint",1270.68],"29823":["Sho arthrs srg xtnsv dbrdmt",556.94],"11420":["Exc h-f-nk-sp b9+marg 0.5/<",124.5],"28456":["Prq skel fix tarsl fx w/mnpj",382.17],"28760":["Fusion of big toe joint",781.32],"99292":["Critical care addl 30 min",133.49],"28140":["Removal of metatarsal",559.94],"28130":["Removal of ankle bone",596.89],"80506":["Path clin consltj prolng svc",41.61],"73201":["Ct upper extremity w/dye",198.74],"88368":["Insitu hybridization manual",145.48],"28475":["Cltx metatarsal fx w/mnpj ea",274.98],"28545":["Treat foot dislocation",346.22],"27330":["Biopsy knee joint lining",411.46],"27465":["Shortening of thigh bone",1289.32],"72074":["X-ray exam thorac spine4/>vw",43.94],"11626":["Exc s/n/h/f/g mal+mrg >4 cm",417.79],"11755":["Biopsy nail unit",119.18],"73706":["Ct angio lwr extr w/o&w/dye",320.58],"27146":["Incision of hip bone",1165.15],"28103":["Remove/graft foot lesion",360.53],"10008":["Fna bx w/fluor gdn ea addl",140.82],"28495":["Treat big toe fracture",195.08],"71101":["X-ray exam unilat ribs/chest",41.61],"27075":["Resect hip tumor",1852.26],"28288":["Partial removal of foot bone",608.54],"29445":["Appl rigid tot cntc leg cast",131.83],"27700":["Revision of ankle joint",667.13],"29355":["Appl long leg cast walker",154.13],"72197":["Mri pelvis w/o & w/dye",333.23],"27000":["Tenotomy adductor hip perq",361.2],"70471":["Cta h&n c+ w/noncontrast img",375.51],"99395":["Prev visit est age 18-39",121.18],"27438":["Revise kneecap with implant",779.32],"11920":["Correct skin color 6.0 cm/<",215.72],"88342":["Imhchem/imcytchm 1st antb",109.86],"28041":["Exc foot/toe tum dep 1.5cm/>",419.79],"29835":["Elbow arthroscopy/surgery",485.37],"11313":["Shave skin lesion >2.0 cm",176.1],"99466":["Ped crit care transport",201.07],"27257":["Treat hip dislocation",328.57],"13152":["Cmplx rpr e/n/e/l 2.6-7.5 cm",489.03],"75572":["Ct hrt w/3d image",228.7],"73590":["X-ray exam of lower leg",31.29],"29861":["Hip arthro w/fb removal",655.15],"27566":["Treat kneecap dislocation",823.93],"75741":["Artery x-rays lung",127.5],"29425":["Appl short leg cast walking",80.56],"27759":["Treatment of tibia fracture",915.14],"70551":["Mri brain stem w/o dye",194.75],"11306":["Shave skin lesion 0.6-1.0 cm",117.51],"11105":["Punch bx skin ea sep/addl",60.25],"11900":["Inject skin lesions </w 7",56.59],"27427":["Reconstruction knee",660.47],"70547":["Mr angiography neck w/o dye",214.05],"77089":["Tbs dxa cal w/i&r fx risk",39.62],"G0179":["Md recertification hha pt",44.28],"77290":["Ther rad simulaj field cplx",440.09],"G0518":["Remove w insert drug implant",313.92],"76000":["Fluoroscopy <1 hr phys/qhp",43.94],"28285":["Repair of hammertoe",546.62],"29131":["Appl finger splint dynamic",59.26],"99460":["Init nb em per day hosp",80.56],"28010":["Incision of toe tendon",234.69],"28530":["Treat sesamoid bone fracture",123.17],"29435":["Appl patllr tdn bearing cast",138.82],"29015":["Appl rissr jacket bdy w/head",336.56],"11055":["Paring/cutg b9 hyprker les 1",69.91],"27767":["Cltx post ankle fx",320.58],"11621":["Exc s/n/h/f/g mal+mrg 0.6-1",227.7],"29280":["Strapping of hand or finger",29.96],"11310":["Shave skin lesion 0.5 cm/<",111.19],"73200":["Ct upper extremity w/o dye",160.12],"28003":["Treatment of foot infection",372.18],"88307":["Tissue exam by pathologist",276.97],"88366":["Insitu hybridization (fish)",264.32],"88381":["Microdissection manual",187.09],"27175":["Treat slipped epiphysis",618.86],"27071":["Part removal hip bone deep",913.14],"70548":["Mr angiography neck w/dye",244.68],"11951":["Subq njx fil matrl 1.1-5.0cc",116.85],"27497":["Decompression of thigh/knee",549.95],"G0665":["TEAM Remote E/M est. pt 10mins",59.26],"10140":["I&d hmtma seroma/fluid collj",173.77],"10121":["Inc&rmvl fb subq tiss comp",274.31],"28102":["Remove/graft foot lesion",581.24],"11406":["Exc tr-ext b9+marg >4.0 cm",332.57],"27132":["Total hip arthroplasty",1499.05],"G0249":["Provide inr test mater/equip",65.58],"71270":["Ct thorax dx c-/c+",195.08],"75902":["Remove cva lumen obstruct",85.89],"11721":["Debride nail 6 or more",44.94],"11760":["Repair of nail bed",186.09],"11307":["Shave skin lesion 1.1-2.0 cm",131.83],"10005":["Fna bx w/us gdn 1st les",131.83],"77762":["Apply intrcav radiat interm",556.61],"29049":["Appl cast figure-of-eight",113.52],"72200":["X-ray exam si joints",33.62],"27057":["Buttock fasciotomy w/dbrdmt",917.81],"73219":["Mri upper extremity w/dye",328.57],"13102":["Cmplx rpr trunk addl 5cm/<",119.84],"88121":["Cytp urine 3-5 probes cmptr",392.49],"27097":["Revision of hip tendon",641.83],"28173":["Resect metatarsal tumor",663.47],"27894":["Decompression of leg",754.68],"G0104":["Ca screen;flexi sigmoidscope",214.05],"73010":["X-ray exam of shoulder blade",24.97],"27665":["Repair of leg tendon each",398.15],"73615":["Contrast x-ray of ankle",132.49],"88300":["Surgical path gross",16.31],"88341":["Imhchem/imcytchm ea add antb",93.88],"27638":["Remove/graft leg bone lesion",696.43],"99396":["Prev visit est age 40-64",128.5],"11305":["Shave skin lesion 0.5 cm/<",100.87],"29035":["Appl body cast sho to hips",298.94],"29710":["Rmvl/bivlv sho/hip spica",136.16],"27520":["Treat kneecap fracture",368.52],"27258":["Treat hip dislocation",1015.68],"88106":["Cytopath fl nongyn filter",67.25],"77435":["Sbrt management",639.17],"75561":["Cardiac mri for morph w/dye",363.86],"27177":["Treat slipped epiphysis",1023.0],"99342":["Home/res vst new low mdm 30",78.56],"28240":["Release of big toe",438.76],"73521":["X-ray exam hips bi 2 views",41.61],"G0442":["Annual alcohol screen 15 min",18.64],"77750":["Infuse radioactive materials",394.15],"75885":["Vein x-ray liver w/hemodynam",134.82],"76870":["Us exam scrotum",98.21],"73000":["X-ray exam of collar bone",33.29],"27059":["Resect hip/pelv tum 5 cm/>",1638.2],"27485":["Surgery to stop leg growth",631.18],"G0124":["Screen c/v thin layer by md",23.97],"72157":["Mri chest spine w/o & w/dye",317.59],"28304":["Incision of midfoot bones",868.87],"G0551":["Phn/intr svs fr dx treat 30m",36.62],"11042":["Dbrdmt subq tis 1st 20sqcm/<",132.16],"77075":["Radex osseous survey compl",97.54],"12014":["Rpr f/e/e/n/l/m 5.1-7.5 cm",171.78],"10009":["Fna bx w/ct gdn 1st les",411.13],"27365":["Resect femur/knee tumor",1830.95],"28261":["Revision of foot tendon",1119.88],"G0500":["Mod sedat endo service >5yrs",66.25],"77771":["Hdr rdncl ntrstl/icav brchtx",608.87],"28310":["Revision of big toe",563.27],"29806":["Sho arthrs srg capsulorraphy",969.74],"76014":["Mr sfty implt&/fb asmt stf 1",10.99],"29055":["Appl cast shoulder spica",257.33],"27781":["Treatment of fibula fracture",489.03],"28505":["Treat big toe fracture",666.13],"77076":["Radex osseous survey infant",104.53],"28126":["Partial removal of toe",385.83],"73085":["Contrast x-ray of elbow",95.88],"28820":["Amputation of toe",296.28],"29800":["Jaw arthroscopy/surgery",507.01],"73650":["X-ray exam of heel",28.3],"28022":["Exploration of foot joint",496.02],"28272":["Release of toe joint each",375.84],"72194":["Ct pelvis w/o & w/dye",249.67],"76811":["Ob us detailed sngl fetus",181.43],"29125":["Appl short arm splint static",78.9],"11045":["Dbrdmt subq tiss each addl",41.61],"73702":["Ct lwr extremity w/o&w/dye",194.08],"28315":["Removal of sesamoid bone",479.71],"28296":["Cor hlx vlgs dstl mtar osteo",880.52],"99458":["Rpm tx mgmt ea addl 20 min",41.28],"13151":["Cmplx rpr e/n/e/l 1.1-2.5 cm",417.79],"99381":["Init pm e/m new pat infant",113.19],"29834":["Elbow arthroscopy/surgery",467.06],"76642":["Ultrasound breast limited",83.22],"11012":["Deb skin bone at fx site",684.44],"28430":["Cltx talus fracture w/o mnpj",264.99],"27282":["Arthrodesis symphysis pubis",800.62],"72128":["Ct chest spine w/o dye",129.83],"28341":["Resect enlarged toe",645.83],"74176":["Ct abd & pelvis w/o contrast",182.43],"G0343":["Laparotomy islet cell transp",1161.16],"70015":["Contrast x-ray of brain",159.79],"13120":["Cmplx rpr s/a/l 1.1-2.5 cm",349.88],"28298":["Cor hlx vlgs prx phlx osteot",857.55],"27331":["Explore/treat knee joint",458.07],"11600":["Exc tr-ext mal+marg 0.5 cm/<",197.74],"11601":["Exc tr-ext mal+marg 0.6-1 cm",226.37],"12035":["Intmd rpr s/a/t/ext 12.6-20",412.8],"27268":["Cltx thigh fx w/mnpj",514.66],"76770":["Us exam abdo back wall comp",105.86]};
+
+const STATE_GPCI={"AL":[1.0,0.875,0.566],"AK":[1.5,1.065,0.551],"AZ":[1.0,0.969,0.856],"AR":[1.0,0.859,0.515],"CA":[1.019,1.096,0.609],"CO":[1.012,1.064,0.781],"CT":[1.02,1.077,1.21],"DC":[1.054,1.178,1.113],"DE":[1.005,0.988,0.899],"FL":[1.0,1.013,1.808],"GA":[1.003,1.016,1.201],"ID":[1.0,0.92,0.473],"IL":[1.007,1.005,2.295],"IN":[1.0,0.927,0.486],"IA":[1.0,0.915,0.397],"KS":[1.0,0.904,0.504],"KY":[1.0,0.889,0.915],"LA":[1.0,0.941,1.136],"ME":[1.0,0.991,0.631],"MD":[1.016,1.073,1.237],"MA":[1.041,1.194,0.89],"MI":[1.0,0.965,1.686],"MN":[1.0,1.029,0.296],"MS":[1.0,0.861,0.739],"MO":[1.0,0.939,0.977],"MT":[1.0,1.0,0.998],"NE":[1.0,0.923,0.378],"NV":[1.0,1.001,0.833],"NH":[1.0,1.041,0.875],"NJ":[1.063,1.16,1.068],"NM":[1.0,0.917,1.201],"NY":[1.064,1.162,1.586],"NC":[1.0,0.933,0.639],"ND":[1.0,1.0,0.406],"OH":[1.0,0.913,1.008],"OK":[1.0,0.893,0.777],"OR":[1.016,1.111,0.744],"PA":[1.018,1.041,1.193],"PR":[1.0,1.011,0.985],"RI":[1.019,1.033,0.892],"SC":[1.0,0.924,0.85],"SD":[1.0,1.0,0.336],"TN":[1.0,0.909,0.537],"TX":[1.002,1.058,0.886],"UT":[1.0,0.94,0.898],"VT":[1.0,0.99,0.506],"VA":[1.0,0.983,0.706],"VI":[1.0,1.011,0.985],"WA":[1.05,1.227,0.817],"WV":[1.0,0.869,1.431],"WI":[1.0,0.958,0.308],"WY":[1.0,1.0,0.74]};
+
+// ============================================================
+// GFE / PRICE LOOKUP FUNCTIONS
+// ============================================================
+function searchCPT() {
+  const q = (document.getElementById('cpt-search').value || '').trim().toUpperCase();
+  const state = document.getElementById('cpt-state').value;
+  const ins = document.getElementById('cpt-ins').value;
+  const resultsEl = document.getElementById('cpt-results');
+
+  if (!q || q.length < 2) {
+    resultsEl.innerHTML = '<div style="color:var(--gray);font-size:.85rem;padding:8px 0">Enter a CPT code (e.g. 99284) or keyword (e.g. "emergency" or "MRI")</div>';
+    return;
+  }
+
+  // Find matching codes
+  const matches = [];
+  const isCode = /^[A-Z0-9]{4,6}$/.test(q) || /^\d{4,5}$/.test(q);
+  for (const [code, data] of Object.entries(CPT_RATES)) {
+    if (isCode) {
+      if (code.startsWith(q) || code === q) matches.push([code, data]);
+    } else {
+      if (data[0].toUpperCase().includes(q)) matches.push([code, data]);
+    }
+    if (matches.length >= 20) break;
+  }
+
+  if (!matches.length) {
+    resultsEl.innerHTML = '<div style="background:#FEF2F2;border-radius:8px;padding:12px;color:#991B1B;font-size:.85rem">No codes found. Try a shorter keyword or different spelling.</div>';
+    return;
+  }
+
+  // Calculate rates
+  const gpci = state && STATE_GPCI[state] ? STATE_GPCI[state] : [1,1,1];
+  const gpciAdj = gpci[0]; // Using work GPCI as primary adjustment proxy
+
+  const rows = matches.map(([code, data]) => {
+    const desc = data[0];
+    const mcNat = data[1];
+    const mcAdj = Math.round(mcNat * gpciAdj * 100) / 100;
+    const hospLow = Math.round(mcAdj * 2.5);
+    const hospHigh = Math.round(mcAdj * 5);
+    const selfPayTarget = Math.round(mcAdj * 1.5);
+
+    let insNote = '';
+    if (ins === 'selfpay') insNote = `<span style="color:#15803D;font-weight:600">Self-pay target: ~$${selfPayTarget.toLocaleString()}</span> (1.5× Medicare — always negotiate)`;
+    else if (ins === 'medicare') insNote = `<span style="color:#1D4ED8;font-weight:600">Your Medicare rate: ~$${mcAdj.toLocaleString()}</span>`;
+    else if (ins === 'medicaid') insNote = `<span style="color:#7C3AED;font-weight:600">Medicaid rate: typically 50–80% of Medicare ($${Math.round(mcAdj*0.65).toLocaleString()}–$${Math.round(mcAdj*0.8).toLocaleString()})</span>`;
+    else insNote = `<span style="color:#374151">Negotiated rate varies by plan. Medicare = $${mcAdj.toLocaleString()} is the floor.</span>`;
+
+    const ppdrFlag = hospHigh > mcAdj * 1.4 + 400 ?
+      '<span style="background:#FEF2F2;color:#991B1B;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600">⚠️ PPDR if >$400 above GFE</span>' : '';
+
+    return `<tr>
+      <td style="font-weight:700;white-space:nowrap">${code}</td>
+      <td style="font-size:.85rem">${desc}</td>
+      <td style="text-align:right;white-space:nowrap"><strong>$${mcNat.toLocaleString()}</strong><br><span style="font-size:.75rem;color:var(--gray)">national</span></td>
+      <td style="text-align:right;white-space:nowrap"><strong style="color:#1D4ED8">$${mcAdj.toLocaleString()}</strong><br><span style="font-size:.75rem;color:var(--gray)">${state || 'no state'} adj.</span></td>
+      <td style="text-align:right;white-space:nowrap"><span style="color:#C2410C">$${hospLow.toLocaleString()}–$${hospHigh.toLocaleString()}</span><br><span style="font-size:.75rem;color:var(--gray)">2.5–5× Medicare</span></td>
+      <td style="font-size:.82rem">${insNote}<br>${ppdrFlag}</td>
+    \</tr>`;
+  }).join('');
+
+  const stateNote = state ? ` (adjusted for ${state})` : ' (national average)';
+  resultsEl.innerHTML = `
+    <div style="font-size:.82rem;color:var(--gray);margin-bottom:8px">Showing ${matches.length} result(s) · Medicare 2026 rates${stateNote} · CF = $33.29</div>
+    <div class="table-wrap">
+      <table class="case-table">
+        <thead><tr>
+          <th>CPT/HCPCS</th>
+          <th>Description</th>
+          <th style="text-align:right">Medicare<br>National</th>
+          <th style="text-align:right">Medicare<br>Adjusted</th>
+          <th style="text-align:right">Hospital<br>Charge Range</th>
+          <th>Your Situation</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+
+renderCases();
+</script>
+</body>
+</html>

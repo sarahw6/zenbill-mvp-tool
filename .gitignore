@@ -1,0 +1,9 @@
+.DS_Store
+*.xlsx
+*.csv
+*.pdf
+*.jpg
+*.jpeg
+*.png
+*.webp
+node_modules/
