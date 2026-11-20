@@ -173,6 +173,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
   <button class="tab-btn" onclick="switchTab('pricelookup',this)">7. GFE / Price Lookup</button>
   <button class="tab-btn" onclick="switchTab('aiocr',this)">8. AI & OCR Guide</button>
   <button class="tab-btn" onclick="switchTab('clearinghouse',this)">9. Clearinghouse</button>
+  <button class="tab-btn" onclick="switchTab('aitraining',this)">10. AI Training</button>
 </div>
 
 <div class="main">
@@ -782,6 +783,56 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
   <div class="card">
     <div class="card-title"><span class="icon">🏗️</span> Clearinghouse Build Roadmap</div>
     <div id="ch-roadmap-content"></div>
+  </div>
+
+</div>
+
+
+<div id="tab-aitraining" class="tab-content">
+
+  <div class="card" style="border-left:4px solid #9333EA">
+    <div class="card-title"><span class="icon">🤖</span> AI Training Dataset</div>
+    <div class="alert alert-blue" style="margin-bottom:0;font-size:.82rem">
+      <strong>Purpose:</strong> This dataset trains ZenBill's dispute recommendation model. Each case becomes a prompt→response pair: the INPUT is a structured bill description, the OUTPUT is specific dispute guidance. Browse pairs below, filter by issue type or source, and export as JSONL for fine-tuning an LLM (OpenAI, Anthropic, or open-source).
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📊</span> Dataset Overview</div>
+    <div id="ai-stats"><div style="color:var(--gray);font-size:.85rem">Loading stats...</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔍</span> Training Pair Browser</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+      <span style="font-size:.82rem;font-weight:600;color:var(--gray)">Source:</span>
+      <button class="ch-filter-btn ai-src-btn active" onclick="aiSetSource('all',this)">All 550</button>
+      <button class="ch-filter-btn ai-src-btn" onclick="aiSetSource('real',this)">Real (30)</button>
+      <button class="ch-filter-btn ai-src-btn" onclick="aiSetSource('hypo',this)">Hypothetical (520)</button>
+      <span style="font-size:.82rem;font-weight:600;color:var(--gray);margin-left:8px">Issue:</span>
+      <select id="ai-cat-filter" onchange="aiSetCat(this.value)" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:.82rem;font-family:inherit;color:var(--gray);background:#fff">
+        <option value="">All Types</option>
+      </select>
+    </div>
+    <div id="ai-browser"><div style="color:var(--gray);font-size:.85rem">Loading...</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">💬</span> System Prompt</div>
+    <div style="font-size:.82rem;color:var(--gray);margin-bottom:10px">This system prompt prefixes every training pair. It defines the AI's role, tone, and output format.</div>
+    <div id="ai-sysprompt" style="background:#F8FAFC;border:1.5px solid var(--border);border-radius:8px;padding:14px;font-size:.83rem;font-family:monospace;white-space:pre-wrap;line-height:1.65"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">💾</span> Export Training Data</div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+      <button class="btn btn-primary" onclick="exportTrainingData('all')">Download All 550 as JSONL</button>
+      <button class="btn btn-secondary" onclick="exportTrainingData('real')">Real Bills Only (30)</button>
+      <button class="btn btn-secondary" onclick="exportTrainingData('hypo')">Hypo Bills Only (520)</button>
+    </div>
+    <div class="alert alert-blue" style="font-size:.82rem;margin-bottom:0">
+      <strong>Format:</strong> OpenAI fine-tuning JSONL — one JSON object per line, each with <code>messages</code> array containing <code>system</code>, <code>user</code>, and <code>assistant</code> turns. Compatible with OpenAI fine-tuning API, Anthropic Claude fine-tuning, and open-source tools (Axolotl, Unsloth, LLaMA-Factory).
+    </div>
   </div>
 
 </div>
@@ -1437,6 +1488,7 @@ function switchTab(id, btn) {
   if (id === 'letters') previewLetter();
   if (id === 'cases') renderCases();
   if (id === 'clearinghouse') renderClearinghouse();
+  if (id === 'aitraining') renderAITraining();
 }
 
 function toggleGFE() {
@@ -2779,6 +2831,291 @@ function renderRoadmap() {
     </div>
   `;
 }
+
+// ============================================================
+// AI TRAINING TAB
+// ============================================================
+const AI_SYSTEM_PROMPT = `You are ZenBill AI, a medical billing dispute specialist. When given a medical bill, you:
+1. Identify the most likely billing error or overcharge category
+2. Provide specific, actionable dispute steps the patient should take
+3. Cite relevant laws, regulations, or CMS guidelines (No Surprises Act, ERISA, ACA §501(r), HIPAA, False Claims Act)
+4. Flag time-sensitive deadlines (appeal windows, timely filing limits, PPDR 120-day window)
+5. Estimate the dispute value or potential savings
+
+Be specific about dollar amounts, CPT/HCPCS codes, and legal deadlines. Address the patient directly. Do not give legal advice — provide actionable information.`;
+
+let aiTrainIdx = 0;
+let aiTrainPool = [];
+let aiTrainSourceFilter = 'all';
+let aiTrainCatFilter = '';
+
+function userPromptFor(c) {
+  const adj = Math.max(0, c.billed - c.insurer_paid - c.balance);
+  return `Review this medical bill and provide dispute guidance:
+
+Provider: ${c.provider}
+Bill Type: ${c.bill_type || 'Medical Bill'}
+Service / Line Items: ${c.service}
+Total Billed: $${c.billed.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+Insurance Paid: $${c.insurer_paid.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+Contractual Adj: $${adj.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+Patient Balance: $${c.balance.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+Emergency Visit: ${c.emergency}
+
+What billing issues do you see, and what steps should this patient take to dispute or reduce this bill?`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderAITraining() {
+  // Populate system prompt once
+  const sp = document.getElementById('ai-sysprompt');
+  if (sp && !sp.textContent) sp.textContent = AI_SYSTEM_PROMPT;
+
+  // Populate category filter once
+  const catSel = document.getElementById('ai-cat-filter');
+  if (catSel && catSel.options.length <= 1) {
+    const cats = [...new Set(ALL_CASES.map(c => c.issue_category))].sort();
+    cats.forEach(cat => {
+      const o = document.createElement('option');
+      o.value = cat; o.textContent = cat;
+      catSel.appendChild(o);
+    });
+    catSel.value = aiTrainCatFilter;
+  }
+
+  // Build filtered pool
+  aiTrainPool = ALL_CASES.filter(c => {
+    const matchSrc = aiTrainSourceFilter === 'all'
+      || (aiTrainSourceFilter === 'real' && c.source !== 'hypo')
+      || (aiTrainSourceFilter === 'hypo' && c.source === 'hypo');
+    const matchCat = !aiTrainCatFilter || c.issue_category === aiTrainCatFilter;
+    return matchSrc && matchCat;
+  });
+  if (aiTrainIdx >= aiTrainPool.length) aiTrainIdx = 0;
+
+  renderTrainingStats();
+  renderTrainingBrowser();
+}
+
+function renderTrainingStats() {
+  const container = document.getElementById('ai-stats');
+  if (!container) return;
+
+  // Category counts across ALL_CASES
+  const catCounts = {};
+  ALL_CASES.forEach(c => { catCounts[c.issue_category] = (catCounts[c.issue_category]||0)+1; });
+  const catsSorted = Object.entries(catCounts).sort((a,b) => b[1]-a[1]);
+  const maxCat = Math.max(...Object.values(catCounts));
+
+  // Insurer counts from hypo
+  const insCounts = {};
+  HYPO_ROWS.forEach(r => {
+    const ins = HYPO_INSURERS[r[5]];
+    insCounts[ins] = (insCounts[ins]||0)+1;
+  });
+  const insSorted = Object.entries(insCounts).sort((a,b)=>b[1]-a[1]);
+
+  // Procedure counts from hypo
+  const procCounts = {};
+  HYPO_ROWS.forEach(r => {
+    const p = HYPO_PROCS[r[1]];
+    procCounts[p] = (procCounts[p]||0)+1;
+  });
+  const procSorted = Object.entries(procCounts).sort((a,b)=>b[1]-a[1]);
+
+  const totalBilled = ALL_CASES.reduce((s,c)=>s+c.billed,0);
+  const totalBalance = ALL_CASES.reduce((s,c)=>s+c.balance,0);
+
+  container.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
+      <div style="background:#FFF7ED;border-radius:10px;padding:16px;text-align:center">
+        <div style="font-size:1.9rem;font-weight:800;color:var(--orange)">${ALL_CASES.length}</div>
+        <div style="font-size:.8rem;color:var(--gray);margin-top:3px">Total Training Cases</div>
+      </div>
+      <div style="background:#EFF6FF;border-radius:10px;padding:16px;text-align:center">
+        <div style="font-size:1.9rem;font-weight:800;color:#3B82F6">${CASES.length}</div>
+        <div style="font-size:.8rem;color:var(--gray);margin-top:3px">Real Patient Bills</div>
+      </div>
+      <div style="background:#F0FDF4;border-radius:10px;padding:16px;text-align:center">
+        <div style="font-size:1.9rem;font-weight:800;color:#16A34A">${HYPO_ROWS.length}</div>
+        <div style="font-size:.8rem;color:var(--gray);margin-top:3px">Hypothetical Bills</div>
+      </div>
+      <div style="background:#FDF4FF;border-radius:10px;padding:16px;text-align:center">
+        <div style="font-size:1.9rem;font-weight:800;color:#9333EA">${Object.keys(catCounts).length}</div>
+        <div style="font-size:.8rem;color:var(--gray);margin-top:3px">Issue Categories</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+      <div>
+        <div style="font-weight:700;font-size:.85rem;margin-bottom:10px;color:var(--text)">Issue Category Mix</div>
+        ${catsSorted.map(([cat,n])=>`
+          <div style="margin-bottom:7px">
+            <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px">
+              <span style="color:var(--text)">${cat}</span>
+              <span style="color:var(--gray);font-weight:600">${n}</span>
+            </div>
+            <div style="background:var(--border);border-radius:4px;height:7px">
+              <div style="background:var(--orange);border-radius:4px;height:7px;width:${Math.round(n/maxCat*100)}%"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:.85rem;margin-bottom:10px;color:var(--text)">Insurer Distribution (hypo)</div>
+        ${insSorted.map(([ins,n])=>`
+          <div style="margin-bottom:7px">
+            <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px">
+              <span style="color:var(--text)">${ins}</span>
+              <span style="color:var(--gray);font-weight:600">${n}</span>
+            </div>
+            <div style="background:var(--border);border-radius:4px;height:7px">
+              <div style="background:#3B82F6;border-radius:4px;height:7px;width:${Math.round(n/HYPO_ROWS.length*100)}%"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:.85rem;margin-bottom:10px;color:var(--text)">Procedure Mix (hypo)</div>
+        ${procSorted.map(([proc,n])=>`
+          <div style="margin-bottom:7px">
+            <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px">
+              <span style="color:var(--text)">${proc}</span>
+              <span style="color:var(--gray);font-weight:600">${n}</span>
+            </div>
+            <div style="background:var(--border);border-radius:4px;height:7px">
+              <div style="background:#16A34A;border-radius:4px;height:7px;width:${Math.round(n/HYPO_ROWS.length*100)}%"></div>
+            </div>
+          </div>`).join('')}
+        <div style="margin-top:12px;padding:10px;background:#FFF7ED;border-radius:8px;font-size:.8rem">
+          <div style="font-weight:600;margin-bottom:4px">Dataset Value</div>
+          Total billed: <strong>$${(totalBilled/1e6).toFixed(2)}M</strong><br>
+          Total patient balance: <strong>$${(totalBalance/1e6).toFixed(2)}M</strong><br>
+          Avg balance per case: <strong>$${Math.round(totalBalance/ALL_CASES.length).toLocaleString()}</strong>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTrainingBrowser() {
+  const container = document.getElementById('ai-browser');
+  if (!container) return;
+  if (aiTrainPool.length === 0) {
+    container.innerHTML = '<div class="alert alert-blue">No cases match current filters.</div>';
+    return;
+  }
+  const c = aiTrainPool[aiTrainIdx];
+  const isHypo = c.source === 'hypo';
+  const userPrompt = userPromptFor(c);
+
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div style="font-size:.88rem;color:var(--gray)">
+        Case <strong style="color:var(--text)">${aiTrainIdx+1}</strong> of <strong style="color:var(--text)">${aiTrainPool.length}</strong>
+        ${isHypo ? '<span class="badge badge-green" style="margin-left:6px">Hypo</span>' : '<span class="badge badge-blue" style="margin-left:6px">Real</span>'}
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" onclick="aiNav(-1)" style="padding:6px 14px;font-size:.83rem">&larr; Prev</button>
+        <button class="btn btn-secondary" onclick="aiNavRandom()" style="padding:6px 14px;font-size:.83rem">Random</button>
+        <button class="btn btn-secondary" onclick="aiNav(1)" style="padding:6px 14px;font-size:.83rem">Next &rarr;</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:.73rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px">USER PROMPT — input to model</div>
+        <div style="background:#F8FAFC;border:1.5px solid var(--border);border-radius:8px;padding:13px;font-size:.8rem;font-family:monospace;white-space:pre-wrap;line-height:1.65;max-height:300px;overflow-y:auto">${escHtml(userPrompt)}</div>
+      </div>
+      <div>
+        <div style="font-size:.73rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px">ASSISTANT RESPONSE — training target</div>
+        <div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:8px;padding:13px;font-size:.82rem;line-height:1.65;max-height:300px;overflow-y:auto">${escHtml(c.dispute_step)}</div>
+      </div>
+    </div>
+    <div style="margin-top:11px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span class="badge badge-orange">${c.issue_category}</span>
+      ${c.emergency === 'Yes' ? '<span class="badge badge-red">Emergency</span>' : ''}
+      <span class="badge badge-gray" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.bill_type || ''}</span>
+      <button class="btn btn-secondary" onclick="copyTrainingPair()" style="padding:4px 11px;font-size:.78rem;margin-left:auto">Copy as JSONL</button>
+      <span style="font-size:.75rem;color:var(--gray)">ID: ${c.id}</span>
+    </div>
+  `;
+}
+
+function aiNav(dir) {
+  aiTrainIdx = ((aiTrainIdx + dir) % aiTrainPool.length + aiTrainPool.length) % aiTrainPool.length;
+  renderTrainingBrowser();
+}
+
+function aiNavRandom() {
+  aiTrainIdx = Math.floor(Math.random() * aiTrainPool.length);
+  renderTrainingBrowser();
+}
+
+function aiSetSource(src, btn) {
+  aiTrainSourceFilter = src;
+  aiTrainIdx = 0;
+  document.querySelectorAll('.ai-src-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAITraining();
+}
+
+function aiSetCat(cat) {
+  aiTrainCatFilter = cat;
+  aiTrainIdx = 0;
+  renderTrainingBrowser();
+  // rebuild pool
+  aiTrainPool = ALL_CASES.filter(c => {
+    const matchSrc = aiTrainSourceFilter === 'all'
+      || (aiTrainSourceFilter === 'real' && c.source !== 'hypo')
+      || (aiTrainSourceFilter === 'hypo' && c.source === 'hypo');
+    const matchCat = !aiTrainCatFilter || c.issue_category === aiTrainCatFilter;
+    return matchSrc && matchCat;
+  });
+  renderTrainingBrowser();
+}
+
+function copyTrainingPair() {
+  if (!aiTrainPool.length) return;
+  const c = aiTrainPool[aiTrainIdx];
+  const pair = JSON.stringify({
+    messages: [
+      {role:'system', content: AI_SYSTEM_PROMPT},
+      {role:'user',   content: userPromptFor(c)},
+      {role:'assistant', content: c.dispute_step}
+    ]
+  });
+  navigator.clipboard.writeText(pair).then(() => {
+    const btn = event.currentTarget;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.style.background = '#D1FAE5';
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1600);
+  }).catch(() => {});
+}
+
+function exportTrainingData(mode) {
+  let pool;
+  if (mode === 'real')      pool = ALL_CASES.filter(c => c.source !== 'hypo');
+  else if (mode === 'hypo') pool = ALL_CASES.filter(c => c.source === 'hypo');
+  else                      pool = ALL_CASES;
+  const lines = pool.map(c => JSON.stringify({
+    messages: [
+      {role:'system',    content: AI_SYSTEM_PROMPT},
+      {role:'user',      content: userPromptFor(c)},
+      {role:'assistant', content: c.dispute_step}
+    ]
+  }));
+  const blob = new Blob([lines.join('\n')], {type:'application/x-jsonlines'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `zenbill_training_${pool.length}cases_${mode}.jsonl`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 </script>
 </body>
 </html>
