@@ -128,6 +128,26 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
 .table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
 /* Intake summary */
 #intake-summary{display:none}
+/* Clearinghouse */
+.ch-flow{display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding:16px 0;flex-wrap:nowrap}
+.ch-flow-step{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center;min-width:120px;flex-shrink:0}
+.ch-flow-step.ch-flow-in{border-color:#F97316;background:#FFF7ED}
+.ch-flow-step.ch-flow-route{border-color:#3B82F6;background:#EFF6FF}
+.ch-flow-step.ch-flow-validate{border-color:#2DD4BF;background:#ECFDF5}
+.ch-flow-step.ch-flow-track{border-color:#8B5CF6;background:#F5F3FF}
+.ch-flow-icon{font-size:1.4rem;margin-bottom:4px}
+.ch-flow-label{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.ch-flow-sub{font-size:.7rem;color:var(--gray);line-height:1.3}
+.ch-flow-arrow{color:var(--orange);font-size:1.3rem;padding:0 6px;margin-top:18px;flex-shrink:0}
+.ch-filter-btn{padding:7px 14px;border:1.5px solid var(--border);border-radius:20px;background:#fff;cursor:pointer;font-size:.82rem;font-weight:500;color:var(--gray);transition:all .2s;font-family:inherit}
+.ch-filter-btn:hover{border-color:var(--orange);color:var(--orange)}
+.ch-filter-btn.active{background:var(--orange);color:#fff;border-color:var(--orange)}
+.ch-format-card{border:1.5px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.ch-format-card:hover{border-color:var(--orange)}
+.ch-format-header{padding:12px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#FAFAFA}
+.ch-format-header:hover{background:#FFF7ED}
+.ch-format-body{padding:16px;border-top:1px solid var(--border)}
+.ch-expand-arrow{color:var(--gray);font-size:.8rem;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -152,6 +172,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
   <button class="tab-btn" onclick="switchTab('cases',this)">6. Case Library (26)</button>
   <button class="tab-btn" onclick="switchTab('pricelookup',this)">7. GFE / Price Lookup</button>
   <button class="tab-btn" onclick="switchTab('aiocr',this)">8. AI & OCR Guide</button>
+  <button class="tab-btn" onclick="switchTab('clearinghouse',this)">9. Clearinghouse</button>
 </div>
 
 <div class="main">
@@ -669,6 +690,101 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
   </div>
 </div>
 
+<!-- TAB 9: CLEARINGHOUSE -->
+<div id="tab-clearinghouse" class="tab-content">
+
+  <div class="card">
+    <div class="card-title"><span class="icon">⚡</span> ZenBill Clearinghouse — Product Architecture</div>
+    <div class="alert alert-orange" style="margin-bottom:16px">
+      <strong>What is the Clearinghouse?</strong> A central routing + translation engine that maps every dispute format to its data requirements, submission channel, timeline, and outcome potential. It is the "back-end brain" of ZenBill — receives a bill, identifies which dispute format(s) apply, validates you have the required data, generates the submission package, and tracks outcomes. Think of it like a healthcare EDI clearinghouse, but for disputes instead of claims.
+    </div>
+    <div class="ch-flow">
+      <div class="ch-flow-step ch-flow-in">
+        <div class="ch-flow-icon">📄</div>
+        <div class="ch-flow-label">Bill / EOB In</div>
+        <div class="ch-flow-sub">Paper, PDF, EDI 835, UB-04, CMS-1500</div>
+      </div>
+      <div class="ch-flow-arrow">→</div>
+      <div class="ch-flow-step">
+        <div class="ch-flow-icon">🔍</div>
+        <div class="ch-flow-label">OCR + Parse</div>
+        <div class="ch-flow-sub">Extract CPT, NPI, amounts, dates, denial codes</div>
+      </div>
+      <div class="ch-flow-arrow">→</div>
+      <div class="ch-flow-step ch-flow-route">
+        <div class="ch-flow-icon">🗂️</div>
+        <div class="ch-flow-label">Format Router</div>
+        <div class="ch-flow-sub">Match conditions → eligible dispute formats</div>
+      </div>
+      <div class="ch-flow-arrow">→</div>
+      <div class="ch-flow-step ch-flow-validate">
+        <div class="ch-flow-icon">✅</div>
+        <div class="ch-flow-label">Data Validator</div>
+        <div class="ch-flow-sub">Check all required fields per format; flag gaps</div>
+      </div>
+      <div class="ch-flow-arrow">→</div>
+      <div class="ch-flow-step">
+        <div class="ch-flow-icon">📝</div>
+        <div class="ch-flow-label">Template Engine</div>
+        <div class="ch-flow-sub">Generate format-specific submission package</div>
+      </div>
+      <div class="ch-flow-arrow">→</div>
+      <div class="ch-flow-step ch-flow-track">
+        <div class="ch-flow-icon">📊</div>
+        <div class="ch-flow-label">Outcome Tracker</div>
+        <div class="ch-flow-sub">Log results → feed case library + AI training</div>
+      </div>
+    </div>
+    <div class="result-grid" style="margin-top:20px">
+      <div class="result-item"><div class="label">Dispute Formats Mapped</div><div class="value orange">15</div></div>
+      <div class="result-item"><div class="label">Data Fields Tracked</div><div class="value">42 fields</div></div>
+      <div class="result-item"><div class="label">Submission Channels</div><div class="value">9 channels</div></div>
+      <div class="result-item"><div class="label">AI Training Bill Categories</div><div class="value green">4 loaded</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span> Dispute Format Registry</div>
+    <div class="section-header">Every format, what it ingests, how it works — click any row to expand</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px" id="ch-filters">
+      <button class="ch-filter-btn active" data-filter="all" onclick="filterFormats('all',this)">All 15</button>
+      <button class="ch-filter-btn" data-filter="patient" onclick="filterFormats('patient',this)">Patient-Initiated</button>
+      <button class="ch-filter-btn" data-filter="govt" onclick="filterFormats('govt',this)">Gov't Programs</button>
+      <button class="ch-filter-btn" data-filter="edi" onclick="filterFormats('edi',this)">EDI / Operational</button>
+      <button class="ch-filter-btn" data-filter="financial" onclick="filterFormats('financial',this)">Financial Hardship</button>
+    </div>
+    <div id="ch-format-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🗄️</span> Data Ingestion Map — Required Fields by Format</div>
+    <div class="section-header" style="margin-bottom:10px">
+      <span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px"><span style="color:#059669;font-size:1rem">●</span> Always required</span>
+      <span style="display:inline-flex;align-items:center;gap:6px"><span style="color:#D97706;font-size:1rem">○</span> Conditionally needed</span>
+      <span style="display:inline-flex;align-items:center;gap:6px;margin-left:16px"><span style="color:#D1D5DB">—</span> Not applicable</span>
+    </div>
+    <div class="table-wrap">
+      <table class="case-table" id="ch-matrix-table" style="font-size:.78rem">
+        <thead>
+          <tr>
+            <th style="min-width:160px">Data Field</th>
+            <th>PPDR</th><th>NSA IDR</th><th>Ins. Appeal</th><th>Ext. Review</th><th>ERISA</th>
+            <th>Medicare</th><th>Medicaid</th><th>TRICARE</th><th>State DOI</th>
+            <th>FDCPA</th><th>Charity</th><th>Late Bill</th>
+          </tr>
+        </thead>
+        <tbody id="ch-matrix-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🏗️</span> Clearinghouse Build Roadmap</div>
+    <div id="ch-roadmap-content"></div>
+  </div>
+
+</div>
+
 </div><!-- /main -->
 
 <div class="footer">
@@ -747,8 +863,8 @@ function switchTab(id, btn) {
   btn.classList.add('active');
   if (id === 'pathway') renderPathways();
   if (id === 'letters') previewLetter();
-  if (id === 'cases') 
-  renderCases();
+  if (id === 'cases') renderCases();
+  if (id === 'clearinghouse') renderClearinghouse();
 }
 
 function toggleGFE() {
@@ -1596,6 +1712,501 @@ function searchCPT() {
 
 
 renderCases();
+
+// ============================================================
+// CLEARINGHOUSE (TAB 9)
+// ============================================================
+
+const CH_FORMATS = [
+  {
+    id:'itemized', name:'Itemized Bill Request', shortname:'HIPAA Request', category:'edi',
+    trigger:'First step for ANY bill — always do this before disputing. Required to get CPT codes, revenue codes, and charge breakdown.',
+    law:'HIPAA §164.524 / 45 CFR §164.524',
+    channel:'Written request to hospital/provider billing department (certified mail CRRR)',
+    sla_file:'No deadline — anytime',
+    sla_response:'30 days (HIPAA mandate)',
+    outcome:'Itemized bill listing every CPT/HCPCS code, revenue code, unit count, charge per line, and all provider NPIs',
+    outcome_type:'information',
+    data_in:[
+      {field:'Patient name + date of birth',required:true},
+      {field:'Date(s) of service',required:true},
+      {field:'Provider / hospital name',required:true},
+      {field:'Patient account number (if on bill)',required:false},
+      {field:'Insurance member ID (if applicable)',required:false},
+      {field:'Signed patient authorization (ROI)',required:false}
+    ],
+    status:'live',
+    notes:'This output feeds every other format. Never skip. Itemized bill reveals duplicate charges, upcoding, unbundling, revenue code errors, and CPT mismatches.'
+  },
+  {
+    id:'ppdr', name:'Patient-Provider Dispute Resolution (PPDR)', shortname:'PPDR', category:'patient',
+    trigger:'Final bill exceeds Good Faith Estimate by more than $400 (uninsured/self-pay patients, or insured patients who received a GFE for scheduled services)',
+    law:'No Surprises Act §2799B-5 / 45 CFR §149.620',
+    channel:'CMS federal PPDR portal — federalindependentdisputeresolution.cms.gov',
+    sla_file:'120 days from receiving the bill that exceeds the GFE',
+    sla_response:'30 business days open negotiation; 30 days for IDR entity determination after submission',
+    outcome:'Binding IDR determination — provider must accept or refund the difference',
+    outcome_type:'binding',
+    data_in:[
+      {field:'Good Faith Estimate (GFE) document',required:true},
+      {field:'Final itemized bill',required:true},
+      {field:'Patient name + DOB',required:true},
+      {field:'Provider NPI + Tax ID (TIN)',required:true},
+      {field:'Date(s) of service',required:true},
+      {field:'CPT/HCPCS codes on GFE vs. final bill (line by line)',required:true},
+      {field:'GFE amount per service line',required:true},
+      {field:'Final billed amount per service line',required:true},
+      {field:'Overage calculation showing $400+ trigger',required:true},
+      {field:'Patient insurance status at time of service',required:true},
+      {field:'Facility type (hospital outpatient, ASC, provider office)',required:false}
+    ],
+    status:'live',
+    notes:'Only available for uninsured/self-pay patients OR insured patients who received a scheduled-service GFE. Emergency services have separate NSA protections. CMS portal requires account creation.'
+  },
+  {
+    id:'nsa-idr', name:'No Surprises Act — Surprise Billing Dispute', shortname:'NSA / Balance Bill', category:'patient',
+    trigger:'Emergency care at out-of-network facility; out-of-network provider at in-network facility; balance bill above in-network cost-sharing',
+    law:'No Surprises Act §2799A-1 / 42 USC §300gg-111 / 45 CFR §149.410',
+    channel:'Payer grievance department first; then state DOI or CMS complaint portal',
+    sla_file:'Dispute payer\'s initial payment within 30 business days',
+    sla_response:'30 business days open negotiation; 30 days IDR entity determination',
+    outcome:'Patient pays only in-network cost-sharing amount; balance billing prohibited; payer handles provider dispute',
+    outcome_type:'protective',
+    data_in:[
+      {field:'EOB or 835 remittance from payer',required:true},
+      {field:'Original 837P or CMS-1500 claim',required:true},
+      {field:'Emergency certification / ER triage records',required:false},
+      {field:'Provider network status documentation (in-network facility, OON provider)',required:true},
+      {field:'Patient\'s in-network cost-sharing amount',required:true},
+      {field:'Provider\'s billed amount',required:true},
+      {field:'NSA patient notice (if payer sent one)',required:false},
+      {field:'Qualified Payment Amount (QPA) from EOB',required:false}
+    ],
+    status:'live',
+    notes:'Patient\'s role: refuse to pay the balance bill; notify payer; file complaint if payer does not enforce NSA protection. Provider-payer IDR is separate — patient is not a party to it. ZenBill uses NSA to block patient collections while payer resolves dispute.'
+  },
+  {
+    id:'ins-appeal', name:'Insurance Internal Appeal (Claim Denial)', shortname:'Internal Appeal', category:'patient',
+    trigger:'EOB or 835 denial codes: CO (contractual obligation), PR (patient responsibility), OA (other adjustments); medical necessity denial; prior authorization denial; benefit exclusion',
+    law:'ACA §2719 / 29 CFR §2590.715-2719 / State insurance codes',
+    channel:'Payer online portal, fax, or certified mail to Appeals Department',
+    sla_file:'180 days from EOB (ACA minimum); varies by payer — file within 60 days to be safe',
+    sla_response:'30 days post-service (non-urgent); 60 days (concurrent); 72 hours (urgent/pre-service)',
+    outcome:'Reversal (payer pays), partial payment, modified denial, or uphold → escalate to external review',
+    outcome_type:'reversible',
+    data_in:[
+      {field:'EOB or 835 remittance with all denial codes',required:true},
+      {field:'Original 837P or CMS-1500 claim',required:true},
+      {field:'Denial reason codes + remark codes (CO-96, CO-97, CO-4, etc.)',required:true},
+      {field:'Patient member ID, group number, plan year',required:true},
+      {field:'Medical records supporting medical necessity',required:true},
+      {field:'Treating physician letter of medical necessity',required:false},
+      {field:'Applicable clinical guidelines (UpToDate, MCG, Milliman)',required:false},
+      {field:'Prior authorization approval number (if applicable)',required:false},
+      {field:'Prior appeal decision letters (if re-appeal)',required:false},
+      {field:'State-specific appeal form (if required)',required:false}
+    ],
+    status:'live',
+    notes:'Most common format. Key denial codes: CO-96 (non-covered) → appeal with plan language; CO-97 (bundled) → appeal or refile with modifier; PR-1/PR-2 (deductible/copay) → verify amounts; CO-4/CO-15 → refile corrected claim, not appeal.'
+  },
+  {
+    id:'external-review', name:'External Independent Medical Review (IMR / IRO)', shortname:'External Review', category:'patient',
+    trigger:'Failed internal appeal for medical necessity denial, experimental/investigational treatment denial, or rescission of coverage',
+    law:'ACA §2719(b) / 45 CFR §147.136 / State IMR laws (CA DMHC, TX CDI, NY DFS, etc.)',
+    channel:'State-assigned Independent Review Organization (IRO) or federal ERISA IRO (self-funded plans)',
+    sla_file:'4 months after final internal appeal denial (federal ACA); 30 days in most states',
+    sla_response:'45 days standard review; 72 hours urgent/emergency',
+    outcome:'BINDING reversal or uphold — payer must comply; cannot re-appeal IRO decision',
+    outcome_type:'binding',
+    data_in:[
+      {field:'All internal appeal decision letters',required:true},
+      {field:'Medical records (treating + all reviewing physicians)',required:true},
+      {field:'EOB + all prior EOBs for the same service',required:true},
+      {field:'Clinical criteria payer used to deny (must be disclosed on request)',required:true},
+      {field:'Treating physician certification of medical necessity',required:true},
+      {field:'State IRO assignment notice or federal referral confirmation',required:true},
+      {field:'State-specific external review request form',required:true},
+      {field:'Peer-reviewed literature supporting treatment (if experimental denial)',required:false}
+    ],
+    status:'in-dev',
+    notes:'Federal ACA mandates external review for plans >100 participants. CA, TX, NY, FL have robust state programs. IRO decision is final and binding. File even if you think you will lose — reversal rates are surprisingly high for medical necessity denials (~40–60%).'
+  },
+  {
+    id:'erisa', name:'ERISA Appeal (Employer Self-Funded Plans)', shortname:'ERISA', category:'patient',
+    trigger:'Employer self-insured plan denial after exhausting all internal appeals; plan denial of benefits owed under plan terms',
+    law:'ERISA §502(a)(1)(B) / 29 USC §1132 / DOL 29 CFR §2560.503-1',
+    channel:'Plan administrator (letter) → Federal District Court if unresolved',
+    sla_file:'60 days after final benefit determination for administrative appeal',
+    sla_response:'60 days for final administrative determination (non-urgent)',
+    outcome:'Benefit reinstatement; potential attorney fees under §502(g); limited punitive damages',
+    outcome_type:'legal',
+    data_in:[
+      {field:'Plan Summary Plan Description (SPD)',required:true},
+      {field:'All EOBs and denial letters',required:true},
+      {field:'All prior appeal submissions and payer responses',required:true},
+      {field:'Medical records',required:true},
+      {field:'ERISA complete claim file request (must be provided within 30 days of request)',required:true},
+      {field:'Plan Document and Certificate of Coverage',required:false},
+      {field:'Patient signed authorization (ROI)',required:true}
+    ],
+    status:'in-dev',
+    notes:'ERISA preempts state insurance law for employer self-funded plans — most state patient rights DO NOT apply. Must fully exhaust internal appeals before federal court. Request complete claim file on first denial — this is critical for litigation.'
+  },
+  {
+    id:'medicare-appeal', name:'Medicare Redetermination (Part A/B)', shortname:'Medicare Appeal', category:'govt',
+    trigger:'Medicare MSN or 835 denial: CO-96, CO-97, CO-4, N130, N382, medical necessity denial, coverage exclusion',
+    law:'42 USC §1395ff / 42 CFR §405.940 / CMS IOM Publication 100-04',
+    channel:'Medicare Administrative Contractor (MAC) — written or via MyMedicare.gov; MAC varies by state',
+    sla_file:'120 days from MSN date (redetermination); 180 days for reconsideration (Level 2)',
+    sla_response:'60 days for MAC redetermination; 60 days for QIC reconsideration',
+    outcome:'5-level appeals process: (1) MAC Redetermination → (2) QIC Reconsideration → (3) ALJ Hearing → (4) DAB Review → (5) Federal Court',
+    outcome_type:'multi-level',
+    data_in:[
+      {field:'Medicare Summary Notice (MSN) with claim number',required:true},
+      {field:'CMS-20027 Redetermination Request Form',required:true},
+      {field:'Original claim (CMS-1500 or UB-04)',required:true},
+      {field:'Medicare Beneficiary ID (MBI)',required:true},
+      {field:'Medical records supporting necessity',required:true},
+      {field:'Advance Beneficiary Notice (ABN) if applicable',required:false},
+      {field:'Provider NPI and billing address',required:true},
+      {field:'Medicare Advantage EOB (if MA plan denial)',required:false}
+    ],
+    status:'live',
+    notes:'Know your MAC by state: Noridian (JE/JF), CGS (J15/J15), Palmetto (JM/JJ), Novitas (JH/JL), WPS (J5/J8). Level 2 (QIC) has $0 threshold — file everything. ALJ (Level 3) threshold = $180 (2026). Federal Court threshold = $1,860 (2026).'
+  },
+  {
+    id:'medicaid-hearing', name:'Medicaid Fair Hearing', shortname:'Medicaid Hearing', category:'govt',
+    trigger:'Medicaid claim denial, benefit termination, prior authorization rejection, or managed care plan denial (after MCO internal appeal exhausted)',
+    law:'42 CFR §431.200 / State Medicaid plan fair hearing provisions / ADA for accessibility issues',
+    channel:'State Medicaid agency hearing office (varies: DHCS in CA, HHSC in TX, DOH in NY)',
+    sla_file:'90 days from adverse action notice',
+    sla_response:'90 days for hearing; urgent = 3 business days',
+    outcome:'Administrative Law Judge ruling — binding on state agency; benefits may be continued during hearing',
+    outcome_type:'binding',
+    data_in:[
+      {field:'Medicaid EOB with denial code',required:true},
+      {field:'State-specific hearing request form',required:true},
+      {field:'Medicaid member ID and recipient number',required:true},
+      {field:'Medical records for denied service',required:true},
+      {field:'Prior authorization denial letter (if applicable)',required:false},
+      {field:'MCO internal appeal decision (if managed care plan)',required:false},
+      {field:'Eligibility documentation (if benefit termination)',required:false}
+    ],
+    status:'in-dev',
+    notes:'For managed Medicaid (MCO plans): exhaust MCO internal appeal first, then request state fair hearing. Benefits can often be continued during hearing if requested promptly. Each state has its own form and portal.'
+  },
+  {
+    id:'tricare', name:'TRICARE / CHAMPVA Reconsideration', shortname:'TRICARE', category:'govt',
+    trigger:'TRICARE EOB denial; CHAMPVA denial; balance billing by TRICARE-authorized provider',
+    law:'32 CFR §199.10 / DHA Policy Manual 6010.13-M / 38 USC §1781 (CHAMPVA)',
+    channel:'TRICARE regional contractor: TriWest Healthcare Alliance (West) / Humana Military (East+South)',
+    sla_file:'90 days from date of TRICARE EOB',
+    sla_response:'30 days for reconsideration; 60 days formal appeal (hearing officer)',
+    outcome:'Reconsideration decision → Formal hearing officer appeal → Final TRICARE appeal to DHA',
+    outcome_type:'multi-level',
+    data_in:[
+      {field:'TRICARE EOB with denial reason',required:true},
+      {field:'DD Form 2642 (CHAMPUS Claim — Patient\'s Request for Medical Payment)',required:true},
+      {field:'Military ID or sponsor SSN + DOD ID number',required:true},
+      {field:'Medical records for denied service',required:true},
+      {field:'Referral documentation (required for TRICARE Prime enrollees)',required:false},
+      {field:'Provider NPI and TRICARE-certified status',required:false},
+      {field:'CHAMPVA eligibility letter (if CHAMPVA dispute)',required:false}
+    ],
+    status:'in-dev',
+    notes:'TRICARE Prime requires referrals for most specialty care — missing referral = denial. Active duty: TriWest or Humana by geography. CHAMPVA is for VA-enrolled veteran dependents — separate process via VA Health Eligibility Center.'
+  },
+  {
+    id:'state-doi', name:'State Insurance Department Complaint', shortname:'State DOI', category:'patient',
+    trigger:'Payer non-compliance; balance billing violation; unreasonable claim delay; bad faith claims handling; No Surprises Act violation; prompt-pay law violation',
+    law:'State insurance codes (varies by state); 42 USC §300gg-111 (NSA enforcement)',
+    channel:'State Department of Insurance online complaint portal (varies by state)',
+    sla_file:'No strict legal deadline — file contemporaneously; stronger if filed while dispute is active',
+    sla_response:'30–45 days for DOI to contact insurer; 30 more days for insurer response',
+    outcome:'Regulatory intervention; payer ordered to process claim; restitution to patient; regulatory fines against insurer',
+    outcome_type:'regulatory',
+    data_in:[
+      {field:'EOB with denial or improper payment details',required:true},
+      {field:'Insurance policy/certificate number',required:true},
+      {field:'All correspondence with insurer (emails, letters, call logs)',required:true},
+      {field:'Chronological timeline of events',required:true},
+      {field:'State-specific DOI complaint form',required:true},
+      {field:'Supporting documentation (bills, medical records if relevant)',required:false},
+      {field:'Copies of all appeal letters and responses',required:false}
+    ],
+    status:'in-dev',
+    notes:'File in BOTH: (1) state where services were rendered AND (2) state where insurer is domiciled. Most effective for balance billing, prompt-pay violations (most states require payment within 30–45 days), and unreasonable denials. DOI complaints often unlock faster payer action than appeals.'
+  },
+  {
+    id:'fdcpa', name:'FDCPA Debt Validation (Collections Defense)', shortname:'FDCPA', category:'patient',
+    trigger:'Bill sent to collections; first written collection notice received; collection calls',
+    law:'FDCPA 15 USC §1692g / CFPB Rule 12 CFR Part 1006 / State UDAP laws',
+    channel:'Certified mail CRRR to collection agency (must be within 30 days of FIRST written notice)',
+    sla_file:'30 days from receipt of first written collection notice',
+    sla_response:'Agency must cease all collection activity until debt is validated; no federal deadline to respond',
+    outcome:'Agency validates debt and continues; account deleted if agency cannot validate; statute of limitations defense; FCRA credit report correction',
+    outcome_type:'defensive',
+    data_in:[
+      {field:'First written collection notice (save envelope with postmark)',required:true},
+      {field:'Original creditor name and account number',required:true},
+      {field:'Amount claimed',required:true},
+      {field:'Date of original service (for SOL assessment)',required:true},
+      {field:'Patient state of residence (for applicable SOL)',required:true},
+      {field:'State medical debt statute of limitations',required:true},
+      {field:'All prior correspondence with original hospital billing',required:false},
+      {field:'Any charity care application history',required:false}
+    ],
+    status:'live',
+    notes:'CFPB 2023 rule: medical debt under $500 cannot appear on credit reports. Medical debt SOL (written contract): AZ 6yr · CA 4yr · TX 4yr · NY 6yr · FL 5yr · IL 10yr · WA 6yr. Never pay a time-barred medical debt — resets SOL. Always dispute in writing, never by phone.'
+  },
+  {
+    id:'charity-care', name:'Charity Care / Financial Assistance Application', shortname:'Charity Care', category:'financial',
+    trigger:'Patient income <400% FPL at most nonprofit hospitals; always apply regardless of income — many hospitals have undisclosed sliding-scale programs up to 600%+ FPL',
+    law:'ACA §501(r) / IRS Rev. Proc. 2015-21 / State charity care mandates (CA, NJ, NY, IL have state laws)',
+    channel:'Hospital financial counselor; certified mail to Patient Financial Services department',
+    sla_file:'240 days from first post-discharge bill (ACA §501(r) minimum); many hospitals extend further',
+    sla_response:'30–60 days for determination; some hospitals have same-day decisions for clear cases',
+    outcome:'Full write-off (100% reduction); sliding-scale reduction (20–80%); or interest-free payment plan at reduced rate',
+    outcome_type:'financial',
+    data_in:[
+      {field:'Proof of income: W-2, pay stubs (last 3 months), or most recent tax return',required:true},
+      {field:'Household size documentation',required:true},
+      {field:'Hospital financial assistance policy (request from billing dept)',required:true},
+      {field:'Patient account number and original itemized bill',required:true},
+      {field:'Social Security card or ITIN (some hospitals require)',required:false},
+      {field:'Bank statements (some hospitals require last 3 months)',required:false},
+      {field:'Insurance denial letter (if applicable)',required:false},
+      {field:'Documentation of special circumstances (medical hardship, job loss, divorce)',required:false}
+    ],
+    status:'live',
+    notes:'ACA §501(r) requires nonprofit hospitals to offer charity care and NOT charge more than AGB (Amount Generally Billed — the average paid by Medicare/insurers) to qualifying patients. Policy must be posted publicly. Apply BEFORE paying any amount — payments may not be refundable. Hospitals cannot send to collections during application review.'
+  },
+  {
+    id:'late-billing', name:'Late Billing Challenge (Ghost Bill)', shortname:'Late Billing', category:'patient',
+    trigger:'Bill received more than 12 months after date of service (varies by state); provider missed insurer\'s timely filing window',
+    law:'State timely billing statutes / insurer timely filing requirements / Medicare 42 CFR §424.44 (12-month rule)',
+    channel:'Written response to provider billing department (certified mail CRRR)',
+    sla_file:'Immediately on receipt — do not pay until investigated; request proof of original filing date',
+    sla_response:'No universal federal timeline; provider must prove timely billing on request',
+    outcome:'Bill voided or written off; prohibition on further collection for time-barred debt; credit report deletion if already reported',
+    outcome_type:'defensive',
+    data_in:[
+      {field:'Bill postmark and your receipt date',required:true},
+      {field:'Date of service',required:true},
+      {field:'State timely billing statute for applicable state',required:true},
+      {field:'Insurer timely filing limit (if insured)',required:false},
+      {field:'Any prior EOBs showing claim was not filed within payer window',required:false},
+      {field:'Any prior bills or statements from same encounter',required:false}
+    ],
+    status:'live',
+    notes:'State timely filing limits (from service date to patient bill): CA 12 months · TX 1 year · NY varies by payer · Medicare 12 months. Commercial payer timely filing: typically 90–180 days from service date. If provider missed payer window → they absorbed the loss, CANNOT bill the patient. This is a complete defense.'
+  },
+  {
+    id:'claim-status', name:'EDI 276/277 Claim Status Inquiry', shortname:'Claim Status', category:'edi',
+    trigger:'Claim not adjudicated within 30 days of submission; before escalating to dispute, verify claim was received and not rejected in transit',
+    law:'HIPAA Transaction Standard 45 CFR §162.1601 / ASC X12 276/277',
+    channel:'Clearinghouse EDI: Availity, Change Healthcare, Waystar, Office Ally — real-time or next business day',
+    sla_file:'No patient deadline — operational tool; query within 30 days of claim submission',
+    sla_response:'Real-time (synchronous) or next-day (batch) via clearinghouse',
+    outcome:'Claim status codes: Pending (A1-A6), Finalized/Paid (F1-F9), Rejected (R0-R9), Additional Info Requested (D0-D9)',
+    outcome_type:'information',
+    data_in:[
+      {field:'Original 837 transaction control number (ICN/DCN)',required:true},
+      {field:'Provider NPI (Type 1 or Type 2)',required:true},
+      {field:'Payer ID (5-digit payor code)',required:true},
+      {field:'Patient member ID',required:true},
+      {field:'Date of service',required:true},
+      {field:'Clearinghouse trading partner agreement',required:true}
+    ],
+    status:'in-dev',
+    notes:'ZenBill clearinghouse MVP: 276/277 enables real-time visibility into claim pipeline BEFORE filing a formal dispute. Critical distinction: rejected claims were NEVER processed (refile immediately); denied claims WERE processed but payment refused (appeal required). Query every claim at 30 days.'
+  },
+  {
+    id:'claim-resubmit', name:'CMS-1500 / 837P Corrected Claim Resubmission', shortname:'Corrected Claim', category:'edi',
+    trigger:'Technical rejection (not denial): CO-4 (missing modifier), CO-15 (wrong auth number), CO-16 (missing info), MA130 (incomplete submission), wrong fee schedule, wrong ICD-10',
+    law:'HIPAA 45 CFR §162.1301 / CMS Claims Processing Manual IOM Pub 100-04 Ch. 1',
+    channel:'Clearinghouse EDI resubmission (Availity, Waystar, Office Ally) with Claim Frequency Code 7 (corrected) or 8 (void/rebill)',
+    sla_file:'Within payer timely filing window from original service date (varies: 90 days–1 year)',
+    sla_response:'14–30 days after corrected claim receipt and adjudication',
+    outcome:'Clean claim adjudication at correct payment rate; original claim voided in payer system',
+    outcome_type:'payment',
+    data_in:[
+      {field:'Original CMS-1500 or 837P claim with errors identified',required:true},
+      {field:'Payer rejection/denial code (CO-4, CO-15, MA130, etc.)',required:true},
+      {field:'Corrected CPT codes and/or modifiers',required:true},
+      {field:'Original claim submission date (timely filing proof)',required:true},
+      {field:'Payer ID and billing provider NPI',required:true},
+      {field:'Original claim control number (for 837P loop 2300 CLM01)',required:true},
+      {field:'Corrected ICD-10 diagnosis codes (if applicable)',required:false},
+      {field:'Corrected revenue codes (if UB-04 inpatient)',required:false}
+    ],
+    status:'in-dev',
+    notes:'Claim Frequency Code 7 = corrected claim (void original + refile). Code 8 = void only. Code 1 = original. Never refile as original (Code 1) — creates duplicate claim. CO-96/CO-97/OA-23 = denials (appeal, do not refile). CO-4/CO-15/CO-16 = rejections (refile corrected, do not appeal).'
+  }
+];
+
+const CH_MATRIX_FIELDS = [
+  {field:'Patient name + DOB', required:['itemized','ppdr','ins-appeal','external-review','erisa','medicare-appeal','medicaid-hearing','tricare','charity-care','late-billing'], conditional:['nsa-idr','state-doi','fdcpa','claim-status','claim-resubmit']},
+  {field:'Member / Insurance ID', required:['ins-appeal','erisa','medicare-appeal','medicaid-hearing','tricare','state-doi','claim-status','claim-resubmit'], conditional:['ppdr','nsa-idr','external-review','fdcpa']},
+  {field:'Provider NPI', required:['ppdr','nsa-idr','medicare-appeal','claim-status','claim-resubmit'], conditional:['ins-appeal','tricare','external-review']},
+  {field:'Date of Service', required:['itemized','ppdr','ins-appeal','medicare-appeal','fdcpa','late-billing','claim-status','claim-resubmit'], conditional:['nsa-idr','external-review','erisa','medicaid-hearing','tricare']},
+  {field:'CPT / HCPCS codes', required:['ppdr','ins-appeal','medicare-appeal','claim-resubmit'], conditional:['nsa-idr','external-review','erisa','claim-status']},
+  {field:'Billed / charged amounts', required:['ppdr','fdcpa','charity-care'], conditional:['nsa-idr','ins-appeal','external-review','medicare-appeal']},
+  {field:'EOB or 835 remittance', required:['nsa-idr','ins-appeal','external-review','erisa','medicare-appeal','tricare','state-doi','fdcpa'], conditional:['medicaid-hearing']},
+  {field:'Denial / remark codes', required:['ins-appeal','medicare-appeal','claim-resubmit'], conditional:['nsa-idr','external-review','erisa','medicaid-hearing','tricare']},
+  {field:'Medical records', required:['ins-appeal','external-review','erisa','medicare-appeal'], conditional:['medicaid-hearing','tricare','state-doi']},
+  {field:'Good Faith Estimate (GFE)', required:['ppdr'], conditional:[]},
+  {field:'Prior appeal letters', required:['external-review','erisa'], conditional:['ins-appeal']},
+  {field:'Income + household docs', required:['charity-care'], conditional:[]},
+  {field:'State SOL / timely filing proof', required:['late-billing','fdcpa'], conditional:[]},
+  {field:'Collection notice', required:['fdcpa'], conditional:[]},
+  {field:'Plan SPD / policy docs', required:['erisa'], conditional:['state-doi']}
+];
+
+const CH_MATRIX_COL_IDS = ['ppdr','nsa-idr','ins-appeal','external-review','erisa','medicare-appeal','medicaid-hearing','tricare','state-doi','fdcpa','charity-care','late-billing'];
+
+function renderClearinghouse() {
+  renderFormatList('all');
+  renderMatrix();
+  renderRoadmap();
+}
+
+function filterFormats(cat, btn) {
+  document.querySelectorAll('.ch-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderFormatList(cat);
+}
+
+function renderFormatList(cat) {
+  const list = document.getElementById('ch-format-list');
+  const formats = cat === 'all' ? CH_FORMATS : CH_FORMATS.filter(f => f.category === cat);
+  list.innerHTML = formats.map(f => {
+    const dataGrid = f.data_in.map(d => `
+      <div style="display:flex;align-items:flex-start;gap:7px;padding:7px 10px;background:${d.required ? '#ECFDF5' : '#FFFBEB'};border-radius:6px;border:1px solid ${d.required ? '#6EE7B7' : '#FCD34D'}">
+        <span style="color:${d.required ? '#059669' : '#D97706'};font-size:.8rem;font-weight:700;flex-shrink:0;margin-top:1px">${d.required ? '●' : '○'}</span>
+        <span style="font-size:.82rem;line-height:1.4">${d.field}</span>
+      </div>`).join('');
+    return `<div class="ch-format-card" id="cf-${f.id}">
+      <div class="ch-format-header" onclick="toggleFormat('${f.id}')">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+          <span class="badge ${f.status === 'live' ? 'badge-green' : 'badge-blue'}" style="flex-shrink:0">${f.status === 'live' ? 'Live' : 'In Dev'}</span>
+          <span class="badge ${chCatBadge(f.category)}" style="flex-shrink:0">${chCatLabel(f.category)}</span>
+          <strong style="font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</strong>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <span style="font-size:.78rem;color:var(--gray);display:none" class="ch-channel-preview">${f.channel.split('(')[0].trim()}</span>
+          <span class="ch-expand-arrow" id="ch-arr-${f.id}">▼</span>
+        </div>
+      </div>
+      <div class="ch-format-body" id="ch-body-${f.id}" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+          <div>
+            <div class="section-header" style="margin:0 0 6px">Trigger Condition</div>
+            <div style="font-size:.84rem;line-height:1.5">${f.trigger}</div>
+          </div>
+          <div>
+            <div class="section-header" style="margin:0 0 6px">Legal Basis</div>
+            <div style="font-size:.82rem;font-family:monospace;color:#1D4ED8;line-height:1.6">${f.law}</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+          <div class="result-item"><div class="label">Filing Deadline</div><div class="value" style="font-size:.82rem">${f.sla_file}</div></div>
+          <div class="result-item"><div class="label">Response SLA</div><div class="value" style="font-size:.82rem">${f.sla_response}</div></div>
+          <div class="result-item"><div class="label">Submission Channel</div><div class="value" style="font-size:.78rem">${f.channel}</div></div>
+        </div>
+        <div class="section-header" style="margin-bottom:8px">Data This Format Ingests <span style="font-weight:400;color:var(--gray)">(● required · ○ conditional)</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px">${dataGrid}</div>
+        <div class="alert alert-blue" style="font-size:.83rem;margin-bottom:8px"><strong>Outcome:</strong> ${f.outcome}</div>
+        ${f.notes ? `<div style="font-size:.81rem;color:var(--gray);padding:8px 12px;background:#F9FAFB;border-radius:6px;border-left:3px solid var(--border)"><strong>Note:</strong> ${f.notes}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleFormat(id) {
+  const body = document.getElementById('ch-body-' + id);
+  const arr = document.getElementById('ch-arr-' + id);
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  arr.textContent = isOpen ? '▼' : '▲';
+}
+
+function chCatBadge(cat) {
+  return {patient:'badge-orange', govt:'badge-blue', edi:'badge-gray', financial:'badge-green'}[cat] || 'badge-gray';
+}
+function chCatLabel(cat) {
+  return {patient:'Patient-Initiated', govt:"Gov't Program", edi:'EDI / Operational', financial:'Financial'}[cat] || cat;
+}
+
+function renderMatrix() {
+  const tbody = document.getElementById('ch-matrix-body');
+  tbody.innerHTML = CH_MATRIX_FIELDS.map(row => {
+    const cells = CH_MATRIX_COL_IDS.map(fid => {
+      const isRequired = row.required.includes(fid);
+      const isCond = row.conditional.includes(fid);
+      if (isRequired) return '<td style="text-align:center;background:#ECFDF5;color:#059669;font-size:1rem">●</td>';
+      if (isCond) return '<td style="text-align:center;background:#FFFBEB;color:#D97706;font-size:1rem">○</td>';
+      return '<td style="text-align:center;color:#D1D5DB;font-size:.85rem">—</td>';
+    }).join('');
+    return `<tr><td style="font-size:.8rem;font-weight:600;padding:8px 12px;background:#FAFAFA">${row.field}</td>${cells}</tr>`;
+  }).join('');
+}
+
+function renderRoadmap() {
+  const el = document.getElementById('ch-roadmap-content');
+  const ri = (status, title, desc) => {
+    const cfg = {
+      live:{icon:'✅', bg:'#ECFDF5', border:'#6EE7B7'},
+      build:{icon:'🔧', bg:'#EFF6FF', border:'#93C5FD'},
+      data:{icon:'📊', bg:'#FFFBEB', border:'#FCD34D'},
+      risk:{icon:'⚠️', bg:'#FEF2F2', border:'#FCA5A5'}
+    }[status] || {icon:'•', bg:'#F9FAFB', border:'#E5E7EB'};
+    return `<div style="padding:9px 12px;background:${cfg.bg};border:1px solid ${cfg.border};border-radius:8px;margin-bottom:7px">
+      <div style="font-size:.84rem;font-weight:600">${cfg.icon} ${title}</div>
+      <div style="font-size:.78rem;color:var(--gray);margin-top:2px;line-height:1.4">${desc}</div>
+    </div>`;
+  };
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div class="section-header">Phase 1 — Foundation (Live Now)</div>
+        ${ri('live','Dispute format registry (this tab)','All 15 formats mapped with data requirements, triggers, channels, and SLAs')}
+        ${ri('live','Dispute pathway router','Intake-driven recommendation engine (Tab 3)')}
+        ${ri('live','Letter generator — 7 formats','PPDR, NSA, Insurance Appeal, Charity Care, FDCPA, Late Billing, Itemized Request (Tab 4)')}
+        ${ri('live','CPT price benchmarking — 1,653 codes','2026 Medicare rates vs. hospital chargemaster (Tab 7)')}
+        ${ri('live','Case library — 26 real disputes','Indexed with dispute strategy for each (Tab 6)')}
+      </div>
+      <div>
+        <div class="section-header">Phase 2 — Clearinghouse Core (Build Next)</div>
+        ${ri('build','OCR intake pipeline','AWS Textract / Azure Form Recognizer — parse any bill PDF, UB-04, CMS-1500, or EOB to structured JSON')}
+        ${ri('build','AI dispute classifier','Claude API: input parsed bill JSON → output eligible dispute formats + confidence scores + missing data gaps')}
+        ${ri('build','Data completeness validator','Per-format field checker: "You need GFE doc to file PPDR — missing" with checklist UI')}
+        ${ri('build','EDI 276/277 claim status connector','Real-time claim status via Availity or Waystar before filing any formal dispute')}
+        ${ri('build','Submission + outcome tracker','Case-level pipeline: submitted → pending → responded → outcome logged → feeds AI')}
+      </div>
+      <div>
+        <div class="section-header">Phase 3 — Intelligence Layer</div>
+        ${ri('build','Multi-payer EOB / 835 parser','Structured extraction of denial codes, remark codes, paid amounts, adjustment codes from any payer EOB')}
+        ${ri('build','NCCI edit checker','CMS quarterly edit tables → auto-flag unbundling and modifier violations in uploaded CPT sets')}
+        ${ri('build','Outcome prediction model','Train on case library outcomes → P(reversal) estimate per dispute type, payer, and denial code')}
+        ${ri('build','50-state rule engine','State-specific SOL, timely filing, DOI complaint portals, Medicaid fair hearing procedures')}
+        ${ri('build','Payer-specific denial code library','Map each payer\'s proprietary remark codes to dispute format and next action')}
+      </div>
+      <div>
+        <div class="section-header">Data We Still Need to Load</div>
+        ${ri('data','Full NCCI edit tables (CMS quarterly)','Procedure-to-procedure bundling rules — required for unbundling detection engine')}
+        ${ri('data','Payer denial code maps (top 20 payers)','UHC, Aetna, BCBS, Cigna, Humana — proprietary remark codes beyond X12 standard set')}
+        ${ri('data','State DOI complaint portal directory','50-state URLs, form types, and filing instructions for regulatory complaint routing')}
+        ${ri('data','MAC directory by state (Medicare)','Which Medicare Administrative Contractor (Noridian/CGS/Palmetto/Novitas/WPS) for each state')}
+        ${ri('data','CMS-certified IDR entity registry','Active IDR entities for NSA disputes (AIMS, DataEx, Arbitration Forums) with contact + fee info')}
+        ${ri('data','AI training bills — Google Drive','4 categories: Patient Bills · Provider Claims · GFEs · CPT Code sheets → OCR + classifier training pipeline')}
+      </div>
+    </div>
+    <div class="alert alert-orange" style="margin-top:16px">
+      <strong>AI Training Bill Inventory (Google Drive):</strong> Real and hypothetical bills in four folders — Patient Bills, Provider Claims, GFEs, CPT Codes — are the training foundation for the OCR + AI dispute classifier. Load these into the Phase 2 AI pipeline. Each bill should be tagged with: bill type · denial code(s) · dispute format used · outcome (if known) · savings achieved.
+    </div>
+  `;
+}
 </script>
 </body>
 </html>
