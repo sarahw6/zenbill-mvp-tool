@@ -174,6 +174,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
   <button class="tab-btn" onclick="switchTab('aiocr',this)">8. AI & OCR Guide</button>
   <button class="tab-btn" onclick="switchTab('clearinghouse',this)">9. Clearinghouse</button>
   <button class="tab-btn" onclick="switchTab('aitraining',this)">10. AI Training</button>
+  <button class="tab-btn" onclick="switchTab('benchmarks',this)">11. Price Benchmarks</button>
 </div>
 
 <div class="main">
@@ -790,53 +791,254 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
 
 <div id="tab-aitraining" class="tab-content">
 
-  <div class="card" style="border-left:4px solid #9333EA">
-    <div class="card-title"><span class="icon">🤖</span> AI Training Dataset</div>
-    <div class="alert alert-blue" style="margin-bottom:0;font-size:.82rem">
-      <strong>Purpose:</strong> This dataset trains ZenBill's dispute recommendation model. Each case becomes a prompt→response pair: the INPUT is a structured bill description, the OUTPUT is specific dispute guidance. Browse pairs below, filter by issue type or source, and export as JSONL for fine-tuning an LLM (OpenAI, Anthropic, or open-source).
+  <div class="card" style="border-left:4px solid #9333EA;padding-bottom:20px">
+    <div class="card-title" style="margin-bottom:16px"><span class="icon">&#x1F916;</span> AI Pipeline &#x2014; What Gets Trained on What</div>
+    <div class="ai-pipeline">
+      <div class="ai-pipe-step">
+        <div class="ai-pipe-icon">&#x1F4C4;</div>
+        <div class="ai-pipe-name">Bill Upload</div>
+        <div class="ai-pipe-sub">image / PDF / text</div>
+      </div>
+      <div class="ai-pipe-arrow">&#x2192;</div>
+      <div class="ai-pipe-step ai-pipe-gap clickable" onclick="scrollToSection('ai-section-taskA')">
+        <div class="ai-pipe-icon">&#x1F50D;</div>
+        <div class="ai-pipe-name">Task A: Extract</div>
+        <div class="ai-pipe-count" style="background:#FEE2E2;color:#991B1B" id="pipe-a-count">&#x274C; 0 pairs</div>
+        <div class="ai-pipe-sub">P0 gap &middot; click to build</div>
+      </div>
+      <div class="ai-pipe-arrow">&#x2192;</div>
+      <div class="ai-pipe-step ai-pipe-ready clickable" onclick="scrollToSection('ai-section-taskB')">
+        <div class="ai-pipe-icon">&#x1F4AC;</div>
+        <div class="ai-pipe-name">Task B: Advise</div>
+        <div class="ai-pipe-count" style="background:#D1FAE5;color:#065F46" id="pipe-b-count">&#x2705; 550 pairs</div>
+        <div class="ai-pipe-sub">click to review &amp; approve</div>
+      </div>
+      <div class="ai-pipe-arrow">&#x2192;</div>
+      <div class="ai-pipe-step ai-pipe-partial">
+        <div class="ai-pipe-icon">&#x1F4CB;</div>
+        <div class="ai-pipe-name">Form Gen</div>
+        <div class="ai-pipe-count" style="background:#FEF3C7;color:#92400E">&#x26A0; 50%</div>
+        <div class="ai-pipe-sub">CMS-10791</div>
+      </div>
+      <div class="ai-pipe-arrow">&#x2192;</div>
+      <div class="ai-pipe-step">
+        <div class="ai-pipe-icon">&#x1F4EC;</div>
+        <div class="ai-pipe-name">Submit</div>
+        <div class="ai-pipe-sub">nsa-idr.cms.gov</div>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title"><span class="icon">📊</span> Dataset Overview</div>
-    <div id="ai-stats"><div style="color:var(--gray);font-size:.85rem">Loading stats...</div></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><span class="icon">🔍</span> Training Pair Browser</div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
-      <span style="font-size:.82rem;font-weight:600;color:var(--gray)">Source:</span>
+  <div id="ai-section-taskB" class="card">
+    <div class="card-title"><span class="icon">&#x1F4AC;</span> Task B &#x2014; Dispute Advice</div>
+    <div class="ai-review-bar">
+      <span class="ai-review-stat">Total: <strong id="rs-total">550</strong></span>
+      <span class="ai-review-stat" style="color:#16A34A">&#x2713; Approved: <strong id="rs-approved">0</strong></span>
+      <span class="ai-review-stat" style="color:#EF4444">&#x2691; Flagged: <strong id="rs-flagged">0</strong></span>
+      <span class="ai-review-stat" style="color:#3B82F6">&#x270E; Edited: <strong id="rs-edited">0</strong></span>
+      <span class="ai-review-stat" style="margin-left:auto;color:var(--gray)">Approve pairs to quality-gate the export</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
       <button class="ch-filter-btn ai-src-btn active" onclick="aiSetSource('all',this)">All 550</button>
       <button class="ch-filter-btn ai-src-btn" onclick="aiSetSource('real',this)">Real (30)</button>
-      <button class="ch-filter-btn ai-src-btn" onclick="aiSetSource('hypo',this)">Hypothetical (520)</button>
-      <span style="font-size:.82rem;font-weight:600;color:var(--gray);margin-left:8px">Issue:</span>
-      <select id="ai-cat-filter" onchange="aiSetCat(this.value)" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:.82rem;font-family:inherit;color:var(--gray);background:#fff">
-        <option value="">All Types</option>
+      <button class="ch-filter-btn ai-src-btn" onclick="aiSetSource('hypo',this)">Hypo (520)</button>
+      <button class="ch-filter-btn ai-src-btn" id="ai-filter-approved-btn" onclick="aiSetSource('approved',this)" style="border-color:#16A34A;color:#16A34A">&#x2713; Approved (0)</button>
+      <button class="ch-filter-btn ai-src-btn" id="ai-filter-flagged-btn" onclick="aiSetSource('flagged',this)" style="border-color:#EF4444;color:#EF4444">&#x2691; Flagged (0)</button>
+      <select id="ai-cat-filter" onchange="aiSetCat(this.value)" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:.82rem;font-family:inherit;color:var(--gray);background:#fff;margin-left:auto">
+        <option value="">All Issue Types</option>
       </select>
     </div>
-    <div id="ai-browser"><div style="color:var(--gray);font-size:.85rem">Loading...</div></div>
+    <div id="ai-browser"></div>
   </div>
 
-  <div class="card">
-    <div class="card-title"><span class="icon">💬</span> System Prompt</div>
-    <div style="font-size:.82rem;color:var(--gray);margin-bottom:10px">This system prompt prefixes every training pair. It defines the AI's role, tone, and output format.</div>
-    <div id="ai-sysprompt" style="background:#F8FAFC;border:1.5px solid var(--border);border-radius:8px;padding:14px;font-size:.83rem;font-family:monospace;white-space:pre-wrap;line-height:1.65"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><span class="icon">💾</span> Export Training Data</div>
-    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
-      <button class="btn btn-primary" onclick="exportTrainingData('all')">Download All 550 as JSONL</button>
-      <button class="btn btn-secondary" onclick="exportTrainingData('real')">Real Bills Only (30)</button>
-      <button class="btn btn-secondary" onclick="exportTrainingData('hypo')">Hypo Bills Only (520)</button>
+  <div id="ai-section-taskA" class="card" style="border-left:4px solid #EF4444">
+    <div class="card-title"><span class="icon">&#x1F50D;</span> Task A &#x2014; Bill Extraction
+      <span class="badge badge-red" style="margin-left:8px;font-size:.73rem" id="taskA-count-badge">0 pairs</span>
     </div>
-    <div class="alert alert-blue" style="font-size:.82rem;margin-bottom:0">
-      <strong>Format:</strong> OpenAI fine-tuning JSONL — one JSON object per line, each with <code>messages</code> array containing <code>system</code>, <code>user</code>, and <code>assistant</code> turns. Compatible with OpenAI fine-tuning API, Anthropic Claude fine-tuning, and open-source tools (Axolotl, Unsloth, LLaMA-Factory).
+    <div class="alert alert-orange" style="font-size:.82rem;margin-bottom:16px">
+      <strong>This is the P0 gap.</strong> Atrilium's main app has 0% OCR/extraction &#x2014; the pipeline starts here.
+      Each pair = one bill (text or description) + the correct structured JSON output.
+      These pairs train the extraction model that feeds Task B.
+    </div>
+    <div id="ai-extraction-list"></div>
+    <div style="border:2px dashed var(--border);border-radius:10px;padding:18px">
+      <div style="font-weight:700;font-size:.9rem;margin-bottom:14px">+ Add Extraction Pair</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div class="ai-pair-col-label" style="color:#6B7280;margin-bottom:8px">INPUT &#x2014; raw bill text or description</div>
+          <textarea id="ai-ext-input" placeholder="Paste the raw bill text, OCR output, or describe the bill image:&#10;&#10;Provider: Mercy Hospital&#10;Date: 03/15/2025&#10;Charges: $8,450&#10;Ins paid: $0&#10;Balance: $8,450&#10;ER Level 4 $1,200, CT Abdomen $3,100..." style="width:100%;min-height:220px;padding:12px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:monospace;resize:vertical;line-height:1.5"></textarea>
+        </div>
+        <div>
+          <div class="ai-pair-col-label" style="color:#15803D;margin-bottom:8px">OUTPUT &#x2014; correct extracted JSON</div>
+          <textarea id="ai-ext-output" style="width:100%;min-height:220px;padding:12px;border:1.5px solid #86EFAC;border-radius:8px;font-size:.8rem;font-family:monospace;resize:vertical;line-height:1.5">{
+  "provider": "",
+  "npi": "",
+  "billed_total": 0.00,
+  "insurance_paid": 0.00,
+  "adjustments": 0.00,
+  "patient_balance": 0.00,
+  "service_date_start": "",
+  "service_date_end": "",
+  "account_number": "",
+  "emergency": false,
+  "bill_type": "",
+  "line_items": [
+    {
+      "description": "",
+      "cpt_code": "",
+      "revenue_code": "",
+      "units": 1,
+      "charge": 0.00,
+      "paid": 0.00
+    }
+  ],
+  "diagnosis_codes": [],
+  "issues_flagged": []
+}</textarea>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <button class="btn btn-primary" onclick="saveExtractionPair()">Save Pair</button>
+        <button class="btn btn-secondary" onclick="clearExtractionForm()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="ai-section-test" class="card">
+    <div class="card-title"><span class="icon">&#x25B6;</span> Live Test &#x2014; Find Similar Cases</div>
+    <div style="font-size:.83rem;color:var(--gray);margin-bottom:12px">Describe a bill. We search all 550 training pairs for the closest keyword match and show what dispute advice the trained model would generate.</div>
+    <textarea id="ai-test-input" placeholder="Provider: Mercy Hospital&#10;Billed: $12,000, Insurance paid: $0, Balance: $12,000&#10;Service: ER visit, uninsured patient, Aetna declined prior auth" style="width:100%;min-height:90px;padding:12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit;resize:vertical"></textarea>
+    <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
+      <button class="btn btn-primary" onclick="runLiveTest()">&#x25B6; Find Similar Cases</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('ai-test-output').innerHTML='';document.getElementById('ai-test-input').value=''">Clear</button>
+      <span style="font-size:.78rem;color:var(--gray)">Returns top 3 matches by keyword + dollar similarity</span>
+    </div>
+    <div id="ai-test-output" style="margin-top:16px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">&#x1F4CA;</span> Dataset Stats &amp; Export</div>
+    <div id="ai-stats"></div>
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
+      <div style="font-weight:600;font-size:.88rem;margin-bottom:12px">Export Training Data</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <button class="btn btn-primary" onclick="exportTrainingData('all')">All 550 (JSONL)</button>
+        <button class="btn btn-secondary" onclick="exportTrainingData('approved')">Approved only (<span id="ai-export-approved-count">0</span>)</button>
+        <button class="btn btn-secondary" onclick="exportTrainingData('real')">Real bills (30)</button>
+        <button class="btn btn-secondary" onclick="exportTrainingData('taskA')">Task A extraction (<span id="ai-export-taskA-count">0</span>)</button>
+      </div>
+      <div class="alert alert-blue" style="font-size:.8rem;margin-bottom:0">
+        <strong>Format:</strong> OpenAI/Anthropic fine-tuning JSONL &middot; one object per line &middot; <code>system + user + assistant</code> turns &middot; compatible with OpenAI fine-tuning API, Anthropic fine-tuning, Axolotl, Unsloth, LLaMA-Factory
+      </div>
     </div>
   </div>
 
 </div>
 
+<div id="tab-benchmarks" class="tab-content">
+
+  <div class="card" style="border-left:4px solid #0EA5E9;padding-bottom:16px">
+    <div class="card-title" style="margin-bottom:6px"><span class="icon">&#x1F4CA;</span> Price Benchmarks &mdash; How Does Your Bill Compare?</div>
+    <div style="font-size:.82rem;color:var(--gray)">Source: <strong>SPARCS 2024</strong> &mdash; 2,196,508 NY inpatient discharges &middot; NY Dept. of Health &middot; Updated annually &middot; Grouped by procedure category &times; payer type</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px"><span class="icon">&#x1F50D;</span> Look Up Your Bill</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 180px auto;gap:12px;align-items:end;flex-wrap:wrap" id="bench-form-grid">
+      <div>
+        <div style="font-size:.78rem;font-weight:600;color:var(--gray);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Procedure Category</div>
+        <select id="bench-mdc" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit;color:var(--text);background:#fff">
+          <option value="">— select category —</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:.78rem;font-weight:600;color:var(--gray);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Your Payer</div>
+        <select id="bench-payer" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit;color:var(--text);background:#fff">
+          <option value="All Payers">All Payers (combined)</option>
+          <option value="Self-Pay">Self-Pay / Uninsured</option>
+          <option value="Private Insurance">Private Insurance</option>
+          <option value="Blue Cross/Blue Shield">Blue Cross / Blue Shield</option>
+          <option value="Medicare">Medicare</option>
+          <option value="Medicaid">Medicaid</option>
+          <option value="Managed Care">Managed Care</option>
+          <option value="Federal/VA">Federal / VA</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:.78rem;font-weight:600;color:var(--gray);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Your Bill Total</div>
+        <input id="bench-amount" type="number" placeholder="e.g. 45000" min="0" step="100"
+          style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit;color:var(--text)">
+      </div>
+      <div>
+        <button class="btn btn-primary" onclick="runBenchmark()" style="white-space:nowrap;padding:9px 20px">&#x25B6; Check Bill</button>
+      </div>
+    </div>
+    <div id="bench-no-data" style="display:none;margin-top:12px" class="alert alert-orange">
+      No data for that combination — try "All Payers" or a different category.
+    </div>
+  </div>
+
+  <div id="bench-result" style="display:none">
+
+    <div class="card" id="bench-verdict-card">
+      <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap">
+        <div id="bench-verdict-badge" style="font-size:1.5rem;font-weight:800;padding:12px 20px;border-radius:10px;white-space:nowrap"></div>
+        <div style="flex:1;min-width:220px">
+          <div id="bench-verdict-text" style="font-size:.95rem;font-weight:600;margin-bottom:4px"></div>
+          <div id="bench-verdict-sub" style="font-size:.82rem;color:var(--gray)"></div>
+        </div>
+      </div>
+
+      <div style="margin:20px 0 6px;position:relative" id="bench-bar-wrap">
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--gray);margin-bottom:3px" id="bench-bar-labels"></div>
+        <div style="height:28px;border-radius:6px;overflow:visible;position:relative;display:flex" id="bench-bar"></div>
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--gray);margin-top:3px" id="bench-bar-pcts">
+          <span>p10</span><span>p25</span><span>p50</span><span>p75</span><span>p90</span>
+        </div>
+        <div id="bench-marker" style="position:absolute;top:-4px;display:flex;flex-direction:column;align-items:center;pointer-events:none">
+          <div style="width:3px;height:36px;background:#1E293B;border-radius:2px"></div>
+          <div id="bench-marker-label" style="font-size:.75rem;font-weight:700;background:#1E293B;color:#fff;padding:2px 7px;border-radius:4px;white-space:nowrap;margin-top:2px"></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:24px" id="bench-stats-grid"></div>
+
+      <div id="bench-action" style="margin-top:16px;padding:12px 14px;border-radius:8px;font-size:.83rem"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px"><span class="icon">&#x1F4CB;</span> Full Percentile Table &mdash; <span id="bench-table-title" style="font-weight:400;color:var(--gray)"></span></div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:.83rem" id="bench-table">
+          <thead>
+            <tr style="background:#F8FAFC;border-bottom:1.5px solid var(--border)">
+              <th style="text-align:left;padding:8px 10px;font-weight:600">Percentile</th>
+              <th style="text-align:right;padding:8px 10px;font-weight:600">Total Charges</th>
+              <th style="text-align:left;padding:8px 10px;font-weight:400;color:var(--gray)">What it means</th>
+            </tr>
+          </thead>
+          <tbody id="bench-table-body"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px;font-size:.78rem;color:var(--gray)">
+        Hospital cost (what it costs to deliver care): <strong id="bench-cost-note"></strong> median &middot;
+        Mark-up ratio: <strong id="bench-markup-note"></strong> &middot;
+        Typical LOS: <strong id="bench-los-note"></strong> days
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card" style="background:#F8FAFC">
+    <div style="font-size:.78rem;color:var(--gray)">
+      <strong>Data notes:</strong> SPARCS = Statewide Planning and Research Cooperative System. NY inpatient discharges 2024.
+      Charges = what was billed to insurer/patient. Costs = estimated cost to deliver care (using cost-to-charge ratios).
+      Percentiles exclude records with $0 charges. All figures in USD. This tool is for educational purposes; consult a billing advocate for case-specific advice.
+    </div>
+  </div>
+
+</div>
 </div><!-- /main -->
 
 <div class="footer">
@@ -1489,6 +1691,7 @@ function switchTab(id, btn) {
   if (id === 'cases') renderCases();
   if (id === 'clearinghouse') renderClearinghouse();
   if (id === 'aitraining') renderAITraining();
+  if (id === 'benchmarks') renderBenchmarks();
 }
 
 function toggleGFE() {
@@ -2833,48 +3036,298 @@ function renderRoadmap() {
 }
 
 // ============================================================
-// AI TRAINING TAB
+// SPARCS 2024 PRICE BENCHMARKS DATA
 // ============================================================
+const SPARCS_BENCHMARKS = [
+  {mdc:"Blood / Immune",payer:"Blue Cross/Blue Shield",n:2457,p10:15758,p25:26946,p50:49001,p75:88458,p90:160264,cost_p50:13020,los_p50:3.0},
+  {mdc:"Blood / Immune",payer:"Federal/VA",n:246,p10:13817,p25:21130,p50:37402,p75:65625,p90:105171,cost_p50:12160,los_p50:3.0},
+  {mdc:"Blood / Immune",payer:"Managed Care",n:455,p10:13025,p25:18896,p50:32805,p75:57807,p90:99090,cost_p50:9479,los_p50:3.0},
+  {mdc:"Blood / Immune",payer:"Medicaid",n:10254,p10:14698,p25:24146,p50:44104,p75:83678,p90:154587,cost_p50:14163,los_p50:3.0},
+  {mdc:"Blood / Immune",payer:"Medicare",n:14334,p10:18251,p25:30295,p50:54999,p75:98050,p90:168308,cost_p50:15120,los_p50:4.0},
+  {mdc:"Blood / Immune",payer:"Other",n:176,p10:11864,p25:23288,p50:45057,p75:88075,p90:166674,cost_p50:14554,los_p50:3.0},
+  {mdc:"Blood / Immune",payer:"Private Insurance",n:4253,p10:18678,p25:28495,p50:50883,p75:92902,p90:169575,cost_p50:13984,los_p50:3.0},
+  {mdc:"Blood / Immune",payer:"Self-Pay",n:445,p10:13143,p25:22993,p50:38895,p75:69989,p90:131522,cost_p50:11735,los_p50:2.0},
+  {mdc:"Burns",payer:"Blue Cross/Blue Shield",n:182,p10:14612,p25:26483,p50:48974,p75:111600,p90:281831,cost_p50:16785,los_p50:3.0},
+  {mdc:"Burns",payer:"Medicaid",n:865,p10:14288,p25:27927,p50:56876,p75:154605,p90:442267,cost_p50:19128,los_p50:4.0},
+  {mdc:"Burns",payer:"Medicare",n:376,p10:20999,p25:45889,p50:111358,p75:315171,p90:639446,cost_p50:37222,los_p50:7.0},
+  {mdc:"Burns",payer:"Other",n:168,p10:18169,p25:38557,p50:86853,p75:255118,p90:607435,cost_p50:32028,los_p50:6.0},
+  {mdc:"Burns",payer:"Private Insurance",n:260,p10:18373,p25:34215,p50:72503,p75:178501,p90:449116,cost_p50:18796,los_p50:3.0},
+  {mdc:"Burns",payer:"Self-Pay",n:62,p10:19261,p25:29601,p50:59654,p75:135825,p90:369131,cost_p50:17239,los_p50:3.0},
+  {mdc:"Cancer / Chemo",payer:"Blue Cross/Blue Shield",n:2976,p10:19888,p25:37481,p50:80283,p75:208873,p90:527859,cost_p50:23229,los_p50:5.0},
+  {mdc:"Cancer / Chemo",payer:"Federal/VA",n:211,p10:22529,p25:43045,p50:82081,p75:213161,p90:534595,cost_p50:26106,los_p50:6.0},
+  {mdc:"Cancer / Chemo",payer:"Managed Care",n:517,p10:18572,p25:25277,p50:48318,p75:116083,p90:294951,cost_p50:13615,los_p50:5.0},
+  {mdc:"Cancer / Chemo",payer:"Medicaid",n:4852,p10:25239,p25:44522,p50:88333,p75:222357,p90:580910,cost_p50:24582,los_p50:5.0},
+  {mdc:"Cancer / Chemo",payer:"Medicare",n:9927,p10:27689,p25:51248,p50:103944,p75:235198,p90:514663,cost_p50:28464,los_p50:6.0},
+  {mdc:"Cancer / Chemo",payer:"Other",n:60,p10:15954,p25:26427,p50:67606,p75:153417,p90:319982,cost_p50:16679,los_p50:5.0},
+  {mdc:"Cancer / Chemo",payer:"Private Insurance",n:4150,p10:27808,p25:51156,p50:102606,p75:268414,p90:634441,cost_p50:29037,los_p50:5.0},
+  {mdc:"Cancer / Chemo",payer:"Self-Pay",n:178,p10:25380,p25:46905,p50:82400,p75:227897,p90:612807,cost_p50:22529,los_p50:5.0},
+  {mdc:"Circulatory / Heart",payer:"Blue Cross/Blue Shield",n:17253,p10:18143,p25:33423,p50:68686,p75:138775,p90:266163,cost_p50:18043,los_p50:3.0},
+  {mdc:"Circulatory / Heart",payer:"Federal/VA",n:2932,p10:12862,p25:22416,p50:45150,p75:93525,p90:159996,cost_p50:14830,los_p50:3.0},
+  {mdc:"Circulatory / Heart",payer:"Managed Care",n:2910,p10:19950,p25:32920,p50:62342,p75:122913,p90:215060,cost_p50:15172,los_p50:3.0},
+  {mdc:"Circulatory / Heart",payer:"Medicaid",n:43895,p10:15762,p25:27659,p50:56990,p75:121190,p90:255900,cost_p50:17783,los_p50:3.0},
+  {mdc:"Circulatory / Heart",payer:"Medicare",n:179684,p10:18360,p25:34025,p50:68617,p75:137598,p90:262236,cost_p50:18962,los_p50:3.0},
+  {mdc:"Circulatory / Heart",payer:"Other",n:1195,p10:13523,p25:23692,p50:46317,p75:95351,p90:194615,cost_p50:12612,los_p50:3.0},
+  {mdc:"Circulatory / Heart",payer:"Private Insurance",n:26611,p10:20819,p25:36791,p50:72131,p75:153422,p90:299511,cost_p50:19127,los_p50:3.0},
+  {mdc:"Circulatory / Heart",payer:"Self-Pay",n:3087,p10:15782,p25:26060,p50:52383,p75:109481,p90:219402,cost_p50:15479,los_p50:3.0},
+  {mdc:"Digestive",payer:"Blue Cross/Blue Shield",n:17456,p10:15872,p25:27242,p50:47382,p75:84567,p90:141440,cost_p50:13145,los_p50:3.0},
+  {mdc:"Digestive",payer:"Federal/VA",n:1622,p10:11154,p25:18352,p50:33248,p75:62696,p90:107846,cost_p50:11467,los_p50:3.0},
+  {mdc:"Digestive",payer:"Managed Care",n:2549,p10:14901,p25:22348,p50:35701,p75:59569,p90:97454,cost_p50:9843,los_p50:3.0},
+  {mdc:"Digestive",payer:"Medicaid",n:38715,p10:15144,p25:25336,p50:45175,p75:82233,p90:148245,cost_p50:13629,los_p50:3.0},
+  {mdc:"Digestive",payer:"Medicare",n:83714,p10:17792,p25:30437,p50:56131,p75:103231,p90:184556,cost_p50:15644,los_p50:4.0},
+  {mdc:"Digestive",payer:"Other",n:729,p10:11550,p25:19630,p50:37599,p75:78521,p90:159148,cost_p50:12489,los_p50:3.0},
+  {mdc:"Digestive",payer:"Private Insurance",n:24949,p10:19667,p25:31977,p50:53733,p75:93629,p90:156159,cost_p50:14164,los_p50:3.0},
+  {mdc:"Digestive",payer:"Self-Pay",n:2406,p10:14380,p25:23920,p50:41789,p75:72842,p90:125092,cost_p50:12543,los_p50:2.0},
+  {mdc:"ENT / Head & Neck",payer:"Blue Cross/Blue Shield",n:2484,p10:13508,p25:23813,p50:40732,p75:75993,p90:150658,cost_p50:10453,los_p50:2.0},
+  {mdc:"ENT / Head & Neck",payer:"Federal/VA",n:209,p10:10790,p25:16908,p50:33562,p75:66813,p90:151401,cost_p50:11549,los_p50:3.0},
+  {mdc:"ENT / Head & Neck",payer:"Managed Care",n:486,p10:9456,p25:14989,p50:25676,p75:49397,p90:99872,cost_p50:7318,los_p50:2.0},
+  {mdc:"ENT / Head & Neck",payer:"Medicaid",n:8789,p10:12550,p25:21416,p50:36916,p75:67099,p90:133969,cost_p50:10793,los_p50:2.0},
+  {mdc:"ENT / Head & Neck",payer:"Medicare",n:11518,p10:16207,p25:28061,p50:48976,p75:85745,p90:163695,cost_p50:12416,los_p50:3.0},
+  {mdc:"ENT / Head & Neck",payer:"Other",n:356,p10:14959,p25:27450,p50:47517,p75:87491,p90:172008,cost_p50:12904,los_p50:3.0},
+  {mdc:"ENT / Head & Neck",payer:"Private Insurance",n:4497,p10:16402,p25:27199,p50:44702,p75:85008,p90:160492,cost_p50:11623,los_p50:2.0},
+  {mdc:"ENT / Head & Neck",payer:"Self-Pay",n:537,p10:10907,p25:18524,p50:33382,p75:61153,p90:118810,cost_p50:10156,los_p50:2.0},
+  {mdc:"Endocrine / Metabolic",payer:"Blue Cross/Blue Shield",n:5891,p10:13490,p25:24645,p50:42985,p75:68780,p90:114968,cost_p50:12698,los_p50:2.0},
+  {mdc:"Endocrine / Metabolic",payer:"Federal/VA",n:685,p10:10738,p25:16715,p50:28688,p75:48927,p90:75746,cost_p50:10849,los_p50:2.0},
+  {mdc:"Endocrine / Metabolic",payer:"Managed Care",n:1071,p10:11581,p25:19144,p50:31964,p75:48198,p90:69532,cost_p50:8847,los_p50:2.0},
+  {mdc:"Endocrine / Metabolic",payer:"Medicaid",n:24837,p10:13983,p25:23452,p50:39553,p75:67798,p90:119020,cost_p50:13398,los_p50:2.0},
+  {mdc:"Endocrine / Metabolic",payer:"Medicare",n:33582,p10:13728,p25:24290,p50:45294,p75:79137,p90:138873,cost_p50:13101,los_p50:4.0},
+  {mdc:"Endocrine / Metabolic",payer:"Other",n:304,p10:12006,p25:17725,p50:26358,p75:55980,p90:113723,cost_p50:12015,los_p50:2.0},
+  {mdc:"Endocrine / Metabolic",payer:"Private Insurance",n:11020,p10:18940,p25:27326,p50:47083,p75:69106,p90:107658,cost_p50:13206,los_p50:2.0},
+  {mdc:"Endocrine / Metabolic",payer:"Self-Pay",n:1410,p10:14194,p25:22857,p50:32310,p75:52457,p90:88326,cost_p50:12362,los_p50:2.0},
+  {mdc:"Eye",payer:"Blue Cross/Blue Shield",n:450,p10:17858,p25:31047,p50:49862,p75:84238,p90:133125,cost_p50:10696,los_p50:2.0},
+  {mdc:"Eye",payer:"Managed Care",n:77,p10:14140,p25:20350,p50:30258,p75:52304,p90:84527,cost_p50:7854,los_p50:3.0},
+  {mdc:"Eye",payer:"Medicaid",n:1299,p10:15540,p25:24803,p50:44033,p75:83692,p90:162891,cost_p50:13986,los_p50:3.0},
+  {mdc:"Eye",payer:"Medicare",n:1779,p10:18358,p25:29797,p50:48952,p75:82823,p90:137687,cost_p50:11867,los_p50:3.0},
+  {mdc:"Eye",payer:"Other",n:113,p10:14478,p25:23267,p50:40665,p75:68508,p90:102017,cost_p50:12520,los_p50:2.0},
+  {mdc:"Eye",payer:"Private Insurance",n:779,p10:20295,p25:32769,p50:49902,p75:83988,p90:129458,cost_p50:11866,los_p50:2.0},
+  {mdc:"Eye",payer:"Self-Pay",n:112,p10:16202,p25:23629,p50:42546,p75:76994,p90:116749,cost_p50:12706,los_p50:2.0},
+  {mdc:"Female Reproductive",payer:"Blue Cross/Blue Shield",n:2380,p10:21773,p25:35488,p50:57742,p75:86785,p90:132980,cost_p50:15493,los_p50:2.0},
+  {mdc:"Female Reproductive",payer:"Federal/VA",n:134,p10:18009,p25:27545,p50:40296,p75:56472,p90:77218,cost_p50:13271,los_p50:2.0},
+  {mdc:"Female Reproductive",payer:"Managed Care",n:270,p10:17280,p25:24749,p50:37629,p75:56227,p90:84183,cost_p50:11463,los_p50:2.0},
+  {mdc:"Female Reproductive",payer:"Medicaid",n:4688,p10:18565,p25:29720,p50:51761,p75:82395,p90:132246,cost_p50:16578,los_p50:2.0},
+  {mdc:"Female Reproductive",payer:"Medicare",n:3775,p10:24478,p25:40950,p50:68720,p75:111640,p90:185842,cost_p50:18515,los_p50:3.0},
+  {mdc:"Female Reproductive",payer:"Other",n:57,p10:7196,p25:10557,p50:20602,p75:44534,p90:68995,cost_p50:14262,los_p50:2.0},
+  {mdc:"Female Reproductive",payer:"Private Insurance",n:4527,p10:26806,p25:41923,p50:60596,p75:87315,p90:129222,cost_p50:15686,los_p50:2.0},
+  {mdc:"Female Reproductive",payer:"Self-Pay",n:288,p10:17506,p25:27795,p50:49595,p75:78849,p90:126035,cost_p50:16841,los_p50:2.0},
+  {mdc:"HIV",payer:"Blue Cross/Blue Shield",n:144,p10:28275,p25:44173,p50:75548,p75:148684,p90:250036,cost_p50:19490,los_p50:5.0},
+  {mdc:"HIV",payer:"Managed Care",n:53,p10:22937,p25:31979,p50:61519,p75:123198,p90:286852,cost_p50:16241,los_p50:6.0},
+  {mdc:"HIV",payer:"Medicaid",n:3204,p10:21273,p25:31411,p50:61214,p75:127228,p90:246259,cost_p50:25377,los_p50:5.0},
+  {mdc:"HIV",payer:"Medicare",n:1957,p10:24539,p25:39058,p50:77105,p75:155899,p90:302678,cost_p50:24967,los_p50:6.0},
+  {mdc:"HIV",payer:"Private Insurance",n:378,p10:22983,p25:41074,p50:82679,p75:157383,p90:326124,cost_p50:20744,los_p50:5.0},
+  {mdc:"HIV",payer:"Self-Pay",n:85,p10:16689,p25:29997,p50:52379,p75:105974,p90:214294,cost_p50:20629,los_p50:5.0},
+  {mdc:"Infectious Disease",payer:"Blue Cross/Blue Shield",n:11388,p10:17045,p25:30364,p50:56231,p75:110438,p90:224938,cost_p50:14942,los_p50:4.0},
+  {mdc:"Infectious Disease",payer:"Federal/VA",n:1844,p10:13751,p25:22889,p50:42576,p75:81205,p90:153245,cost_p50:15201,los_p50:5.0},
+  {mdc:"Infectious Disease",payer:"Managed Care",n:2082,p10:16728,p25:27475,p50:46519,p75:87500,p90:169699,cost_p50:12104,los_p50:5.0},
+  {mdc:"Infectious Disease",payer:"Medicaid",n:35762,p10:18873,p25:33213,p50:65927,p75:141848,p90:306082,cost_p50:20263,los_p50:5.0},
+  {mdc:"Infectious Disease",payer:"Medicare",n:111879,p10:22615,p25:41173,p50:79335,p75:155155,p90:295030,cost_p50:21929,los_p50:6.0},
+  {mdc:"Infectious Disease",payer:"Other",n:797,p10:14663,p25:26649,p50:54906,p75:114158,p90:210288,cost_p50:17355,los_p50:5.0},
+  {mdc:"Infectious Disease",payer:"Private Insurance",n:17151,p10:21441,p25:36933,p50:65124,p75:126160,p90:255782,cost_p50:17154,los_p50:4.0},
+  {mdc:"Infectious Disease",payer:"Self-Pay",n:2085,p10:14899,p25:27459,p50:52353,p75:102993,p90:210748,cost_p50:15040,los_p50:4.0},
+  {mdc:"Injuries / Poisoning",payer:"Blue Cross/Blue Shield",n:2280,p10:12796,p25:22969,p50:40427,p75:74006,p90:140428,cost_p50:11940,los_p50:2.0},
+  {mdc:"Injuries / Poisoning",payer:"Federal/VA",n:262,p10:11221,p25:17138,p50:31828,p75:56551,p90:111887,cost_p50:10594,los_p50:3.0},
+  {mdc:"Injuries / Poisoning",payer:"Managed Care",n:449,p10:12006,p25:16845,p50:29165,p75:49732,p90:83206,cost_p50:8092,los_p50:3.0},
+  {mdc:"Injuries / Poisoning",payer:"Medicaid",n:9322,p10:11069,p25:19054,p50:34364,p75:68929,p90:145142,cost_p50:12297,los_p50:3.0},
+  {mdc:"Injuries / Poisoning",payer:"Medicare",n:9811,p10:15896,p25:27353,p50:51207,p75:100538,p90:190730,cost_p50:15327,los_p50:4.0},
+  {mdc:"Injuries / Poisoning",payer:"Other",n:310,p10:11824,p25:21081,p50:40622,p75:70963,p90:149796,cost_p50:11112,los_p50:2.0},
+  {mdc:"Injuries / Poisoning",payer:"Private Insurance",n:3469,p10:13910,p25:23668,p50:42889,p75:80934,p90:153900,cost_p50:12016,los_p50:2.0},
+  {mdc:"Injuries / Poisoning",payer:"Self-Pay",n:666,p10:11677,p25:17981,p50:31021,p75:58292,p90:111848,cost_p50:9765,los_p50:2.0},
+  {mdc:"Kidney / Urinary Tract",payer:"Blue Cross/Blue Shield",n:6218,p10:14981,p25:24640,p50:44410,p75:81208,p90:158613,cost_p50:12058,los_p50:3.0},
+  {mdc:"Kidney / Urinary Tract",payer:"Federal/VA",n:1103,p10:10729,p25:17141,p50:31349,p75:55684,p90:100724,cost_p50:10768,los_p50:4.0},
+  {mdc:"Kidney / Urinary Tract",payer:"Managed Care",n:1066,p10:14475,p25:21803,p50:34049,p75:54744,p90:85900,cost_p50:9235,los_p50:3.0},
+  {mdc:"Kidney / Urinary Tract",payer:"Medicaid",n:17719,p10:14667,p25:24769,p50:45930,p75:86983,p90:171726,cost_p50:14051,los_p50:3.0},
+  {mdc:"Kidney / Urinary Tract",payer:"Medicare",n:70167,p10:16086,p25:28012,p50:51994,p75:92695,p90:169746,cost_p50:14059,los_p50:4.0},
+  {mdc:"Kidney / Urinary Tract",payer:"Other",n:333,p10:10169,p25:18205,p50:34140,p75:68428,p90:107742,cost_p50:10643,los_p50:3.0},
+  {mdc:"Kidney / Urinary Tract",payer:"Private Insurance",n:9539,p10:18105,p25:30048,p50:51406,p75:88992,p90:178057,cost_p50:13459,los_p50:3.0},
+  {mdc:"Kidney / Urinary Tract",payer:"Self-Pay",n:1006,p10:12940,p25:21809,p50:42267,p75:78099,p90:128203,cost_p50:13101,los_p50:3.0},
+  {mdc:"Liver / Pancreas",payer:"Blue Cross/Blue Shield",n:6666,p10:18645,p25:32440,p50:58280,p75:101429,p90:185781,cost_p50:15475,los_p50:3.0},
+  {mdc:"Liver / Pancreas",payer:"Federal/VA",n:712,p10:11610,p25:19970,p50:35630,p75:68154,p90:122815,cost_p50:12434,los_p50:3.0},
+  {mdc:"Liver / Pancreas",payer:"Managed Care",n:1013,p10:20391,p25:29334,p50:46004,p75:66901,p90:98250,cost_p50:12281,los_p50:3.0},
+  {mdc:"Liver / Pancreas",payer:"Medicaid",n:19855,p10:17051,p25:29357,p50:55100,p75:100810,p90:183572,cost_p50:16820,los_p50:3.0},
+  {mdc:"Liver / Pancreas",payer:"Medicare",n:24953,p10:19791,p25:35310,p50:67254,p75:123650,p90:217633,cost_p50:18587,los_p50:4.0},
+  {mdc:"Liver / Pancreas",payer:"Other",n:242,p10:8859,p25:16195,p50:27794,p75:56407,p90:136408,cost_p50:12345,los_p50:3.0},
+  {mdc:"Liver / Pancreas",payer:"Private Insurance",n:10326,p10:21360,p25:37673,p50:64954,p75:109374,p90:201211,cost_p50:16938,los_p50:3.0},
+  {mdc:"Liver / Pancreas",payer:"Self-Pay",n:1188,p10:14704,p25:27087,p50:49034,p75:86896,p90:144357,cost_p50:15006,los_p50:3.0},
+  {mdc:"Male Reproductive",payer:"Blue Cross/Blue Shield",n:748,p10:21724,p25:34816,p50:56033,p75:93665,p90:155357,cost_p50:15876,los_p50:1.0},
+  {mdc:"Male Reproductive",payer:"Federal/VA",n:73,p10:13323,p25:22555,p50:31798,p75:63924,p90:96608,cost_p50:13150,los_p50:3.0},
+  {mdc:"Male Reproductive",payer:"Managed Care",n:99,p10:16110,p25:26519,p50:41515,p75:66475,p90:92292,cost_p50:11337,los_p50:2.0},
+  {mdc:"Male Reproductive",payer:"Medicaid",n:1499,p10:17219,p25:27952,p50:50226,p75:84891,p90:148427,cost_p50:15920,los_p50:2.0},
+  {mdc:"Male Reproductive",payer:"Medicare",n:4268,p10:20916,p25:36397,p50:57793,p75:93810,p90:157115,cost_p50:15992,los_p50:2.0},
+  {mdc:"Male Reproductive",payer:"Other",n:39,p10:16620,p25:35113,p50:50348,p75:60026,p90:78413,cost_p50:15442,los_p50:2.0},
+  {mdc:"Male Reproductive",payer:"Private Insurance",n:1609,p10:28058,p25:43263,p50:58180,p75:84990,p90:150437,cost_p50:15869,los_p50:1.0},
+  {mdc:"Male Reproductive",payer:"Self-Pay",n:176,p10:15433,p25:27476,p50:49886,p75:72543,p90:97723,cost_p50:15214,los_p50:2.0},
+  {mdc:"Mental Health",payer:"Blue Cross/Blue Shield",n:5331,p10:8803,p25:15800,p50:31212,p75:69426,p90:128017,cost_p50:12417,los_p50:7.0},
+  {mdc:"Mental Health",payer:"Federal/VA",n:785,p10:8136,p25:11671,p50:19725,p75:39303,p90:74695,cost_p50:7085,los_p50:6.0},
+  {mdc:"Mental Health",payer:"Managed Care",n:888,p10:8390,p25:13126,p50:23453,p75:41048,p90:61033,cost_p50:7830,los_p50:6.0},
+  {mdc:"Mental Health",payer:"Medicaid",n:44555,p10:11418,p25:21535,p50:45621,p75:88231,p90:161308,cost_p50:18583,los_p50:10.0},
+  {mdc:"Mental Health",payer:"Medicare",n:20627,p10:13846,p25:25518,p50:55096,p75:112210,p90:218086,cost_p50:20988,los_p50:11.0},
+  {mdc:"Mental Health",payer:"Other",n:395,p10:10053,p25:15998,p50:29595,p75:47095,p90:82643,cost_p50:17090,los_p50:8.0},
+  {mdc:"Mental Health",payer:"Private Insurance",n:12904,p10:11862,p25:23450,p50:49763,p75:90794,p90:152565,cost_p50:17842,los_p50:8.0},
+  {mdc:"Mental Health",payer:"Self-Pay",n:2159,p10:9507,p25:18053,p50:36921,p75:69666,p90:124208,cost_p50:15380,los_p50:8.0},
+  {mdc:"Multiple Trauma",payer:"Blue Cross/Blue Shield",n:272,p10:33564,p25:62829,p50:113696,p75:227677,p90:416470,cost_p50:33333,los_p50:7.0},
+  {mdc:"Multiple Trauma",payer:"Federal/VA",n:54,p10:41971,p25:60865,p50:107580,p75:251305,p90:422958,cost_p50:38295,los_p50:8.5},
+  {mdc:"Multiple Trauma",payer:"Managed Care",n:106,p10:28712,p25:58089,p50:90432,p75:161919,p90:243728,cost_p50:24680,los_p50:8.0},
+  {mdc:"Multiple Trauma",payer:"Medicaid",n:998,p10:33554,p25:67632,p50:136941,p75:277695,p90:538631,cost_p50:49421,los_p50:8.0},
+  {mdc:"Multiple Trauma",payer:"Medicare",n:2074,p10:33710,p25:59023,p50:105133,p75:194975,p90:348203,cost_p50:29967,los_p50:6.0},
+  {mdc:"Multiple Trauma",payer:"Other",n:1709,p10:39531,p25:77667,p50:153283,p75:304524,p90:615817,cost_p50:46693,los_p50:8.0},
+  {mdc:"Multiple Trauma",payer:"Private Insurance",n:431,p10:34392,p25:59119,p50:109461,p75:229185,p90:425212,cost_p50:32955,los_p50:6.0},
+  {mdc:"Multiple Trauma",payer:"Self-Pay",n:174,p10:29487,p25:47745,p50:80249,p75:162700,p90:347282,cost_p50:24823,los_p50:4.0},
+  {mdc:"Musculoskeletal / Joints",payer:"Blue Cross/Blue Shield",n:12434,p10:26599,p25:45505,p50:79212,p75:147551,p90:249927,cost_p50:23758,los_p50:3.0},
+  {mdc:"Musculoskeletal / Joints",payer:"Federal/VA",n:1459,p10:16303,p25:31674,p50:53024,p75:90735,p90:154478,cost_p50:19862,los_p50:4.0},
+  {mdc:"Musculoskeletal / Joints",payer:"Managed Care",n:2002,p10:21766,p25:33309,p50:54306,p75:87052,p90:143457,cost_p50:16546,los_p50:3.0},
+  {mdc:"Musculoskeletal / Joints",payer:"Medicaid",n:26766,p10:21250,p25:37451,p50:71033,p75:134314,p90:242174,cost_p50:23623,los_p50:4.0},
+  {mdc:"Musculoskeletal / Joints",payer:"Medicare",n:98295,p10:26840,p25:46119,p50:77825,p75:131729,p90:223267,cost_p50:23116,los_p50:4.0},
+  {mdc:"Musculoskeletal / Joints",payer:"Other",n:9443,p10:27254,p25:47119,p50:79153,p75:141763,p90:232891,cost_p50:24503,los_p50:3.0},
+  {mdc:"Musculoskeletal / Joints",payer:"Private Insurance",n:18679,p10:30808,p25:53476,p50:86517,p75:149195,p90:246692,cost_p50:24926,los_p50:3.0},
+  {mdc:"Musculoskeletal / Joints",payer:"Self-Pay",n:1945,p10:17696,p25:32928,p50:60720,p75:112850,p90:196897,cost_p50:20593,los_p50:3.0},
+  {mdc:"Nervous System",payer:"Blue Cross/Blue Shield",n:12308,p10:19027,p25:34318,p50:65395,p75:128078,p90:243833,cost_p50:17055,los_p50:3.0},
+  {mdc:"Nervous System",payer:"Federal/VA",n:1699,p10:13779,p25:22512,p50:41824,p75:81818,p90:149448,cost_p50:14558,los_p50:4.0},
+  {mdc:"Nervous System",payer:"Managed Care",n:2361,p10:15753,p25:26728,p50:46318,p75:83554,p90:154747,cost_p50:12035,los_p50:3.0},
+  {mdc:"Nervous System",payer:"Medicaid",n:33952,p10:15246,p25:27276,p50:56434,p75:122047,p90:262224,cost_p50:16395,los_p50:3.0},
+  {mdc:"Nervous System",payer:"Medicare",n:87495,p10:20391,p25:35735,p50:67263,p75:128027,p90:236917,cost_p50:18499,los_p50:4.0},
+  {mdc:"Nervous System",payer:"Other",n:1997,p10:17525,p25:33306,p50:67435,p75:148588,p90:424560,cost_p50:17901,los_p50:4.0},
+  {mdc:"Nervous System",payer:"Private Insurance",n:19949,p10:21746,p25:38205,p50:72337,p75:140443,p90:269519,cost_p50:18675,los_p50:3.0},
+  {mdc:"Nervous System",payer:"Self-Pay",n:2248,p10:16100,p25:28388,p50:54121,p75:110816,p90:212138,cost_p50:14838,los_p50:3.0},
+  {mdc:"Newborns / NICU",payer:"Blue Cross/Blue Shield",n:35330,p10:3307,p25:5755,p50:12903,p75:23041,p90:42308,cost_p50:3191,los_p50:2.0},
+  {mdc:"Newborns / NICU",payer:"Federal/VA",n:1755,p10:1969,p25:3140,p50:5209,p75:10625,p90:25570,cost_p50:2350,los_p50:2.0},
+  {mdc:"Newborns / NICU",payer:"Managed Care",n:3702,p10:3291,p25:4890,p50:7294,p75:15819,p90:56620,cost_p50:3555,los_p50:2.0},
+  {mdc:"Newborns / NICU",payer:"Medicaid",n:101990,p10:4164,p25:7307,p50:15775,p75:23876,p90:49030,cost_p50:3758,los_p50:2.0},
+  {mdc:"Newborns / NICU",payer:"Medicare",n:3194,p10:11365,p25:18583,p50:31645,p75:44433,p90:73013,cost_p50:4131,los_p50:2.0},
+  {mdc:"Newborns / NICU",payer:"Other",n:255,p10:2190,p25:2772,p50:6823,p75:11582,p90:31950,cost_p50:2144,los_p50:2.0},
+  {mdc:"Newborns / NICU",payer:"Private Insurance",n:49854,p10:5300,p25:11223,p50:20150,p75:32524,p90:53101,cost_p50:3241,los_p50:2.0},
+  {mdc:"Newborns / NICU",payer:"Self-Pay",n:7503,p10:2421,p25:3908,p50:8155,p75:19603,p90:35379,cost_p50:2425,los_p50:2.0},
+  {mdc:"Pre-MDC / Complex",payer:"Medicaid",n:60,p10:6169,p25:9884,p50:17152,p75:35893,p90:81255,cost_p50:6256,los_p50:2.0},
+  {mdc:"Pregnancy / Childbirth",payer:"Blue Cross/Blue Shield",n:39995,p10:9298,p25:14936,p50:27968,p75:45154,p90:63630,cost_p50:9744,los_p50:2.0},
+  {mdc:"Pregnancy / Childbirth",payer:"Federal/VA",n:2404,p10:7591,p25:10648,p50:15885,p75:26158,p90:39377,cost_p50:8668,los_p50:2.0},
+  {mdc:"Pregnancy / Childbirth",payer:"Managed Care",n:4286,p10:9637,p25:14285,p50:21592,p75:31218,p90:43196,cost_p50:9338,los_p50:2.0},
+  {mdc:"Pregnancy / Childbirth",payer:"Medicaid",n:106222,p10:11401,p25:19108,p50:31308,p75:46288,p90:66280,cost_p50:11540,los_p50:2.0},
+  {mdc:"Pregnancy / Childbirth",payer:"Medicare",n:4344,p10:15129,p25:25210,p50:38891,p75:53830,p90:76122,cost_p50:13767,los_p50:2.0},
+  {mdc:"Pregnancy / Childbirth",payer:"Other",n:549,p10:7581,p25:12829,p50:18788,p75:28987,p90:45062,cost_p50:10732,los_p50:2.0},
+  {mdc:"Pregnancy / Childbirth",payer:"Private Insurance",n:60482,p10:14087,p25:23443,p50:36137,p75:52303,p90:73541,cost_p50:11398,los_p50:2.0},
+  {mdc:"Pregnancy / Childbirth",payer:"Self-Pay",n:1684,p10:7244,p25:12706,p50:23265,p75:38481,p90:54866,cost_p50:9217,los_p50:2.0},
+  {mdc:"Rehab / Aftercare",payer:"Blue Cross/Blue Shield",n:1624,p10:18523,p25:35024,p50:72169,p75:150374,p90:229292,cost_p50:22561,los_p50:6.0},
+  {mdc:"Rehab / Aftercare",payer:"Federal/VA",n:210,p10:8623,p25:17361,p50:36263,p75:64075,p90:107670,cost_p50:12844,los_p50:4.0},
+  {mdc:"Rehab / Aftercare",payer:"Managed Care",n:276,p10:14718,p25:26107,p50:52314,p75:93332,p90:149806,cost_p50:15167,los_p50:6.0},
+  {mdc:"Rehab / Aftercare",payer:"Medicaid",n:4802,p10:15575,p25:30650,p50:66285,p75:136780,p90:223156,cost_p50:20990,los_p50:5.0},
+  {mdc:"Rehab / Aftercare",payer:"Medicare",n:16198,p10:15157,p25:30295,p50:58686,p75:119446,p90:194101,cost_p50:20726,los_p50:8.0},
+  {mdc:"Rehab / Aftercare",payer:"Other",n:1590,p10:5270,p25:17170,p50:48270,p75:106460,p90:191860,cost_p50:18507,los_p50:6.0},
+  {mdc:"Rehab / Aftercare",payer:"Private Insurance",n:4099,p10:14130,p25:28842,p50:65009,p75:131236,p90:206305,cost_p50:18585,los_p50:5.0},
+  {mdc:"Rehab / Aftercare",payer:"Self-Pay",n:448,p10:14471,p25:30353,p50:67961,p75:138162,p90:234125,cost_p50:26066,los_p50:8.0},
+  {mdc:"Respiratory",payer:"Blue Cross/Blue Shield",n:11455,p10:12616,p25:22165,p50:41695,p75:78452,p90:146295,cost_p50:11760,los_p50:3.0},
+  {mdc:"Respiratory",payer:"Federal/VA",n:1850,p10:10980,p25:16590,p50:29888,p75:58316,p90:102251,cost_p50:10362,los_p50:3.0},
+  {mdc:"Respiratory",payer:"Managed Care",n:2441,p10:10129,p25:16937,p50:31630,p75:54635,p90:100035,cost_p50:8593,los_p50:3.0},
+  {mdc:"Respiratory",payer:"Medicaid",n:40947,p10:12586,p25:21677,p50:37910,p75:76531,p90:152765,cost_p50:13008,los_p50:3.0},
+  {mdc:"Respiratory",payer:"Medicare",n:102935,p10:16019,p25:27719,p50:52850,p75:97480,p90:176316,cost_p50:15000,los_p50:4.0},
+  {mdc:"Respiratory",payer:"Other",n:1561,p10:14672,p25:24853,p50:44358,p75:83075,p90:155791,cost_p50:11147,los_p50:3.0},
+  {mdc:"Respiratory",payer:"Private Insurance",n:17297,p10:15780,p25:25994,p50:47386,p75:88796,p90:165058,cost_p50:13283,los_p50:3.0},
+  {mdc:"Respiratory",payer:"Self-Pay",n:2005,p10:11489,p25:18903,p50:34107,p75:68279,p90:130501,cost_p50:10837,los_p50:3.0},
+  {mdc:"Skin / Breast",payer:"Blue Cross/Blue Shield",n:3906,p10:12987,p25:23572,p50:43716,p75:82986,p90:157222,cost_p50:12028,los_p50:3.0},
+  {mdc:"Skin / Breast",payer:"Federal/VA",n:422,p10:9170,p25:13496,p50:24792,p75:49896,p90:102287,cost_p50:9536,los_p50:3.0},
+  {mdc:"Skin / Breast",payer:"Managed Care",n:710,p10:12374,p25:20101,p50:32634,p75:57008,p90:136647,cost_p50:9150,los_p50:3.0},
+  {mdc:"Skin / Breast",payer:"Medicaid",n:13960,p10:11739,p25:20008,p50:34672,p75:65480,p90:116729,cost_p50:11958,los_p50:3.0},
+  {mdc:"Skin / Breast",payer:"Medicare",n:21700,p10:14853,p25:25449,p50:47019,p75:83268,p90:140142,cost_p50:13217,los_p50:4.0},
+  {mdc:"Skin / Breast",payer:"Other",n:773,p10:11609,p25:18542,p50:34565,p75:62306,p90:110622,cost_p50:9583,los_p50:2.0},
+  {mdc:"Skin / Breast",payer:"Private Insurance",n:5998,p10:15872,p25:26724,p50:46871,p75:85824,p90:139346,cost_p50:12866,los_p50:2.0},
+  {mdc:"Skin / Breast",payer:"Self-Pay",n:1094,p10:10917,p25:19062,p50:33128,p75:57230,p90:98128,cost_p50:10475,los_p50:2.0},
+  {mdc:"Substance Use / Detox",payer:"Blue Cross/Blue Shield",n:2527,p10:8366,p25:13060,p50:25643,p75:49836,p90:88698,cost_p50:7602,los_p50:3.0},
+  {mdc:"Substance Use / Detox",payer:"Federal/VA",n:408,p10:7317,p25:10561,p50:19590,p75:36740,p90:54366,cost_p50:7143,los_p50:3.0},
+  {mdc:"Substance Use / Detox",payer:"Managed Care",n:433,p10:11166,p25:17615,p50:25801,p75:37839,p90:72764,cost_p50:6111,los_p50:3.0},
+  {mdc:"Substance Use / Detox",payer:"Medicaid",n:35797,p10:6961,p25:11905,p50:22802,p75:45064,p90:83170,cost_p50:7805,los_p50:4.0},
+  {mdc:"Substance Use / Detox",payer:"Medicare",n:10677,p10:8802,p25:15199,p50:30386,p75:58177,p90:120394,cost_p50:10244,los_p50:4.0},
+  {mdc:"Substance Use / Detox",payer:"Other",n:230,p10:6847,p25:11084,p50:18179,p75:44701,p90:72237,cost_p50:8412,los_p50:3.0},
+  {mdc:"Substance Use / Detox",payer:"Private Insurance",n:4604,p10:9634,p25:15817,p50:30336,p75:53664,p90:92917,cost_p50:8993,los_p50:4.0},
+  {mdc:"Substance Use / Detox",payer:"Self-Pay",n:1786,p10:7841,p25:11403,p50:18774,p75:38263,p90:66593,cost_p50:6936,los_p50:3.0},
+  {mdc:"Blood / Immune",payer:"All Payers",n:32620,p10:16323,p25:27015,p50:49629,p75:91338,p90:162501,cost_p50:14372,los_p50:3.0},
+  {mdc:"Burns",payer:"All Payers",n:1952,p10:15280,p25:30960,p50:66546,p75:200454,p90:468933,cost_p50:21534,los_p50:5.0},
+  {mdc:"Cancer / Chemo",payer:"All Payers",n:22871,p10:24954,p25:46568,p50:94560,p75:230909,p90:543803,cost_p50:26476,los_p50:5.0},
+  {mdc:"Circulatory / Heart",payer:"All Payers",n:277567,p10:17946,p25:32658,p50:66325,p75:135475,p90:263164,cost_p50:18575,los_p50:3.0},
+  {mdc:"Digestive",payer:"All Payers",n:172140,p10:16878,p25:28407,p50:51269,p75:93583,p90:165733,cost_p50:14454,los_p50:3.0},
+  {mdc:"ENT / Head & Neck",payer:"All Payers",n:28876,p10:14206,p25:24577,p50:42958,p75:78163,p90:151026,cost_p50:11475,los_p50:2.0},
+  {mdc:"Endocrine / Metabolic",payer:"All Payers",n:78800,p10:14278,p25:24203,p50:42590,p75:71696,p90:124975,cost_p50:13070,los_p50:2.0},
+  {mdc:"Eye",payer:"All Payers",n:4633,p10:17127,p25:28065,p50:47384,p75:82582,p90:140792,cost_p50:12189,los_p50:2.0},
+  {mdc:"Female Reproductive",payer:"All Payers",n:16119,p10:21869,p25:35804,p50:58205,p75:89587,p90:142271,cost_p50:16348,los_p50:2.0},
+  {mdc:"HIV",payer:"All Payers",n:5851,p10:22462,p25:33924,p50:68697,p75:140444,p90:269457,cost_p50:24553,los_p50:5.0},
+  {mdc:"Infectious Disease",payer:"All Payers",n:182988,p10:20771,p25:37328,p50:72227,p75:145118,p90:286583,cost_p50:20360,los_p50:6.0},
+  {mdc:"Injuries / Poisoning",payer:"All Payers",n:26569,p10:12917,p25:22501,p50:41369,p75:82415,p90:162528,cost_p50:13047,los_p50:3.0},
+  {mdc:"Kidney / Urinary Tract",payer:"All Payers",n:107151,p10:15752,p25:27009,p50:49787,p75:89899,p90:167869,cost_p50:13769,los_p50:4.0},
+  {mdc:"Liver / Pancreas",payer:"All Payers",n:64955,p10:18637,p25:32491,p50:60649,p75:109313,p90:197717,cost_p50:17085,los_p50:4.0},
+  {mdc:"Male Reproductive",payer:"All Payers",n:8511,p10:20530,p25:35321,p50:56359,p75:89596,p90:152691,cost_p50:15871,los_p50:2.0},
+  {mdc:"Mental Health",payer:"All Payers",n:87644,p10:11529,p25:21586,p50:46117,p75:90831,p90:167402,cost_p50:18095,los_p50:9.0},
+  {mdc:"Multiple Trauma",payer:"All Payers",n:5818,p10:34671,p25:63561,p50:120755,p75:241916,p90:454667,cost_p50:36828,los_p50:7.0},
+  {mdc:"Musculoskeletal / Joints",payer:"All Payers",n:171023,p10:25575,p25:44849,p50:77126,p75:134401,p90:229949,cost_p50:23316,los_p50:4.0},
+  {mdc:"Nervous System",payer:"All Payers",n:162009,p10:18878,p25:33317,p50:64741,p75:127210,p90:244756,cost_p50:17794,los_p50:4.0},
+  {mdc:"Newborns / NICU",payer:"All Payers",n:203583,p10:3959,p25:7199,p50:17365,p75:26812,p90:50198,cost_p50:3374,los_p50:2.0},
+  {mdc:"Pre-MDC / Complex",payer:"All Payers",n:99,p10:3116,p25:8821,p50:14969,p75:30626,p90:77914,cost_p50:4455,los_p50:2.0},
+  {mdc:"Pregnancy / Childbirth",payer:"All Payers",n:219966,p10:11179,p25:19109,p50:32319,p75:47637,p90:67886,cost_p50:11066,los_p50:2.0},
+  {mdc:"Rehab / Aftercare",payer:"All Payers",n:29247,p10:14369,p25:29605,p50:60342,p75:125009,p90:202311,cost_p50:20401,los_p50:7.0},
+  {mdc:"Respiratory",payer:"All Payers",n:180491,p10:14480,p25:24828,p50:47143,p75:89742,p90:166521,cost_p50:13959,los_p50:4.0},
+  {mdc:"Skin / Breast",payer:"All Payers",n:48563,p10:13476,p25:23036,p50:41969,p75:76738,p90:133241,cost_p50:12496,los_p50:3.0},
+  {mdc:"Substance Use / Detox",payer:"All Payers",n:56462,p10:7565,p25:12760,p50:24844,p75:48140,p90:90550,cost_p50:8246,los_p50:4.0},
+];
+
+// ============================================================
+// AI TRAINING TAB (v2)
+// ============================================================
+// ============================================================
+// AI TRAINING TAB — full rebuild
+// ============================================================
+
 const AI_SYSTEM_PROMPT = `You are ZenBill AI, a medical billing dispute specialist. When given a medical bill, you:
 1. Identify the most likely billing error or overcharge category
 2. Provide specific, actionable dispute steps the patient should take
-3. Cite relevant laws, regulations, or CMS guidelines (No Surprises Act, ERISA, ACA §501(r), HIPAA, False Claims Act)
-4. Flag time-sensitive deadlines (appeal windows, timely filing limits, PPDR 120-day window)
-5. Estimate the dispute value or potential savings
+3. Cite relevant laws and regulations (No Surprises Act, ERISA, ACA §501(r), HIPAA, False Claims Act)
+4. Flag time-sensitive deadlines: appeal windows, timely filing limits, PPDR 120-day window
+5. Estimate the dispute value or potential savings where possible
 
-Be specific about dollar amounts, CPT/HCPCS codes, and legal deadlines. Address the patient directly. Do not give legal advice — provide actionable information.`;
+Be specific about dollar amounts, CPT/HCPCS codes, and legal deadlines. Address the patient directly. Do not give legal advice — provide actionable information and next steps.`;
+
+const AI_EXTRACT_SYSTEM = `You are a medical bill extraction model. Given raw bill text or an OCR output of a medical bill, extract all structured fields and return valid JSON matching the extraction schema exactly. If a field is missing or unclear, use null. Do not guess — only extract what is explicitly present.`;
 
 let aiTrainIdx = 0;
 let aiTrainPool = [];
 let aiTrainSourceFilter = 'all';
 let aiTrainCatFilter = '';
 
-function userPromptFor(c) {
-  const adj = Math.max(0, c.billed - c.insurer_paid - c.balance);
-  return `Review this medical bill and provide dispute guidance:
-
-Provider: ${c.provider}
-Bill Type: ${c.bill_type || 'Medical Bill'}
-Service / Line Items: ${c.service}
-Total Billed: $${c.billed.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
-Insurance Paid: $${c.insurer_paid.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
-Contractual Adj: $${adj.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
-Patient Balance: $${c.balance.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
-Emergency Visit: ${c.emergency}
-
-What billing issues do you see, and what steps should this patient take to dispute or reduce this bill?`;
+function getReviews() {
+  try { return JSON.parse(localStorage.getItem('zb_reviews') || '{}'); } catch(e) { return {}; }
 }
+function saveReviews(r) { localStorage.setItem('zb_reviews', JSON.stringify(r)); }
+
+function getExtractionPairs() {
+  try { return JSON.parse(localStorage.getItem('zb_extraction_pairs') || '[]'); } catch(e) { return []; }
+}
+function saveExtractionPairs(p) { localStorage.setItem('zb_extraction_pairs', JSON.stringify(p)); }
 
 function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function userPromptFor(c) {
+  const adj = Math.max(0, c.billed - c.insurer_paid - c.balance);
+  return 'Review this medical bill and provide dispute guidance:\n\nProvider: ' + c.provider +
+    '\nBill Type: ' + (c.bill_type || 'Medical Bill') +
+    '\nService / Line Items: ' + c.service +
+    '\nTotal Billed: $' + c.billed.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) +
+    '\nInsurance Paid: $' + c.insurer_paid.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) +
+    '\nContractual Adj: $' + adj.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) +
+    '\nPatient Balance: $' + c.balance.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) +
+    '\nEmergency Visit: ' + c.emergency +
+    '\n\nWhat billing issues do you see, and what steps should this patient take to dispute or reduce this bill?';
+}
+
+function reviewStats() {
+  const vals = Object.values(getReviews());
+  return {
+    approved: vals.filter(r => r.status === 'approved').length,
+    flagged:  vals.filter(r => r.status === 'flagged').length,
+    edited:   vals.filter(r => r.editedOutput).length
+  };
+}
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function renderAITraining() {
-  // Populate system prompt once
-  const sp = document.getElementById('ai-sysprompt');
-  if (sp && !sp.textContent) sp.textContent = AI_SYSTEM_PROMPT;
-
-  // Populate category filter once
   const catSel = document.getElementById('ai-cat-filter');
   if (catSel && catSel.options.length <= 1) {
     const cats = [...new Set(ALL_CASES.map(c => c.issue_category))].sort();
@@ -2885,117 +3338,53 @@ function renderAITraining() {
     });
     catSel.value = aiTrainCatFilter;
   }
-
-  // Build filtered pool
-  aiTrainPool = ALL_CASES.filter(c => {
-    const matchSrc = aiTrainSourceFilter === 'all'
-      || (aiTrainSourceFilter === 'real' && c.source !== 'hypo')
-      || (aiTrainSourceFilter === 'hypo' && c.source === 'hypo');
-    const matchCat = !aiTrainCatFilter || c.issue_category === aiTrainCatFilter;
-    return matchSrc && matchCat;
-  });
-  if (aiTrainIdx >= aiTrainPool.length) aiTrainIdx = 0;
-
-  renderTrainingStats();
+  updateReviewBar();
+  buildAIPool();
   renderTrainingBrowser();
+  renderExtractionPairs();
+  renderTrainingStats();
 }
 
-function renderTrainingStats() {
-  const container = document.getElementById('ai-stats');
-  if (!container) return;
+function buildAIPool() {
+  const reviews = getReviews();
+  aiTrainPool = ALL_CASES.filter(c => {
+    if (aiTrainSourceFilter === 'approved') return reviews[c.id] && reviews[c.id].status === 'approved';
+    if (aiTrainSourceFilter === 'flagged')  return reviews[c.id] && reviews[c.id].status === 'flagged';
+    if (aiTrainSourceFilter === 'real')     return c.source !== 'hypo';
+    if (aiTrainSourceFilter === 'hypo')     return c.source === 'hypo';
+    return true;
+  }).filter(c => !aiTrainCatFilter || c.issue_category === aiTrainCatFilter);
+  if (aiTrainIdx >= aiTrainPool.length) aiTrainIdx = 0;
+}
 
-  // Category counts across ALL_CASES
-  const catCounts = {};
-  ALL_CASES.forEach(c => { catCounts[c.issue_category] = (catCounts[c.issue_category]||0)+1; });
-  const catsSorted = Object.entries(catCounts).sort((a,b) => b[1]-a[1]);
-  const maxCat = Math.max(...Object.values(catCounts));
-
-  // Insurer counts from hypo
-  const insCounts = {};
-  HYPO_ROWS.forEach(r => {
-    const ins = HYPO_INSURERS[r[5]];
-    insCounts[ins] = (insCounts[ins]||0)+1;
+function updateReviewBar() {
+  const st = reviewStats();
+  const extPairs = getExtractionPairs();
+  const pipeA = document.getElementById('pipe-a-count');
+  if (pipeA) {
+    pipeA.textContent = extPairs.length === 0 ? '❌ 0 pairs' : '✅ ' + extPairs.length + ' pair' + (extPairs.length > 1 ? 's' : '');
+    pipeA.style.background = extPairs.length ? '#D1FAE5' : '#FEE2E2';
+    pipeA.style.color = extPairs.length ? '#065F46' : '#991B1B';
+    const pipeStep = pipeA.closest('.ai-pipe-step');
+    if (pipeStep) {
+      pipeStep.classList.toggle('ai-pipe-gap', extPairs.length === 0);
+      pipeStep.classList.toggle('ai-pipe-ready', extPairs.length > 0);
+    }
+  }
+  const taskABadge = document.getElementById('taskA-count-badge');
+  if (taskABadge) taskABadge.textContent = extPairs.length + ' pair' + (extPairs.length !== 1 ? 's' : '');
+  ['approved','flagged','edited'].forEach(function(k) {
+    const el = document.getElementById('rs-' + k);
+    if (el) el.textContent = st[k];
   });
-  const insSorted = Object.entries(insCounts).sort((a,b)=>b[1]-a[1]);
-
-  // Procedure counts from hypo
-  const procCounts = {};
-  HYPO_ROWS.forEach(r => {
-    const p = HYPO_PROCS[r[1]];
-    procCounts[p] = (procCounts[p]||0)+1;
-  });
-  const procSorted = Object.entries(procCounts).sort((a,b)=>b[1]-a[1]);
-
-  const totalBilled = ALL_CASES.reduce((s,c)=>s+c.billed,0);
-  const totalBalance = ALL_CASES.reduce((s,c)=>s+c.balance,0);
-
-  container.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
-      <div style="background:#FFF7ED;border-radius:10px;padding:16px;text-align:center">
-        <div style="font-size:1.9rem;font-weight:800;color:var(--orange)">${ALL_CASES.length}</div>
-        <div style="font-size:.8rem;color:var(--gray);margin-top:3px">Total Training Cases</div>
-      </div>
-      <div style="background:#EFF6FF;border-radius:10px;padding:16px;text-align:center">
-        <div style="font-size:1.9rem;font-weight:800;color:#3B82F6">${CASES.length}</div>
-        <div style="font-size:.8rem;color:var(--gray);margin-top:3px">Real Patient Bills</div>
-      </div>
-      <div style="background:#F0FDF4;border-radius:10px;padding:16px;text-align:center">
-        <div style="font-size:1.9rem;font-weight:800;color:#16A34A">${HYPO_ROWS.length}</div>
-        <div style="font-size:.8rem;color:var(--gray);margin-top:3px">Hypothetical Bills</div>
-      </div>
-      <div style="background:#FDF4FF;border-radius:10px;padding:16px;text-align:center">
-        <div style="font-size:1.9rem;font-weight:800;color:#9333EA">${Object.keys(catCounts).length}</div>
-        <div style="font-size:.8rem;color:var(--gray);margin-top:3px">Issue Categories</div>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
-      <div>
-        <div style="font-weight:700;font-size:.85rem;margin-bottom:10px;color:var(--text)">Issue Category Mix</div>
-        ${catsSorted.map(([cat,n])=>`
-          <div style="margin-bottom:7px">
-            <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px">
-              <span style="color:var(--text)">${cat}</span>
-              <span style="color:var(--gray);font-weight:600">${n}</span>
-            </div>
-            <div style="background:var(--border);border-radius:4px;height:7px">
-              <div style="background:var(--orange);border-radius:4px;height:7px;width:${Math.round(n/maxCat*100)}%"></div>
-            </div>
-          </div>`).join('')}
-      </div>
-      <div>
-        <div style="font-weight:700;font-size:.85rem;margin-bottom:10px;color:var(--text)">Insurer Distribution (hypo)</div>
-        ${insSorted.map(([ins,n])=>`
-          <div style="margin-bottom:7px">
-            <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px">
-              <span style="color:var(--text)">${ins}</span>
-              <span style="color:var(--gray);font-weight:600">${n}</span>
-            </div>
-            <div style="background:var(--border);border-radius:4px;height:7px">
-              <div style="background:#3B82F6;border-radius:4px;height:7px;width:${Math.round(n/HYPO_ROWS.length*100)}%"></div>
-            </div>
-          </div>`).join('')}
-      </div>
-      <div>
-        <div style="font-weight:700;font-size:.85rem;margin-bottom:10px;color:var(--text)">Procedure Mix (hypo)</div>
-        ${procSorted.map(([proc,n])=>`
-          <div style="margin-bottom:7px">
-            <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px">
-              <span style="color:var(--text)">${proc}</span>
-              <span style="color:var(--gray);font-weight:600">${n}</span>
-            </div>
-            <div style="background:var(--border);border-radius:4px;height:7px">
-              <div style="background:#16A34A;border-radius:4px;height:7px;width:${Math.round(n/HYPO_ROWS.length*100)}%"></div>
-            </div>
-          </div>`).join('')}
-        <div style="margin-top:12px;padding:10px;background:#FFF7ED;border-radius:8px;font-size:.8rem">
-          <div style="font-weight:600;margin-bottom:4px">Dataset Value</div>
-          Total billed: <strong>$${(totalBilled/1e6).toFixed(2)}M</strong><br>
-          Total patient balance: <strong>$${(totalBalance/1e6).toFixed(2)}M</strong><br>
-          Avg balance per case: <strong>$${Math.round(totalBalance/ALL_CASES.length).toLocaleString()}</strong>
-        </div>
-      </div>
-    </div>
-  `;
+  const ab = document.getElementById('ai-filter-approved-btn');
+  if (ab) ab.textContent = '✓ Approved (' + st.approved + ')';
+  const fb = document.getElementById('ai-filter-flagged-btn');
+  if (fb) fb.textContent = '⚑ Flagged (' + st.flagged + ')';
+  const ea = document.getElementById('ai-export-approved-count');
+  if (ea) ea.textContent = st.approved;
+  const et = document.getElementById('ai-export-taskA-count');
+  if (et) et.textContent = extPairs.length;
 }
 
 function renderTrainingBrowser() {
@@ -3006,116 +3395,489 @@ function renderTrainingBrowser() {
     return;
   }
   const c = aiTrainPool[aiTrainIdx];
+  const reviews = getReviews();
+  const review = reviews[c.id] || {};
+  const status = review.status || '';
+  const outputText = review.editedOutput || c.dispute_step;
   const isHypo = c.source === 'hypo';
-  const userPrompt = userPromptFor(c);
+  const cardClass = status === 'approved' ? 'approved' : status === 'flagged' ? 'flagged' : review.editedOutput ? 'edited' : '';
+  const outputClass = status === 'flagged' ? 'flagged-bg' : '';
 
-  container.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-      <div style="font-size:.88rem;color:var(--gray)">
-        Case <strong style="color:var(--text)">${aiTrainIdx+1}</strong> of <strong style="color:var(--text)">${aiTrainPool.length}</strong>
-        ${isHypo ? '<span class="badge badge-green" style="margin-left:6px">Hypo</span>' : '<span class="badge badge-blue" style="margin-left:6px">Real</span>'}
-      </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-secondary" onclick="aiNav(-1)" style="padding:6px 14px;font-size:.83rem">&larr; Prev</button>
-        <button class="btn btn-secondary" onclick="aiNavRandom()" style="padding:6px 14px;font-size:.83rem">Random</button>
-        <button class="btn btn-secondary" onclick="aiNav(1)" style="padding:6px 14px;font-size:.83rem">Next &rarr;</button>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <div>
-        <div style="font-size:.73rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px">USER PROMPT — input to model</div>
-        <div style="background:#F8FAFC;border:1.5px solid var(--border);border-radius:8px;padding:13px;font-size:.8rem;font-family:monospace;white-space:pre-wrap;line-height:1.65;max-height:300px;overflow-y:auto">${escHtml(userPrompt)}</div>
-      </div>
-      <div>
-        <div style="font-size:.73rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px">ASSISTANT RESPONSE — training target</div>
-        <div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:8px;padding:13px;font-size:.82rem;line-height:1.65;max-height:300px;overflow-y:auto">${escHtml(c.dispute_step)}</div>
-      </div>
-    </div>
-    <div style="margin-top:11px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <span class="badge badge-orange">${c.issue_category}</span>
-      ${c.emergency === 'Yes' ? '<span class="badge badge-red">Emergency</span>' : ''}
-      <span class="badge badge-gray" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.bill_type || ''}</span>
-      <button class="btn btn-secondary" onclick="copyTrainingPair()" style="padding:4px 11px;font-size:.78rem;margin-left:auto">Copy as JSONL</button>
-      <span style="font-size:.75rem;color:var(--gray)">ID: ${c.id}</span>
-    </div>
-  `;
+  const approvedBadge = status === 'approved' ? '<span class="badge badge-green">&#x2713; Approved</span>' : '';
+  const flaggedBadge  = status === 'flagged'  ? '<span class="badge" style="background:#FEE2E2;color:#991B1B">&#x2691; Flagged</span>' : '';
+  const editedBadge   = review.editedOutput   ? '<span class="badge" style="background:#DBEAFE;color:#1E40AF">&#x270E; Edited</span>' : '';
+  const clearBtn      = (status || review.editedOutput) ? '<button class="ai-action-btn" style="color:var(--gray)" onclick="clearReview(\'' + c.id + '\')">&#x2715; Clear</button>' : '';
+  const approveLabel  = status === 'approved' ? '&#x2713; Approved' : '&#x2713; Approve';
+  const flagLabel     = status === 'flagged'  ? '&#x2691; Flagged'  : '&#x2691; Flag weak';
+
+  container.innerHTML =
+    '<div class="ai-pair-card ' + cardClass + '">' +
+      '<div class="ai-pair-nav">' +
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+          '<span style="font-size:.85rem;color:var(--gray)"><strong style="color:var(--text)">' + (aiTrainIdx+1) + '</strong> / <strong style="color:var(--text)">' + aiTrainPool.length + '</strong></span>' +
+          (isHypo ? '<span class="badge badge-green">Hypo</span>' : '<span class="badge badge-blue">Real</span>') +
+          approvedBadge + flaggedBadge + editedBadge +
+          '<span class="badge badge-orange" style="font-size:.72rem">' + escHtml(c.issue_category) + '</span>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px">' +
+          '<button class="ai-action-btn" onclick="aiNav(-1)">&#x2190; Prev</button>' +
+          '<button class="ai-action-btn" onclick="aiNavRandom()">Random</button>' +
+          '<button class="ai-action-btn" onclick="aiNav(1)">Next &#x2192;</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ai-pair-cols">' +
+        '<div class="ai-pair-col">' +
+          '<div class="ai-pair-col-label" style="color:#6B7280">USER PROMPT &#x2014; input to model</div>' +
+          '<div class="ai-pair-text">' + escHtml(userPromptFor(c)) + '</div>' +
+        '</div>' +
+        '<div class="ai-pair-col">' +
+          '<div class="ai-pair-col-label" style="color:#15803D">ASSISTANT RESPONSE &#x2014; training target</div>' +
+          '<div class="ai-pair-output ' + outputClass + '" id="ai-output-text">' + escHtml(outputText) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ai-pair-actions">' +
+        '<button class="ai-action-btn approve ' + (status==='approved'?'on':'') + '" onclick="reviewCase(\'' + c.id + '\',\'approved\')">' + approveLabel + '</button>' +
+        '<button class="ai-action-btn flag ' + (status==='flagged'?'on':'') + '" onclick="reviewCase(\'' + c.id + '\',\'flagged\')">' + flagLabel + '</button>' +
+        '<button class="ai-action-btn edit-btn" onclick="openEdit(\'' + c.id + '\')">&#x270E; Edit output</button>' +
+        clearBtn +
+        '<button class="ai-action-btn" onclick="copyPairAsJSONL()" style="margin-left:auto">Copy JSONL</button>' +
+        '<span style="font-size:.72rem;color:var(--gray)">' + c.id + '</span>' +
+      '</div>' +
+    '</div>';
+}
+
+function reviewCase(id, status) {
+  const reviews = getReviews();
+  if (reviews[id] && reviews[id].status === status) {
+    if (reviews[id].editedOutput) delete reviews[id].status;
+    else delete reviews[id];
+  } else {
+    if (!reviews[id]) reviews[id] = {};
+    reviews[id].status = status;
+  }
+  saveReviews(reviews);
+  updateReviewBar();
+  renderTrainingBrowser();
+}
+
+function clearReview(id) {
+  const reviews = getReviews();
+  delete reviews[id];
+  saveReviews(reviews);
+  updateReviewBar();
+  renderTrainingBrowser();
+}
+
+function openEdit(id) {
+  const reviews = getReviews();
+  const c = ALL_CASES.find(function(x) { return x.id === id; });
+  if (!c) return;
+  const currentOutput = (reviews[id] && reviews[id].editedOutput) || c.dispute_step;
+  const outputDiv = document.getElementById('ai-output-text');
+  if (!outputDiv) return;
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML =
+    '<textarea id="ai-edit-textarea" style="width:100%;min-height:200px;padding:12px;border:1.5px solid #3B82F6;border-radius:6px;font-size:.82rem;font-family:inherit;resize:vertical;line-height:1.6">' + escHtml(currentOutput) + '</textarea>' +
+    '<div style="margin-top:8px;display:flex;gap:8px">' +
+      '<button class="btn btn-primary" style="font-size:.8rem;padding:5px 14px" onclick="saveEdit(\'' + id + '\')">Save</button>' +
+      '<button class="btn btn-secondary" style="font-size:.8rem;padding:5px 14px" onclick="renderTrainingBrowser()">Cancel</button>' +
+    '</div>';
+  outputDiv.replaceWith(wrapper);
+}
+
+function saveEdit(id) {
+  const ta = document.getElementById('ai-edit-textarea');
+  if (!ta) return;
+  const val = ta.value.trim();
+  const reviews = getReviews();
+  const orig = ALL_CASES.find(function(x) { return x.id === id; });
+  const origText = orig ? orig.dispute_step : '';
+  if (!reviews[id]) reviews[id] = {};
+  if (val && val !== origText) reviews[id].editedOutput = val;
+  else delete reviews[id].editedOutput;
+  if (!reviews[id].status && !reviews[id].editedOutput) delete reviews[id];
+  saveReviews(reviews);
+  updateReviewBar();
+  renderTrainingBrowser();
+}
+
+function copyPairAsJSONL() {
+  if (!aiTrainPool.length) return;
+  const c = aiTrainPool[aiTrainIdx];
+  const reviews = getReviews();
+  const output = (reviews[c.id] && reviews[c.id].editedOutput) || c.dispute_step;
+  const pair = JSON.stringify({messages:[{role:'system',content:AI_SYSTEM_PROMPT},{role:'user',content:userPromptFor(c)},{role:'assistant',content:output}]});
+  navigator.clipboard.writeText(pair).then(function() {
+    const btn = event.currentTarget;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.style.background = '#D1FAE5';
+    setTimeout(function() { btn.textContent = orig; btn.style.background = ''; }, 1600);
+  }).catch(function(){});
 }
 
 function aiNav(dir) {
   aiTrainIdx = ((aiTrainIdx + dir) % aiTrainPool.length + aiTrainPool.length) % aiTrainPool.length;
   renderTrainingBrowser();
 }
-
 function aiNavRandom() {
   aiTrainIdx = Math.floor(Math.random() * aiTrainPool.length);
   renderTrainingBrowser();
 }
-
 function aiSetSource(src, btn) {
   aiTrainSourceFilter = src;
   aiTrainIdx = 0;
-  document.querySelectorAll('.ai-src-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderAITraining();
+  document.querySelectorAll('.ai-src-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  buildAIPool();
+  renderTrainingBrowser();
 }
-
 function aiSetCat(cat) {
   aiTrainCatFilter = cat;
   aiTrainIdx = 0;
-  renderTrainingBrowser();
-  // rebuild pool
-  aiTrainPool = ALL_CASES.filter(c => {
-    const matchSrc = aiTrainSourceFilter === 'all'
-      || (aiTrainSourceFilter === 'real' && c.source !== 'hypo')
-      || (aiTrainSourceFilter === 'hypo' && c.source === 'hypo');
-    const matchCat = !aiTrainCatFilter || c.issue_category === aiTrainCatFilter;
-    return matchSrc && matchCat;
-  });
+  buildAIPool();
   renderTrainingBrowser();
 }
 
-function copyTrainingPair() {
-  if (!aiTrainPool.length) return;
-  const c = aiTrainPool[aiTrainIdx];
-  const pair = JSON.stringify({
-    messages: [
-      {role:'system', content: AI_SYSTEM_PROMPT},
-      {role:'user',   content: userPromptFor(c)},
-      {role:'assistant', content: c.dispute_step}
-    ]
-  });
-  navigator.clipboard.writeText(pair).then(() => {
-    const btn = event.currentTarget;
-    const orig = btn.textContent;
-    btn.textContent = 'Copied!';
-    btn.style.background = '#D1FAE5';
-    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1600);
-  }).catch(() => {});
+function renderExtractionPairs() {
+  const container = document.getElementById('ai-extraction-list');
+  if (!container) return;
+  const pairs = getExtractionPairs();
+  if (pairs.length === 0) {
+    container.innerHTML = '<div class="alert alert-blue" style="margin-bottom:16px;font-size:.82rem">No extraction pairs yet. Use the form below to add the first one.</div>';
+    return;
+  }
+  container.innerHTML = pairs.map(function(p, idx) {
+    return '<div class="ai-ext-pair">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+        '<span style="font-size:.8rem;font-weight:600;color:var(--gray)">Pair #' + (idx+1) + ' &middot; ' + new Date(p.createdAt).toLocaleDateString() + '</span>' +
+        '<button class="ai-action-btn" style="color:#EF4444;border-color:#EF4444;font-size:.75rem" onclick="deleteExtractionPair(\'' + p.id + '\')">Delete</button>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+        '<div>' +
+          '<div class="ai-pair-col-label" style="color:#6B7280;margin-bottom:5px">INPUT</div>' +
+          '<div style="background:#F8FAFC;border-radius:6px;padding:10px;font-size:.78rem;font-family:monospace;white-space:pre-wrap;max-height:140px;overflow-y:auto">' + escHtml(p.input) + '</div>' +
+        '</div>' +
+        '<div>' +
+          '<div class="ai-pair-col-label" style="color:#15803D;margin-bottom:5px">OUTPUT (JSON)</div>' +
+          '<div style="background:#F0FDF4;border-radius:6px;padding:10px;font-size:.78rem;font-family:monospace;white-space:pre-wrap;max-height:140px;overflow-y:auto">' + escHtml(p.output) + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function saveExtractionPair() {
+  const input = document.getElementById('ai-ext-input') ? document.getElementById('ai-ext-input').value.trim() : '';
+  const output = document.getElementById('ai-ext-output') ? document.getElementById('ai-ext-output').value.trim() : '';
+  if (!input || !output) { alert('Both input and output are required.'); return; }
+  const pairs = getExtractionPairs();
+  pairs.push({ id: 'EXT-' + Date.now(), input: input, output: output, createdAt: Date.now() });
+  saveExtractionPairs(pairs);
+  clearExtractionForm();
+  renderExtractionPairs();
+  updateReviewBar();
+}
+
+function clearExtractionForm() {
+  const inp = document.getElementById('ai-ext-input');
+  if (inp) inp.value = '';
+  const out = document.getElementById('ai-ext-output');
+  if (out) out.value = '{\n  "provider": "",\n  "npi": "",\n  "billed_total": 0.00,\n  "insurance_paid": 0.00,\n  "adjustments": 0.00,\n  "patient_balance": 0.00,\n  "service_date_start": "",\n  "service_date_end": "",\n  "account_number": "",\n  "emergency": false,\n  "bill_type": "",\n  "line_items": [\n    {\n      "description": "",\n      "cpt_code": "",\n      "revenue_code": "",\n      "units": 1,\n      "charge": 0.00,\n      "paid": 0.00\n    }\n  ],\n  "diagnosis_codes": [],\n  "issues_flagged": []\n}';
+}
+
+function deleteExtractionPair(id) {
+  const pairs = getExtractionPairs().filter(function(p) { return p.id !== id; });
+  saveExtractionPairs(pairs);
+  renderExtractionPairs();
+  updateReviewBar();
+}
+
+function runLiveTest() {
+  const raw = (document.getElementById('ai-test-input') ? document.getElementById('ai-test-input').value : '').toLowerCase();
+  const out = document.getElementById('ai-test-output');
+  if (!out) return;
+  if (!raw.trim()) { out.innerHTML = '<div class="alert alert-orange">Enter a bill description first.</div>'; return; }
+  const tokens = raw.match(/\b[a-z]{3,}\b/g) || [];
+  const nums = (raw.match(/[\d,]+\.?\d*/g) || []).map(function(n) { return parseFloat(n.replace(/,/g,'')); });
+  const maxNum = nums.length ? Math.max.apply(null, nums) : 0;
+  const reviews = getReviews();
+  const scored = ALL_CASES.map(function(c) {
+    var score = 0;
+    var hay = (c.provider + ' ' + c.service + ' ' + c.issue_category + ' ' + (c.bill_type||'')).toLowerCase();
+    tokens.forEach(function(t) { if (hay.indexOf(t) !== -1) score += (t.length > 6 ? 3 : 1); });
+    if (maxNum > 0) {
+      var billedDiff = Math.abs(c.billed - maxNum) / Math.max(c.billed, maxNum, 1);
+      var balDiff = Math.abs(c.balance - maxNum) / Math.max(c.balance, maxNum, 1);
+      score += (1 - Math.min(billedDiff, balDiff)) * 5;
+    }
+    return { c: c, score: score };
+  }).sort(function(a,b) { return b.score - a.score; }).slice(0, 3);
+
+  out.innerHTML = '<div style="font-size:.82rem;color:var(--gray);margin-bottom:12px">Top ' + scored.length + ' matches from training data:</div>' +
+    scored.map(function(item, rank) {
+      var c = item.c; var score = item.score;
+      var approvedTag = (reviews[c.id] && reviews[c.id].status === 'approved') ? '<span class="badge badge-green" style="margin-left:4px;font-size:.72rem">&#x2713; Approved</span>' : '';
+      return '<div class="ai-test-match">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">' +
+          '<div>' +
+            '<span class="badge ' + (rank===0?'badge-orange':'badge-gray') + '" style="margin-right:6px">#' + (rank+1) + '</span>' +
+            '<strong style="font-size:.85rem">' + escHtml(c.provider) + '</strong>' +
+            '<span class="badge badge-orange" style="margin-left:6px;font-size:.72rem">' + escHtml(c.issue_category) + '</span>' +
+            (c.source==='hypo' ? '<span class="badge badge-green" style="margin-left:4px;font-size:.72rem">Hypo</span>' : '<span class="badge badge-blue" style="margin-left:4px;font-size:.72rem">Real</span>') +
+            approvedTag +
+          '</div>' +
+          '<span style="font-size:.74rem;color:var(--gray)">score ' + score.toFixed(1) + '</span>' +
+        '</div>' +
+        '<div style="font-size:.8rem;color:var(--gray);margin-bottom:8px">Billed $' + c.billed.toLocaleString() + ' &middot; Ins paid $' + c.insurer_paid.toLocaleString() + ' &middot; Balance $' + c.balance.toLocaleString() + '</div>' +
+        '<div style="font-size:.82rem;line-height:1.6;padding:12px;background:#fff;border-radius:6px;border:1px solid var(--border)">' +
+          '<div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--gray);margin-bottom:6px;font-weight:700">Recommended dispute steps:</div>' +
+          escHtml((reviews[c.id] && reviews[c.id].editedOutput) || c.dispute_step) +
+        '</div>' +
+      '</div>';
+    }).join('') +
+    '<div style="font-size:.74rem;color:var(--gray);margin-top:8px">Keyword + dollar similarity search across 550 training pairs. The trained model would generate a customized response for your specific bill.</div>';
+}
+
+function renderTrainingStats() {
+  const container = document.getElementById('ai-stats');
+  if (!container) return;
+  const catCounts = {};
+  ALL_CASES.forEach(function(c) { catCounts[c.issue_category] = (catCounts[c.issue_category]||0)+1; });
+  const catsSorted = Object.entries(catCounts).sort(function(a,b){return b[1]-a[1];});
+  const maxCat = Math.max.apply(null, Object.values(catCounts));
+  const insCounts = {};
+  HYPO_ROWS.forEach(function(r) { var ins=HYPO_INSURERS[r[5]]; insCounts[ins]=(insCounts[ins]||0)+1; });
+  const insSorted = Object.entries(insCounts).sort(function(a,b){return b[1]-a[1];});
+  const procCounts = {};
+  HYPO_ROWS.forEach(function(r) { var p=HYPO_PROCS[r[1]]; procCounts[p]=(procCounts[p]||0)+1; });
+  const procSorted = Object.entries(procCounts).sort(function(a,b){return b[1]-a[1];});
+  const totalBilled  = ALL_CASES.reduce(function(s,c){return s+c.billed;},0);
+  const totalBalance = ALL_CASES.reduce(function(s,c){return s+c.balance;},0);
+
+  function bar(n, max, color) {
+    return '<div style="background:var(--border);border-radius:3px;height:6px"><div style="background:' + color + ';border-radius:3px;height:6px;width:' + Math.round(n/max*100) + '%"></div></div>';
+  }
+
+  container.innerHTML =
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px">' +
+      '<div style="background:#FFF7ED;border-radius:10px;padding:14px;text-align:center"><div style="font-size:1.8rem;font-weight:800;color:var(--orange)">' + ALL_CASES.length + '</div><div style="font-size:.78rem;color:var(--gray);margin-top:2px">Total Training Cases</div></div>' +
+      '<div style="background:#EFF6FF;border-radius:10px;padding:14px;text-align:center"><div style="font-size:1.8rem;font-weight:800;color:#3B82F6">' + CASES.length + '</div><div style="font-size:.78rem;color:var(--gray);margin-top:2px">Real Patient Bills</div></div>' +
+      '<div style="background:#F0FDF4;border-radius:10px;padding:14px;text-align:center"><div style="font-size:1.8rem;font-weight:800;color:#16A34A">' + HYPO_ROWS.length + '</div><div style="font-size:.78rem;color:var(--gray);margin-top:2px">Hypothetical Bills</div></div>' +
+      '<div style="background:#FDF4FF;border-radius:10px;padding:14px;text-align:center"><div style="font-size:1.8rem;font-weight:800;color:#9333EA">' + Object.keys(catCounts).length + '</div><div style="font-size:.78rem;color:var(--gray);margin-top:2px">Issue Categories</div></div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">' +
+      '<div><div style="font-weight:700;font-size:.84rem;margin-bottom:10px">Issue Category Mix</div>' +
+        catsSorted.map(function(e){return '<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:2px"><span>'+escHtml(e[0])+'</span><span style="color:var(--gray);font-weight:600">'+e[1]+'</span></div>'+bar(e[1],maxCat,'var(--orange)')+'</div>';}).join('') +
+      '</div>' +
+      '<div><div style="font-weight:700;font-size:.84rem;margin-bottom:10px">Insurer Distribution (hypo)</div>' +
+        insSorted.map(function(e){return '<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:2px"><span>'+escHtml(e[0])+'</span><span style="color:var(--gray);font-weight:600">'+e[1]+'</span></div>'+bar(e[1],HYPO_ROWS.length,'#3B82F6')+'</div>';}).join('') +
+      '</div>' +
+      '<div><div style="font-weight:700;font-size:.84rem;margin-bottom:10px">Procedure Mix (hypo)</div>' +
+        procSorted.map(function(e){return '<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:2px"><span>'+escHtml(e[0])+'</span><span style="color:var(--gray);font-weight:600">'+e[1]+'</span></div>'+bar(e[1],HYPO_ROWS.length,'#16A34A')+'</div>';}).join('') +
+        '<div style="margin-top:12px;padding:10px;background:#FFF7ED;border-radius:8px;font-size:.78rem;line-height:1.6">Corpus billed: <strong>$' + (totalBilled/1e6).toFixed(2) + 'M</strong><br>Total balance: <strong>$' + (totalBalance/1e6).toFixed(2) + 'M</strong><br>Avg balance/case: <strong>$' + Math.round(totalBalance/ALL_CASES.length).toLocaleString() + '</strong></div>' +
+      '</div>' +
+    '</div>';
 }
 
 function exportTrainingData(mode) {
-  let pool;
-  if (mode === 'real')      pool = ALL_CASES.filter(c => c.source !== 'hypo');
-  else if (mode === 'hypo') pool = ALL_CASES.filter(c => c.source === 'hypo');
-  else                      pool = ALL_CASES;
-  const lines = pool.map(c => JSON.stringify({
-    messages: [
-      {role:'system',    content: AI_SYSTEM_PROMPT},
-      {role:'user',      content: userPromptFor(c)},
-      {role:'assistant', content: c.dispute_step}
-    ]
-  }));
-  const blob = new Blob([lines.join('\n')], {type:'application/x-jsonlines'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const reviews = getReviews();
+  const extPairs = getExtractionPairs();
+  var lines = [];
+  if (mode === 'taskA') {
+    lines = extPairs.map(function(p) { return JSON.stringify({messages:[{role:'system',content:AI_EXTRACT_SYSTEM},{role:'user',content:p.input},{role:'assistant',content:p.output}]}); });
+    if (!lines.length) { alert('No Task A extraction pairs yet.'); return; }
+  } else {
+    var pool;
+    if (mode === 'approved') pool = ALL_CASES.filter(function(c) { return reviews[c.id] && reviews[c.id].status === 'approved'; });
+    else if (mode === 'real') pool = ALL_CASES.filter(function(c) { return c.source !== 'hypo'; });
+    else pool = ALL_CASES;
+    if (!pool.length) { alert('No cases in this export set.'); return; }
+    lines = pool.map(function(c) { return JSON.stringify({messages:[{role:'system',content:AI_SYSTEM_PROMPT},{role:'user',content:userPromptFor(c)},{role:'assistant',content:(reviews[c.id]&&reviews[c.id].editedOutput)||c.dispute_step}]}); });
+  }
+  var blob = new Blob([lines.join('\n')], {type:'application/x-jsonlines'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
   a.href = url;
-  a.download = `zenbill_training_${pool.length}cases_${mode}.jsonl`;
-  document.body.appendChild(a);
-  a.click();
+  a.download = 'zenbill_training_' + mode + '_' + lines.length + 'cases.jsonl';
+  document.body.appendChild(a); a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
+// ============================================================
+// PRICE BENCHMARKS TAB (Tab 11)
+// ============================================================
+// PRICE BENCHMARKS TAB (Tab 11) — SPARCS 2024
+function initBenchmarkTab() {
+  const mdcs = [...new Set(SPARCS_BENCHMARKS.map(r => r.mdc))].sort();
+  const sel = document.getElementById('bench-mdc');
+  if (!sel) return;
+  mdcs.forEach(m => {
+    const o = document.createElement('option');
+    o.value = m; o.textContent = m;
+    sel.appendChild(o);
+  });
+}
+
+function fmt$(n) {
+  return '$' + Math.round(n).toLocaleString();
+}
+
+function percentileOf(val, row) {
+  if (val <= row.p10) return Math.round(val / row.p10 * 10);
+  if (val <= row.p25) return Math.round(10 + (val - row.p10) / (row.p25 - row.p10) * 15);
+  if (val <= row.p50) return Math.round(25 + (val - row.p25) / (row.p50 - row.p25) * 25);
+  if (val <= row.p75) return Math.round(50 + (val - row.p50) / (row.p75 - row.p50) * 25);
+  if (val <= row.p90) return Math.round(75 + (val - row.p75) / (row.p90 - row.p75) * 15);
+  return Math.min(99, Math.round(90 + (val - row.p90) / row.p90 * 15));
+}
+
+function runBenchmark() {
+  const mdc = document.getElementById('bench-mdc').value;
+  const payer = document.getElementById('bench-payer').value;
+  const amtRaw = document.getElementById('bench-amount').value;
+  const noData = document.getElementById('bench-no-data');
+  const result = document.getElementById('bench-result');
+
+  noData.style.display = 'none';
+  result.style.display = 'none';
+
+  if (!mdc) { alert('Please select a procedure category.'); return; }
+
+  const row = SPARCS_BENCHMARKS.find(r => r.mdc === mdc && r.payer === payer)
+           || SPARCS_BENCHMARKS.find(r => r.mdc === mdc && r.payer === 'All Payers');
+  if (!row) { noData.style.display = ''; return; }
+
+  const amount = amtRaw ? parseFloat(amtRaw) : null;
+  renderBenchmarkResult(row, amount, mdc, payer);
+  result.style.display = '';
+  document.getElementById('bench-result').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderBenchmarkResult(row, amount, mdc, payer) {
+  // Percentile
+  let pct = amount ? percentileOf(amount, row) : null;
+
+  // Verdict
+  let vBg, vColor, vText, vSub, vAction;
+  if (!amount) {
+    vBg = '#F1F5F9'; vColor = '#475569';
+    vText = 'Distribution for ' + mdc;
+    vSub = 'Enter your bill amount above to see where you fall';
+    vAction = '';
+  } else if (pct <= 25) {
+    vBg = '#D1FAE5'; vColor = '#065F46';
+    vText = `✓ Your bill is BELOW the typical range (${pct}th percentile)`;
+    vSub = `${fmt$(amount)} is lower than 75% of patients in this category`;
+    vAction = `<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:6px;padding:10px 14px"><strong>✓ Looks reasonable.</strong> This bill is in the lower range. Verify line items and EOB match, but major overcharge is unlikely unless specific codes are wrong.</div>`;
+  } else if (pct <= 50) {
+    vBg = '#FEF9C3'; vColor = '#713F12';
+    vText = `~ Your bill is near the median (${pct}th percentile)`;
+    vSub = `${fmt$(amount)} falls in the typical mid-range for this category`;
+    vAction = `<div style="background:#FEF9C3;border:1px solid #FDE047;border-radius:6px;padding:10px 14px"><strong>~ Typical range.</strong> Review for upcoding or unbundled line items. Check that all charges match your EOB and that any ER/admission classification is correct.</div>`;
+  } else if (pct <= 75) {
+    vBg = '#FEF3C7'; vColor = '#92400E';
+    vText = `⚠ Your bill is ABOVE MEDIAN (${pct}th percentile)`;
+    vSub = `${fmt$(amount)} is higher than ${pct}% of patients in this category`;
+    vAction = `<div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:6px;padding:10px 14px"><strong>⚠ Worth reviewing.</strong> Request itemized bill + hospital chargemaster. Look for duplicate charges, upcoded procedures, or facility fees added in error. Consider filing an IDR or billing dispute.</div>`;
+  } else if (pct <= 90) {
+    vBg = '#FED7AA'; vColor = '#7C2D12';
+    vText = `🔴 High bill — top 25% (${pct}th percentile)`;
+    vSub = `${fmt$(amount)} is higher than ${pct}% of patients in this category`;
+    vAction = `<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:6px;padding:10px 14px"><strong>🔴 Strong candidate for dispute.</strong> This bill is significantly above typical. Request a full itemized bill, compare each CPT code to Medicare rates, check for balance billing violations, and consider NSA Independent Dispute Resolution if insured.</div>`;
+  } else {
+    vBg = '#FEE2E2'; vColor = '#7F1D1D';
+    vText = `🚨 Extreme bill — top 10% (${pct}th percentile)`;
+    vSub = `${fmt$(amount)} is in the highest 10% of all charges for this category`;
+    vAction = `<div style="background:#FEE2E2;border:1px solid #F87171;border-radius:6px;padding:10px 14px"><strong>🚨 High priority dispute.</strong> This is well above typical charges. File an NSA IDR if insured, request charity care / financial assistance application, engage a patient advocate, and demand itemized bill with CPT codes and revenue codes for every line.</div>`;
+  }
+
+  // Verdict badge
+  const badge = document.getElementById('bench-verdict-badge');
+  badge.style.background = vBg; badge.style.color = vColor;
+  badge.textContent = pct !== null ? pct + 'th %ile' : 'Distribution';
+  document.getElementById('bench-verdict-text').textContent = vText;
+  document.getElementById('bench-verdict-sub').textContent = vSub;
+  document.getElementById('bench-action').innerHTML = vAction;
+
+  // Distribution bar
+  const max = row.p90 * 1.15;
+  const segs = [
+    {from:0, to:row.p10, color:'#86EFAC', label: fmt$(row.p10)},
+    {from:row.p10, to:row.p25, color:'#6EE7B7', label: fmt$(row.p25)},
+    {from:row.p25, to:row.p50, color:'#FDE68A', label: fmt$(row.p50)},
+    {from:row.p50, to:row.p75, color:'#FCA5A5', label: fmt$(row.p75)},
+    {from:row.p75, to:row.p90, color:'#F87171', label: fmt$(row.p90)},
+    {from:row.p90, to:max, color:'#EF4444', label: ''},
+  ];
+
+  const bar = document.getElementById('bench-bar');
+  bar.innerHTML = '';
+  segs.forEach(s => {
+    const pct_w = (s.to - s.from) / max * 100;
+    const div = document.createElement('div');
+    div.style.cssText = `width:${pct_w}%;background:${s.color};height:100%;`;
+    bar.appendChild(div);
+  });
+
+  // Labels above bar
+  const labelsDiv = document.getElementById('bench-bar-labels');
+  labelsDiv.innerHTML = `<span>${fmt$(row.p10)}</span><span>${fmt$(row.p25)}</span><span>${fmt$(row.p50)}</span><span>${fmt$(row.p75)}</span><span>${fmt$(row.p90)}</span>`;
+
+  // Marker
+  if (amount) {
+    const markerDiv = document.getElementById('bench-marker');
+    const barWrap = document.getElementById('bench-bar-wrap');
+    const barEl = document.getElementById('bench-bar');
+    const pct_pos = Math.min(amount, max * 0.98) / max * 100;
+    markerDiv.style.left = pct_pos + '%';
+    markerDiv.style.display = 'flex';
+    document.getElementById('bench-marker-label').textContent = fmt$(amount);
+  } else {
+    document.getElementById('bench-marker').style.display = 'none';
+  }
+
+  // Stats grid
+  const grid = document.getElementById('bench-stats-grid');
+  const markup = row.cost_p50 > 0 ? (row.p50 / row.cost_p50).toFixed(1) + '×' : 'N/A';
+  grid.innerHTML = [
+    {label: 'Records in dataset', val: row.n.toLocaleString(), sub: 'NY 2024 discharges'},
+    {label: 'Median charge (p50)', val: fmt$(row.p50), sub: 'typical billed amount'},
+    {label: 'Hospital cost (p50)', val: fmt$(row.cost_p50), sub: 'estimated cost to provide care'},
+    {label: 'Typical LOS', val: (row.los_p50 || '—') + (row.los_p50 ? ' days' : ''), sub: 'median length of stay'},
+  ].map(s => `<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:8px;padding:12px 14px">
+    <div style="font-size:1.15rem;font-weight:700">${s.val}</div>
+    <div style="font-size:.75rem;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.04em">${s.label}</div>
+    <div style="font-size:.72rem;color:var(--gray)">${s.sub}</div>
+  </div>`).join('');
+
+  // Table
+  document.getElementById('bench-table-title').textContent = mdc + ' — ' + payer;
+  const rows = [
+    {p:'p10 (10th)', val:row.p10, note:'10% of patients billed less than this'},
+    {p:'p25 (25th)', val:row.p25, note:'25% billed less — lower end of range'},
+    {p:'p50 (median)', val:row.p50, note:'Typical / median charge'},
+    {p:'p75 (75th)', val:row.p75, note:'75% billed less — upper end of range'},
+    {p:'p90 (90th)', val:row.p90, note:'Only 10% billed more than this'},
+  ];
+  document.getElementById('bench-table-body').innerHTML = rows.map((r, i) => {
+    const hl = amount && amount >= r.val && (i === rows.length-1 || amount < rows[i+1].val) ? 'style="background:#FEF9C3"' : '';
+    return `<tr ${hl} style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px 10px;font-weight:600">${r.p}</td>
+      <td style="padding:8px 10px;text-align:right;font-weight:700">${fmt$(r.val)}</td>
+      <td style="padding:8px 10px;color:var(--gray)">${r.note}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('bench-cost-note').textContent = fmt$(row.cost_p50);
+  document.getElementById('bench-markup-note').textContent = markup;
+  document.getElementById('bench-los-note').textContent = row.los_p50 || '—';
+}
+
+function renderBenchmarks() {
+  initBenchmarkTab();
+}
 </script>
 </body>
 </html>
