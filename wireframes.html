@@ -1226,103 +1226,194 @@ Enclosures: Copy of bill received</div>
 <div id="tab-clearinghouse" class="tab-content">
 
   <div class="wf-card">
-    <div class="wf-card-title">🏭 ZenBill Clearinghouse — Product Architecture</div>
+    <div class="wf-card-title">⚡ ZenBill Clearinghouse — Product Architecture</div>
+    <div class="wf-alert wf-alert-orange" style="margin-bottom:14px">
+      <strong>What is the Clearinghouse?</strong> Central routing + translation engine that maps every dispute format to its data requirements, submission channel, timeline, and outcome potential. Receives a bill → identifies eligible formats → validates required data → generates submission package → tracks outcomes.
+    </div>
 
     <!-- Flow diagram -->
     <div class="wf-label">System Flow</div>
     <div class="wf-flow" style="margin-bottom:16px">
-      <div class="wf-flow-node highlight">📄 Bill / EOB In</div>
+      <div class="wf-flow-node highlight" style="border-color:#E05A1B;background:#fff7ed">
+        📄 <strong>Bill / EOB In</strong>
+        <div style="font-size:9px;color:#8792a2;margin-top:3px">Paper · PDF · EDI 835 · UB-04 · CMS-1500</div>
+      </div>
       <div class="wf-flow-arrow">→</div>
-      <div class="wf-flow-node">🔍 OCR + Parse</div>
+      <div class="wf-flow-node">
+        🔍 <strong>OCR + Parse</strong>
+        <div style="font-size:9px;color:#8792a2;margin-top:3px">Extract CPT, NPI, amounts, dates, denial codes</div>
+      </div>
       <div class="wf-flow-arrow">→</div>
-      <div class="wf-flow-node">🗂 Format Router</div>
+      <div class="wf-flow-node" style="border-color:#3b82f6;background:#eff6ff">
+        🗂 <strong>Format Router</strong>
+        <div style="font-size:9px;color:#8792a2;margin-top:3px">Match conditions → eligible formats</div>
+      </div>
       <div class="wf-flow-arrow">→</div>
-      <div class="wf-flow-node">✅ Data Validator</div>
+      <div class="wf-flow-node" style="border-color:#2dd4bf;background:#ecfdf5">
+        ✅ <strong>Data Validator</strong>
+        <div style="font-size:9px;color:#8792a2;margin-top:3px">Check required fields; flag gaps</div>
+      </div>
       <div class="wf-flow-arrow">→</div>
-      <div class="wf-flow-node">📝 Template Engine</div>
+      <div class="wf-flow-node">
+        📝 <strong>Template Engine</strong>
+        <div style="font-size:9px;color:#8792a2;margin-top:3px">Generate submission package</div>
+      </div>
       <div class="wf-flow-arrow">→</div>
-      <div class="wf-flow-node highlight">📊 Outcome Tracker</div>
+      <div class="wf-flow-node" style="border-color:#8b5cf6;background:#f5f3ff">
+        📊 <strong>Outcome Tracker</strong>
+        <div style="font-size:9px;color:#8792a2;margin-top:3px">Log results → feed case library + AI training</div>
+      </div>
     </div>
 
-    <div class="wf-grid wf-grid-3" style="margin-bottom:16px">
+    <div class="wf-grid wf-grid-4" style="margin-bottom:0">
       <div class="wf-stat"><div class="wf-stat-num">15</div><div class="wf-stat-label">Dispute Formats Mapped</div></div>
-      <div class="wf-stat"><div class="wf-stat-num">8</div><div class="wf-stat-label">Required Field Types</div></div>
-      <div class="wf-stat"><div class="wf-stat-num">3</div><div class="wf-stat-label">Build Roadmap Phases</div></div>
+      <div class="wf-stat"><div class="wf-stat-num">42</div><div class="wf-stat-label">Data Fields Tracked</div></div>
+      <div class="wf-stat"><div class="wf-stat-num">9</div><div class="wf-stat-label">Submission Channels</div></div>
+      <div class="wf-stat"><div class="wf-stat-num" style="color:#065f46">4</div><div class="wf-stat-label">AI Training Bill Categories Loaded</div></div>
     </div>
   </div>
 
   <div class="wf-card">
-    <div class="wf-card-title">📋 Data Ingestion Map — Required Fields by Dispute Format</div>
+    <div class="wf-card-title">📋 Dispute Format Registry — click any row to expand</div>
+
+    <!-- Filter bar -->
+    <div class="wf-filter-row" style="margin-bottom:12px">
+      <button class="wf-btn wf-btn-primary wf-btn-sm">All 15</button>
+      <button class="wf-btn wf-btn-secondary wf-btn-sm">Patient-Initiated</button>
+      <button class="wf-btn wf-btn-secondary wf-btn-sm">Gov't Programs</button>
+      <button class="wf-btn wf-btn-secondary wf-btn-sm">EDI / Operational</button>
+      <button class="wf-btn wf-btn-secondary wf-btn-sm">Financial Hardship</button>
+    </div>
+
+    <!-- Expandable format cards -->
+    <div style="border:1px solid #d0d7de;border-radius:6px;overflow:hidden;margin-bottom:6px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f6f8fa;cursor:pointer;font-size:11.5px;font-weight:600">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="wf-badge badge-orange">Patient-Initiated</span>
+          <span>PPDR — Patient-Provider Dispute Resolution</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="wf-badge badge-green">High success</span>
+          <span class="wf-badge badge-blue">120-day window</span>
+          <span style="color:#8792a2;font-size:10px">▼</span>
+        </div>
+      </div>
+      <div style="padding:12px 14px;border-top:1px solid #eaecf0;font-size:11px;color:#57606a;line-height:1.6">
+        <strong>Trigger:</strong> Final bill exceeds GFE by &gt;$400 · <strong>Channel:</strong> CMS online portal · <strong>Timeline:</strong> 30-day resolution
+        <div style="margin-top:6px"><strong>Required:</strong> GFE document · Final itemized bill · Patient ID · DOS · Provider NPI</div>
+      </div>
+    </div>
+
+    <div style="border:1px solid #d0d7de;border-radius:6px;overflow:hidden;margin-bottom:6px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f6f8fa;cursor:pointer;font-size:11.5px;font-weight:600">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="wf-badge badge-orange">Patient-Initiated</span>
+          <span>NSA IDR — No Surprises Act Independent Dispute Resolution</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;color:#8792a2;font-size:10px">▶</div>
+      </div>
+    </div>
+
+    <div style="border:1px solid #d0d7de;border-radius:6px;overflow:hidden;margin-bottom:6px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f6f8fa;cursor:pointer;font-size:11.5px;font-weight:600">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="wf-badge badge-blue">Gov't Programs</span>
+          <span>Medicare Administrative Contractor (MAC) Appeal</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;color:#8792a2;font-size:10px">▶</div>
+      </div>
+    </div>
+
+    <div style="border:1px solid #d0d7de;border-radius:6px;overflow:hidden;margin-bottom:6px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f6f8fa;cursor:pointer;font-size:11.5px;font-weight:600">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="wf-badge badge-gray">Financial Hardship</span>
+          <span>Charity Care Application (IRS 501(r))</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;color:#8792a2;font-size:10px">▶</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:8px;font-size:11px;color:#8792a2">… 11 more formats (Insurance Appeal · External Review · ERISA · Medicaid · TRICARE · State DOI · FDCPA · Late Billing · Air Ambulance · Pharmacy PBM · State AG Complaint)</div>
+  </div>
+
+  <div class="wf-card">
+    <div class="wf-card-title">🗄 Data Ingestion Map — Required Fields by Format</div>
+    <div style="font-size:10.5px;color:#57606a;margin-bottom:10px">
+      <span style="color:#E05A1B;font-weight:700">●</span> Always required &nbsp;·&nbsp;
+      <span style="color:#d97706;font-weight:700">○</span> Conditional &nbsp;·&nbsp;
+      <span style="color:#d0d7de">—</span> Not applicable
+    </div>
     <div class="wf-table-wrap">
-      <table class="wf-table wf-matrix" style="font-size:10.5px">
+      <table class="wf-table wf-matrix" style="font-size:10px">
         <thead>
           <tr>
-            <th style="text-align:left">Dispute Format</th>
-            <th>Patient ID</th>
-            <th>CPT Codes</th>
-            <th>GFE Amt</th>
-            <th>EOB</th>
-            <th>ICD-10</th>
-            <th>Provider NPI</th>
-            <th>DOS</th>
-            <th>Income / FPL</th>
+            <th style="text-align:left;min-width:140px">Data Field</th>
+            <th>PPDR</th><th>NSA IDR</th><th>Ins. Appeal</th><th>Ext. Review</th><th>ERISA</th>
+            <th>Medicare</th><th>Medicaid</th><th>TRICARE</th><th>State DOI</th>
+            <th>FDCPA</th><th>Charity</th><th>Late Bill</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Itemized Bill Request</td>
-            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-na">—</td>
+            <td>Patient / Account ID</td>
+            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td>
+            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td>
+            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td>
+          </tr>
+          <tr>
+            <td>CPT / HCPCS Codes</td>
+            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-cond">○</td>
+            <td class="dot-full">●</td><td class="dot-cond">○</td><td class="dot-full">●</td><td class="dot-cond">○</td>
+            <td class="dot-cond">○</td><td class="dot-cond">○</td><td class="dot-cond">○</td>
+          </tr>
+          <tr>
+            <td>GFE Amount</td>
+            <td class="dot-full">●</td><td class="dot-cond">○</td><td class="dot-na">—</td><td class="dot-na">—</td><td class="dot-na">—</td>
+            <td class="dot-na">—</td><td class="dot-na">—</td><td class="dot-na">—</td><td class="dot-na">—</td>
+            <td class="dot-na">—</td><td class="dot-na">—</td><td class="dot-na">—</td>
+          </tr>
+          <tr>
+            <td>EOB / Remittance</td>
+            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td>
+            <td class="dot-full">●</td><td class="dot-cond">○</td><td class="dot-full">●</td><td class="dot-full">●</td>
+            <td class="dot-na">—</td><td class="dot-cond">○</td><td class="dot-na">—</td>
+          </tr>
+          <tr>
+            <td>ICD-10 Diagnosis Codes</td>
+            <td class="dot-cond">○</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-cond">○</td>
+            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-cond">○</td>
+            <td class="dot-na">—</td><td class="dot-na">—</td><td class="dot-cond">○</td>
+          </tr>
+          <tr>
+            <td>Provider NPI</td>
+            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td>
+            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td>
+            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td>
+          </tr>
+          <tr>
+            <td>Date of Service</td>
+            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td>
+            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-cond">○</td>
             <td class="dot-cond">○</td><td class="dot-cond">○</td><td class="dot-full">●</td>
-            <td class="dot-full">●</td><td class="dot-na">—</td>
           </tr>
           <tr>
-            <td>PPDR Dispute</td>
-            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td>
-            <td class="dot-full">●</td><td class="dot-cond">○</td><td class="dot-full">●</td>
-            <td class="dot-full">●</td><td class="dot-na">—</td>
-          </tr>
-          <tr>
-            <td>No Surprises Act</td>
-            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-cond">○</td>
-            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td>
-            <td class="dot-full">●</td><td class="dot-na">—</td>
-          </tr>
-          <tr>
-            <td>Charity Care</td>
-            <td class="dot-full">●</td><td class="dot-cond">○</td><td class="dot-na">—</td>
-            <td class="dot-cond">○</td><td class="dot-na">—</td><td class="dot-full">●</td>
-            <td class="dot-cond">○</td><td class="dot-full">●</td>
-          </tr>
-          <tr>
-            <td>Insurance Appeal</td>
-            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-na">—</td>
-            <td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td>
-            <td class="dot-full">●</td><td class="dot-na">—</td>
-          </tr>
-          <tr>
-            <td>Debt Validation</td>
-            <td class="dot-full">●</td><td class="dot-cond">○</td><td class="dot-na">—</td>
-            <td class="dot-na">—</td><td class="dot-na">—</td><td class="dot-full">●</td>
-            <td class="dot-cond">○</td><td class="dot-na">—</td>
-          </tr>
-          <tr>
-            <td style="color:#8792a2">… 9 more formats</td>
-            <td colspan="8" style="color:#8792a2;font-size:10px">Late billing, external review, air ambulance, pharmacy PBM…</td>
+            <td>Income / FPL %</td>
+            <td class="dot-na">—</td><td class="dot-na">—</td><td class="dot-na">—</td><td class="dot-na">—</td><td class="dot-na">—</td>
+            <td class="dot-na">—</td><td class="dot-na">—</td><td class="dot-na">—</td><td class="dot-na">—</td>
+            <td class="dot-na">—</td><td class="dot-full">●</td><td class="dot-na">—</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div style="margin-top:8px;font-size:10.5px;color:#57606a">
-      ● Always required &nbsp;·&nbsp; ○ Conditional &nbsp;·&nbsp; — Not applicable
-    </div>
   </div>
 
   <div class="wf-card">
-    <div class="wf-card-title">🗺 Build Roadmap</div>
+    <div class="wf-card-title">🏗 Clearinghouse Build Roadmap</div>
     <div class="wf-grid wf-grid-3">
-      <div class="wf-step"><div class="wf-step-num">1</div><div class="wf-step-text"><strong>Phase 1 — Parsing:</strong> OCR ingestion + field extraction for top 5 dispute formats</div></div>
-      <div class="wf-step"><div class="wf-step-num">2</div><div class="wf-step-text"><strong>Phase 2 — Routing:</strong> Format router + data validator + template engine</div></div>
-      <div class="wf-step"><div class="wf-step-num">3</div><div class="wf-step-text"><strong>Phase 3 — Tracking:</strong> Outcome tracker, success rates, revenue reporting</div></div>
+      <div class="wf-step"><div class="wf-step-num">1</div><div class="wf-step-text"><strong>Phase 1 — Parsing:</strong> OCR ingestion + field extraction for top 5 dispute formats (PPDR, NSA, Insurance Appeal, Charity, FDCPA)</div></div>
+      <div class="wf-step"><div class="wf-step-num">2</div><div class="wf-step-text"><strong>Phase 2 — Routing:</strong> Format router + data validator + template engine for all 15 formats</div></div>
+      <div class="wf-step"><div class="wf-step-num">3</div><div class="wf-step-text"><strong>Phase 3 — Tracking:</strong> Outcome tracker, success rates by format, revenue reporting dashboard</div></div>
     </div>
   </div>
 </div>
@@ -1333,125 +1424,186 @@ Enclosures: Copy of bill received</div>
 ══════════════════════════════════════════════════ -->
 <div id="tab-training" class="tab-content">
 
-  <!-- Pipeline banner -->
-  <div class="wf-pipeline">
-    <div class="wf-pipeline-stage active">📥 Raw Bills</div>
-    <div class="wf-pipeline-stage">🔍 OCR + Extract</div>
-    <div class="wf-pipeline-stage">👤 Human Review</div>
-    <div class="wf-pipeline-stage">✅ Approve / Flag / Edit</div>
-    <div class="wf-pipeline-stage">📦 JSONL Export</div>
-    <div class="wf-pipeline-stage">🤖 Fine-Tune Model</div>
-  </div>
+  <!-- Pipeline banner — 5 stages matching live tool -->
+  <div class="wf-card" style="border-left:4px solid #9333ea;padding-bottom:16px;margin-bottom:14px">
+    <div class="wf-card-title">🤖 AI Pipeline — What Gets Trained on What</div>
+    <div style="display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:4px 0 4px">
 
-  <div class="wf-grid wf-grid-4" style="margin-bottom:14px">
-    <div class="wf-stat"><div class="wf-stat-num">550</div><div class="wf-stat-label">Total Pairs</div></div>
-    <div class="wf-stat"><div class="wf-stat-num" style="color:#065f46">412</div><div class="wf-stat-label">Approved</div></div>
-    <div class="wf-stat"><div class="wf-stat-num" style="color:#d1242f">38</div><div class="wf-stat-label">Flagged</div></div>
-    <div class="wf-stat"><div class="wf-stat-num" style="color:#1e40af">100</div><div class="wf-stat-label">Edited</div></div>
-  </div>
+      <div style="background:#fff;border:1.5px solid #d0d7de;border-radius:10px;padding:12px 14px;text-align:center;min-width:110px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:1.3rem">📄</div>
+        <div style="font-size:.75rem;font-weight:700">Bill Upload</div>
+        <div style="font-size:.68rem;color:#8792a2">image / PDF / text</div>
+      </div>
+      <div style="color:#E05A1B;font-size:1.3rem;padding:0 4px;margin-top:18px;flex-shrink:0">→</div>
 
-  <!-- Task A -->
-  <div class="wf-card">
-    <div class="wf-card-title">📋 Task A — Bill Extraction <span class="wf-annotation">trains OCR → structured JSON</span></div>
-    <div class="wf-grid wf-grid-2" style="margin-bottom:10px">
-      <div>
-        <div class="wf-label">Input (Raw OCR Text)</div>
-        <div class="wf-textarea" style="height:80px;font-family:monospace;font-size:10px">PATIENT: John Smith DOB: 01/15/1980
-PROVIDER: Mercy Hospital NPI: 1234567890
-DATE: 2026-09-14
-CPT 99285  Emergency Dept, High Complexity  $1,840.00
-CPT 71046  Chest X-Ray 2 Views              $420.00
-…</div>
+      <div style="background:#fef2f2;border:1.5px solid #ef4444;border-radius:10px;padding:12px 14px;text-align:center;min-width:110px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer">
+        <div style="font-size:1.3rem">🔍</div>
+        <div style="font-size:.75rem;font-weight:700">Task A: Extract</div>
+        <div style="font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;background:#fee2e2;color:#991b1b">❌ 0 pairs</div>
+        <div style="font-size:.68rem;color:#8792a2">P0 gap · click to build</div>
       </div>
-      <div>
-        <div class="wf-label">Expected Output (Structured JSON)</div>
-        <div class="wf-textarea" style="height:80px;font-family:monospace;font-size:10px">{ "patient": "John Smith",
-  "provider": "Mercy Hospital",
-  "dos": "2026-09-14",
-  "line_items": [
-    {"cpt":"99285","charge":1840},
-    {"cpt":"71046","charge":420} ]
-}</div>
+      <div style="color:#E05A1B;font-size:1.3rem;padding:0 4px;margin-top:18px;flex-shrink:0">→</div>
+
+      <div style="background:#ecfdf5;border:1.5px solid #059669;border-radius:10px;padding:12px 14px;text-align:center;min-width:110px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer">
+        <div style="font-size:1.3rem">💬</div>
+        <div style="font-size:.75rem;font-weight:700">Task B: Advise</div>
+        <div style="font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;background:#d1fae5;color:#065f46">✅ 550 pairs</div>
+        <div style="font-size:.68rem;color:#8792a2">click to review &amp; approve</div>
       </div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="wf-btn wf-btn-secondary wf-btn-sm">+ Add Extraction Pair</button>
-      <button class="wf-btn wf-btn-ghost wf-btn-sm">💾 Save</button>
-      <button class="wf-btn wf-btn-danger wf-btn-sm">Clear</button>
+      <div style="color:#E05A1B;font-size:1.3rem;padding:0 4px;margin-top:18px;flex-shrink:0">→</div>
+
+      <div style="background:#fffbeb;border:1.5px solid #d97706;border-radius:10px;padding:12px 14px;text-align:center;min-width:110px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:1.3rem">📋</div>
+        <div style="font-size:.75rem;font-weight:700">Form Gen</div>
+        <div style="font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;background:#fef3c7;color:#92400e">⚠ 50%</div>
+        <div style="font-size:.68rem;color:#8792a2">CMS-10791</div>
+      </div>
+      <div style="color:#E05A1B;font-size:1.3rem;padding:0 4px;margin-top:18px;flex-shrink:0">→</div>
+
+      <div style="background:#fff;border:1.5px solid #d0d7de;border-radius:10px;padding:12px 14px;text-align:center;min-width:110px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:1.3rem">📤</div>
+        <div style="font-size:.75rem;font-weight:700">Submit</div>
+        <div style="font-size:.68rem;color:#8792a2">nsa-idr.cms.gov</div>
+      </div>
     </div>
   </div>
 
-  <!-- Task B -->
+  <!-- Task B — shown first because it has data -->
   <div class="wf-card">
-    <div class="wf-card-title">🤖 Task B — Dispute Advice Pairs <span class="wf-annotation">trains bill → dispute recommendation</span></div>
+    <div class="wf-card-title">💬 Task B — Dispute Advice <span class="wf-annotation">550 pairs · trains bill summary → dispute recommendation</span></div>
 
-    <div class="wf-filter-row">
-      <div class="wf-toggle-group">
-        <button class="wf-toggle-btn active">All</button>
-        <button class="wf-toggle-btn">Approved</button>
-        <button class="wf-toggle-btn">Flagged</button>
-        <button class="wf-toggle-btn">Real Bills</button>
+    <!-- Review bar -->
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:#f6f8fa;border:1px solid #d0d7de;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.85rem">
+      <span style="color:#57606a">Total: <strong>550</strong></span>
+      <span style="color:#059669">✓ Approved: <strong>0</strong></span>
+      <span style="color:#ef4444">⚑ Flagged: <strong>0</strong></span>
+      <span style="color:#3b82f6">✎ Edited: <strong>0</strong></span>
+      <span style="margin-left:auto;font-size:11px;color:#8792a2">Approve pairs to quality-gate the export</span>
+    </div>
+
+    <!-- Filter row -->
+    <div class="wf-filter-row" style="margin-bottom:12px">
+      <button class="wf-btn wf-btn-primary wf-btn-sm">All 550</button>
+      <button class="wf-btn wf-btn-secondary wf-btn-sm">Real (30)</button>
+      <button class="wf-btn wf-btn-secondary wf-btn-sm">Hypo (520)</button>
+      <button class="wf-btn wf-btn-secondary wf-btn-sm" style="border-color:#059669;color:#059669">✓ Approved (0)</button>
+      <button class="wf-btn wf-btn-secondary wf-btn-sm" style="border-color:#ef4444;color:#ef4444">⚑ Flagged (0)</button>
+      <div class="wf-select" style="width:180px;margin-left:auto">All Issue Types ▾</div>
+    </div>
+
+    <!-- Pair cards -->
+    <div class="wf-pair">
+      <div class="wf-pair-header">
+        <span class="wf-badge badge-gray">— Unreviewed</span>
+        <span>KFF-2026-01 · Steinhauer Eye Clinic · Vision/Medical Network Mismatch</span>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="wf-btn wf-btn-secondary wf-btn-sm" style="border-color:#059669;color:#059669">✓ Approve</button>
+          <button class="wf-btn wf-btn-secondary wf-btn-sm">✎ Edit</button>
+          <button class="wf-btn wf-btn-danger wf-btn-sm">⚑ Flag</button>
+        </div>
       </div>
-      <div class="wf-search-input" style="flex:1;max-width:280px">Search pairs…</div>
+      <div class="wf-pair-body">
+        <div class="wf-pair-col">
+          <div class="wf-pair-col-label">Input — Bill Summary</div>
+          Provider: Steinhauer Eye Clinic · Billed: $340 · Balance: $340 · Issue: glaucoma follow-up denied — vision vs. medical network mismatch.
+        </div>
+        <div class="wf-pair-col">
+          <div class="wf-pair-col-label">Output — Dispute Advice</div>
+          Check specific medical benefit network on date of service. Appeal with provider directory screenshot and claim documents. Request network listing verification letter.
+        </div>
+      </div>
     </div>
 
     <div class="wf-pair">
       <div class="wf-pair-header">
         <span class="wf-badge badge-green">✓ Approved</span>
-        <span>ACTUAL-001 · NYU Langone · Duplicate EKGs</span>
+        <span>ACTUAL-011 · Jackson Purchase Medical · Respiratory Unbundling</span>
         <div style="margin-left:auto;display:flex;gap:6px">
-          <button class="wf-btn wf-btn-secondary wf-btn-sm">Edit</button>
-          <button class="wf-btn wf-btn-danger wf-btn-sm">Flag</button>
+          <button class="wf-btn wf-btn-secondary wf-btn-sm">✎ Edit</button>
+          <button class="wf-btn wf-btn-danger wf-btn-sm">⚑ Flag</button>
         </div>
       </div>
       <div class="wf-pair-body">
-        <div class="wf-pair-col">
-          <div class="wf-pair-col-label">Input (Bill Summary)</div>
-          CPT 93000 billed ×3 same date, same provider. Total charge $840. Medicare rate $16.56 each. No clinical justification.
-        </div>
-        <div class="wf-pair-col">
-          <div class="wf-pair-col-label">Output (Dispute Recommendation)</div>
-          Duplicate EKG charges detected. Request itemized bill + medical records. CMS NCCI edits prohibit repeat billing same date. Estimated savings: $560. Dispute via itemized bill request letter.
-        </div>
+        <div class="wf-pair-col"><div class="wf-pair-col-label">Input</div>Hand-held nebulizer ×4 + Chest Physio ×4 billed separately same day. NCCI edits require bundling. Triple metabolic panels same day.</div>
+        <div class="wf-pair-col"><div class="wf-pair-col-label">Output</div>Unbundling detected. NCCI edits prohibit separate billing of respiratory services same date. Request HCPCS codes and rebundle. Est. savings: 30–40% of line items.</div>
       </div>
     </div>
 
-    <div class="wf-pair">
-      <div class="wf-pair-header">
-        <span class="wf-badge badge-red">⚑ Flagged</span>
-        <span>ACTUAL-003 · BCBS-TN · Vitamin D Denial</span>
-        <div style="margin-left:auto;display:flex;gap:6px">
-          <button class="wf-btn wf-btn-secondary wf-btn-sm">Edit</button>
-          <button class="wf-btn wf-btn-ghost wf-btn-sm">Approve</button>
-        </div>
+    <div style="text-align:center;padding:8px;font-size:11px;color:#8792a2">… 548 more pairs</div>
+  </div>
+
+  <!-- Task A — shown after Task B (P0 gap) -->
+  <div class="wf-card" style="border-left:4px solid #ef4444">
+    <div class="wf-card-title">🔍 Task A — Bill Extraction
+      <span class="wf-badge badge-red" style="margin-left:8px">0 pairs — P0 gap</span>
+    </div>
+    <div class="wf-alert wf-alert-orange" style="margin-bottom:12px;font-size:11px">
+      <strong>This is the P0 gap.</strong> The pipeline starts here — 0% OCR/extraction built. Each pair = one bill (raw text) + correct structured JSON output. These pairs train the extraction model that feeds Task B.
+    </div>
+    <div class="wf-grid wf-grid-2" style="margin-bottom:10px">
+      <div>
+        <div class="wf-label">INPUT — raw bill text or OCR output</div>
+        <div class="wf-textarea" style="height:100px;font-family:monospace;font-size:10px">Provider: Mercy Hospital
+Date: 03/15/2025
+Charges: $8,450  Ins paid: $0
+Balance: $8,450
+ER Level 4 $1,200
+CT Abdomen $3,100
+Lab panel $420…</div>
       </div>
-      <div class="wf-pair-body">
-        <div class="wf-pair-col"><div class="wf-pair-col-label">Input</div>CPT 82306 Vitamin D $106 denied — missing diagnosis code…</div>
-        <div class="wf-pair-col"><div class="wf-pair-col-label">Output (needs review)</div>Add ICD-10 E55.9 or Z13.88 and resubmit…</div>
+      <div>
+        <div class="wf-label" style="color:#065f46">OUTPUT — correct extracted JSON</div>
+        <div class="wf-textarea" style="height:100px;font-family:monospace;font-size:10px;border-color:#86efac">{
+  "provider": "Mercy Hospital",
+  "billed_total": 8450.00,
+  "patient_balance": 8450.00,
+  "service_date_start": "2025-03-15",
+  "emergency": true,
+  "line_items": [
+    {"description":"ER Level 4","cpt_code":"99284","charge":1200},
+    {"description":"CT Abdomen","cpt_code":"74177","charge":3100}
+  ]
+}</div>
       </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="wf-btn wf-btn-secondary wf-btn-sm">+ Add Extraction Pair</button>
+      <button class="wf-btn wf-btn-ghost wf-btn-sm">💾 Save Pair</button>
+      <button class="wf-btn wf-btn-danger wf-btn-sm">Clear</button>
     </div>
   </div>
 
   <!-- Live test -->
   <div class="wf-card">
-    <div class="wf-card-title">🧪 Live Test — Find Similar Cases</div>
-    <div class="wf-search" style="margin-bottom:8px">
-      <div class="wf-search-input">Enter keyword or CPT code (e.g. "duplicate", "99285", "air ambulance")…</div>
-      <button class="wf-btn wf-btn-primary">Search</button>
+    <div class="wf-card-title">▶ Live Test — Find Similar Cases</div>
+    <div style="font-size:11px;color:#8792a2;margin-bottom:10px">Describe a bill — searches all 550 training pairs for closest keyword match and shows what dispute advice the model would generate.</div>
+    <div class="wf-textarea" style="height:70px;margin-bottom:8px">Provider: Mercy Hospital · Billed: $12,000, Insurance paid: $0, Balance: $12,000 · Service: ER visit, uninsured patient, Aetna declined prior auth…</div>
+    <div style="display:flex;gap:8px">
+      <button class="wf-btn wf-btn-primary">▶ Find Similar Cases</button>
+      <button class="wf-btn wf-btn-secondary wf-btn-sm">Clear</button>
+      <span style="font-size:11px;color:#8792a2;align-self:center">Returns top 3 matches by keyword + dollar similarity</span>
     </div>
-    <div class="wf-result-box">Matching training pairs appear here ranked by similarity score…</div>
+    <div class="wf-result-box" style="margin-top:10px">Top matching training pairs appear here with similarity scores…</div>
   </div>
 
-  <!-- Export -->
+  <!-- Dataset stats & export -->
   <div class="wf-card">
-    <div class="wf-card-title">⬇️ Dataset Stats &amp; Export</div>
-    <div class="wf-grid wf-grid-4">
-      <button class="wf-btn wf-btn-secondary">All 550 Pairs (.jsonl)</button>
-      <button class="wf-btn wf-btn-secondary">Approved Only (412)</button>
-      <button class="wf-btn wf-btn-secondary">Real Bills Only</button>
-      <button class="wf-btn wf-btn-secondary">Task A Extraction</button>
+    <div class="wf-card-title">📊 Dataset Stats &amp; Export</div>
+    <div class="wf-grid wf-grid-4" style="margin-bottom:12px">
+      <div class="wf-stat"><div class="wf-stat-num">550</div><div class="wf-stat-label">Total Pairs</div></div>
+      <div class="wf-stat"><div class="wf-stat-num">30</div><div class="wf-stat-label">Real Bills</div></div>
+      <div class="wf-stat"><div class="wf-stat-num">520</div><div class="wf-stat-label">Hypothetical</div></div>
+      <div class="wf-stat"><div class="wf-stat-num" style="color:#059669">0</div><div class="wf-stat-label">Approved for Export</div></div>
     </div>
-    <div style="font-size:10.5px;color:#8792a2;margin-top:8px">JSONL format compatible with OpenAI fine-tune API and Anthropic Claude training pipelines.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="wf-btn wf-btn-primary">All 550 (JSONL)</button>
+      <button class="wf-btn wf-btn-secondary">Approved only (0)</button>
+      <button class="wf-btn wf-btn-secondary">Real bills (30)</button>
+      <button class="wf-btn wf-btn-secondary">Task A extraction (0)</button>
+    </div>
+    <div class="wf-alert wf-alert-blue" style="font-size:11px;margin:0">
+      <strong>Format:</strong> OpenAI/Anthropic fine-tuning JSONL · one object per line · <code>system + user + assistant</code> turns · compatible with OpenAI fine-tune API, Anthropic fine-tuning, Axolotl, Unsloth, LLaMA-Factory
+    </div>
   </div>
 </div>
 
@@ -1460,115 +1612,140 @@ CPT 71046  Chest X-Ray 2 Views              $420.00
      TAB 11 — PRICE BENCHMARKS
 ══════════════════════════════════════════════════ -->
 <div id="tab-benchmarks" class="tab-content">
-  <div class="wf-card">
-    <div class="wf-card-title">📊 Price Benchmarks — How Does Your Bill Compare?</div>
-    <div class="wf-alert wf-alert-blue" style="margin-bottom:12px">Source: SPARCS 2024 — 2,196,508 NY inpatient discharges. Updated annually. Covers total charges by procedure category and payer type.</div>
 
-    <div class="wf-grid wf-grid-3" style="margin-bottom:12px">
+  <!-- Header card -->
+  <div class="wf-card" style="border-left:4px solid #0ea5e9;padding-bottom:14px">
+    <div class="wf-card-title">📊 Price Benchmarks — How Does Your Bill Compare?</div>
+    <div style="font-size:.82rem;color:#8792a2">Source: <strong>SPARCS 2024</strong> — 2,196,508 NY inpatient discharges · NY Dept. of Health · Updated annually · Grouped by procedure category × payer type</div>
+  </div>
+
+  <!-- Lookup form -->
+  <div class="wf-card">
+    <div class="wf-card-title">🔍 Look Up Your Bill</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 160px auto;gap:12px;align-items:end;flex-wrap:wrap">
       <div class="wf-field">
         <div class="wf-field-label">Procedure Category</div>
-        <div class="wf-select">Select category (e.g. Circulatory / Heart)</div>
+        <div class="wf-select">— select category —</div>
       </div>
       <div class="wf-field">
         <div class="wf-field-label">Your Payer</div>
-        <div class="wf-select">All Payers / Self-Pay / Medicare / Medicaid / Blue Cross…</div>
+        <div class="wf-select">All Payers (combined) ▾</div>
       </div>
       <div class="wf-field">
         <div class="wf-field-label">Your Bill Total ($)</div>
-        <div class="wf-input">0.00</div>
+        <div class="wf-input">e.g. 45000</div>
+      </div>
+      <div>
+        <button class="wf-btn wf-btn-primary">▶ Check Bill</button>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:10.5px;color:#8792a2">Payer options: All Payers · Self-Pay/Uninsured · Private Insurance · Blue Cross/Blue Shield · Medicare · Medicaid · Managed Care · Federal/VA · Other</div>
+  </div>
+
+  <!-- Result card — verdict + percentile bar + stats -->
+  <div class="wf-card">
+    <div class="wf-card-title" style="margin-bottom:12px">Circulatory / Heart · Self-Pay / Uninsured · Your bill: $45,000 <span class="wf-annotation">result state</span></div>
+
+    <!-- Verdict badge + text -->
+    <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+      <div style="font-size:1.5rem;font-weight:800;padding:12px 20px;border-radius:10px;background:#fff7ed;color:#E05A1B;white-space:nowrap;border:2px solid #fed7aa">
+        82nd %ile ⚠
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:.95rem;font-weight:600;margin-bottom:4px">Your bill is higher than 82% of similar Self-Pay cases</div>
+        <div style="font-size:.82rem;color:#8792a2">Strong basis for negotiation. Comparable cases settled 30–45% below your billed amount.</div>
       </div>
     </div>
 
-    <div style="margin-bottom:14px">
-      <button class="wf-btn wf-btn-primary">Check Bill</button>
-    </div>
-
-    <div class="wf-result-box orange" style="margin-bottom:12px">
-      <div style="font-weight:700;margin-bottom:8px">Circulatory / Heart · Self-Pay · Your bill: $45,000</div>
-      <div class="wf-grid wf-grid-4" style="gap:8px;margin-bottom:10px">
-        <div style="text-align:center"><div style="font-size:10.5px;color:#8792a2">Your Bill</div><div style="font-size:20px;font-weight:800;color:#E05A1B">$45,000</div></div>
-        <div style="text-align:center"><div style="font-size:10.5px;color:#8792a2">Median (p50)</div><div style="font-size:20px;font-weight:800;color:#1e40af">$32,100</div></div>
-        <div style="text-align:center"><div style="font-size:10.5px;color:#8792a2">Markup Ratio</div><div style="font-size:20px;font-weight:800;color:#9a3412">1.40×</div></div>
-        <div style="text-align:center"><div style="font-size:10.5px;color:#8792a2">Avg. Length of Stay</div><div style="font-size:20px;font-weight:800">4.2 days</div></div>
+    <!-- Percentile bar with marker -->
+    <div style="margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;font-size:.72rem;color:#8792a2;margin-bottom:3px">
+        <span>$18,200</span><span>$24,500</span><span>$32,100</span><span>$41,800</span><span>$56,900</span>
       </div>
-      <div class="wf-alert wf-alert-orange" style="margin:0">Your bill is at the <strong>82nd percentile</strong> — higher than 82% of similar cases. Strong basis for negotiation or PPDR dispute.</div>
+      <div style="position:relative;height:28px;border-radius:6px;overflow:visible;display:flex">
+        <div style="flex:1;background:#d1fae5;border-radius:6px 0 0 6px"></div>
+        <div style="flex:1;background:#a7f3d0"></div>
+        <div style="flex:1;background:#fde68a"></div>
+        <div style="flex:1;background:#fca5a5"></div>
+        <div style="flex:1;background:#f87171;border-radius:0 6px 6px 0"></div>
+        <!-- Your bill marker -->
+        <div style="position:absolute;left:72%;top:-4px;display:flex;flex-direction:column;align-items:center">
+          <div style="width:3px;height:36px;background:#1e293b;border-radius:2px"></div>
+          <div style="font-size:.75rem;font-weight:700;background:#1e293b;color:#fff;padding:2px 7px;border-radius:4px;white-space:nowrap;margin-top:2px">Your bill $45,000</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.72rem;color:#8792a2;margin-top:3px">
+        <span>p10</span><span>p25</span><span>p50</span><span>p75</span><span>p90</span>
+      </div>
     </div>
 
+    <!-- 4-stat grid -->
+    <div class="wf-grid wf-grid-4" style="margin-top:16px">
+      <div class="wf-stat"><div class="wf-stat-num" style="color:#E05A1B">$45,000</div><div class="wf-stat-label">Your Bill</div></div>
+      <div class="wf-stat"><div class="wf-stat-num" style="color:#1e40af">$32,100</div><div class="wf-stat-label">Median (p50)</div></div>
+      <div class="wf-stat"><div class="wf-stat-num" style="color:#9a3412">1.40×</div><div class="wf-stat-label">Mark-up Ratio</div></div>
+      <div class="wf-stat"><div class="wf-stat-num">4.2</div><div class="wf-stat-label">Avg. Length of Stay (days)</div></div>
+    </div>
+
+    <!-- Action recommendation -->
+    <div class="wf-alert wf-alert-orange" style="margin-top:14px;margin-bottom:0">
+      <strong>Recommended action:</strong> Bill exceeds p75 — request itemized bill, compare to Medicare rates (Tab 7), and consider PPDR dispute if GFE exists. Target negotiation to p50 ($32,100) or below.
+    </div>
+  </div>
+
+  <!-- Full percentile table -->
+  <div class="wf-card">
+    <div class="wf-card-title">📋 Full Percentile Table — Circulatory / Heart · Self-Pay</div>
     <div class="wf-table-wrap">
       <table class="wf-table wf-pct-table">
         <thead>
           <tr>
-            <th>Payer</th>
-            <th>p10</th>
-            <th>p25</th>
-            <th class="highlight">p50</th>
-            <th>p75</th>
-            <th>p90</th>
-            <th>Cases (n)</th>
+            <th>Percentile</th>
+            <th style="text-align:right">Total Charges</th>
+            <th>What it means</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>Self-Pay</strong></td>
-            <td>$18,200</td>
-            <td>$24,500</td>
-            <td class="highlight">$32,100</td>
-            <td>$41,800</td>
-            <td>$56,900</td>
-            <td style="color:#8792a2">4,218</td>
+            <td><strong>p10</strong></td>
+            <td style="text-align:right">$18,200</td>
+            <td style="color:#8792a2;font-size:11px">10% of cases cost less than this — unusually low</td>
           </tr>
           <tr>
-            <td>Medicare</td>
-            <td>$12,100</td>
-            <td>$17,400</td>
-            <td>$23,800</td>
-            <td>$33,200</td>
-            <td>$48,100</td>
-            <td style="color:#8792a2">82,441</td>
+            <td><strong>p25</strong></td>
+            <td style="text-align:right">$24,500</td>
+            <td style="color:#8792a2;font-size:11px">Lower quartile — good negotiating target</td>
+          </tr>
+          <tr style="background:#fff7ed">
+            <td><strong>p50 (median)</strong></td>
+            <td style="text-align:right;font-weight:700;color:#E05A1B">$32,100</td>
+            <td style="color:#8792a2;font-size:11px">Midpoint — reasonable settlement target</td>
           </tr>
           <tr>
-            <td>Medicaid</td>
-            <td>$10,900</td>
-            <td>$15,700</td>
-            <td>$21,200</td>
-            <td>$29,800</td>
-            <td>$43,600</td>
-            <td style="color:#8792a2">61,320</td>
+            <td><strong>p75</strong></td>
+            <td style="text-align:right">$41,800</td>
+            <td style="color:#8792a2;font-size:11px">Upper quartile — your bill is near here</td>
           </tr>
           <tr>
-            <td>Blue Cross</td>
-            <td>$14,300</td>
-            <td>$19,800</td>
-            <td>$27,500</td>
-            <td>$36,900</td>
-            <td>$51,200</td>
-            <td style="color:#8792a2">38,774</td>
-          </tr>
-          <tr>
-            <td>All Payers</td>
-            <td>$11,800</td>
-            <td>$16,900</td>
-            <td>$24,100</td>
-            <td>$34,200</td>
-            <td>$50,400</td>
-            <td style="color:#8792a2">2,196,508</td>
+            <td><strong>p90</strong></td>
+            <td style="text-align:right">$56,900</td>
+            <td style="color:#8792a2;font-size:11px">Top 10% — extremely high, strong dispute basis</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div style="font-size:10.5px;color:#8792a2;margin-top:8px">Source: NY SPARCS 2024 inpatient discharge data. Total charges reflect billed amounts, not payments received.</div>
+    <div style="margin-top:10px;font-size:11px;color:#8792a2">
+      Hospital cost (median): <strong>~$22,900</strong> · Mark-up ratio: <strong>1.40×</strong> · Avg. LOS: <strong>4.2 days</strong>
+    </div>
   </div>
 
-  <div class="wf-card">
-    <div class="wf-card-title">📚 All Procedure Categories</div>
-    <div class="wf-filter-row">
-      <div class="wf-search-input" style="flex:1">Search categories…</div>
-    </div>
-    <div style="font-size:11px;color:#57606a;line-height:2;columns:3;gap:20px">
-      Circulatory / Heart · Respiratory · Musculoskeletal · Digestive · Nervous System ·
-      Endocrine · Urinary · Female Reproductive · Male Reproductive · Blood / Immune ·
-      Mental Health · Substance Use · Injury / Trauma · Newborn · Eye · Ear ·
-      Skin / Breast · Burns · Infectious Disease · Cancer / Neoplasms
+  <!-- Data notes -->
+  <div class="wf-card" style="background:#f6f8fa">
+    <div style="font-size:11px;color:#57606a;line-height:1.7">
+      <strong>Data notes:</strong> SPARCS = Statewide Planning and Research Cooperative System. NY inpatient discharges 2024.
+      Charges = what was billed to insurer/patient. Costs = estimated cost to deliver care (using cost-to-charge ratios).
+      Percentiles exclude records with $0 charges. All figures in USD.
+      This tool is for educational purposes — consult a billing advocate for case-specific advice.
     </div>
   </div>
 </div>
