@@ -167,6 +167,31 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
 .ai-review-stat strong{color:var(--text)}
 /* AI Training — pair labels */
 .ai-pair-col-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;color:var(--gray)}
+/* Step guide */
+.step-guide{background:#fff;border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:0;overflow-x:auto}
+.step-guide-item{display:flex;align-items:center;gap:8px;white-space:nowrap;padding:4px 12px 4px 0;font-size:.8rem;color:var(--gray)}
+.step-guide-item:first-child{padding-left:0}
+.step-guide-num{width:20px;height:20px;border-radius:50%;background:var(--border);color:var(--gray);font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-guide-label{font-weight:500}
+.step-guide-arrow{color:var(--border);margin:0 4px;font-size:.8rem}
+.step-guide-sep{flex:1}
+/* Team tab toggle */
+.team-tab{display:none}
+.team-tab.visible{display:inline-flex}
+.team-toggle-btn{margin-left:8px;padding:6px 12px;border:1.5px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:.78rem;color:var(--gray);font-family:inherit;white-space:nowrap;transition:all .2s;align-self:center;flex-shrink:0}
+.team-toggle-btn:hover{border-color:var(--orange);color:var(--orange)}
+.team-toggle-btn.active{background:#FFF7ED;border-color:var(--orange);color:var(--orange)}
+/* Collapsible section */
+.collapsible-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:10px 0 2px;font-size:.85rem;font-weight:600;color:var(--gray);border:none;background:none;font-family:inherit}
+.collapsible-toggle:hover{color:var(--orange)}
+.collapsible-arrow{font-size:.7rem;transition:transform .2s;display:inline-block}
+.collapsible-body{display:none;padding-top:12px}
+.collapsible-body.open{display:block}
+/* Intro banner */
+.intake-intro{background:linear-gradient(135deg,#FFF7ED,#FFFBEB);border:1.5px solid #FED7AA;border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px}
+.intake-intro-icon{font-size:1.4rem;flex-shrink:0;margin-top:1px}
+.intake-intro-text{font-size:.87rem;color:#92400E;line-height:1.6}
+.intake-intro-text strong{display:block;font-size:.95rem;margin-bottom:2px}
 </style>
 </head>
 <body>
@@ -179,7 +204,31 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
       <div class="logo-tag">Fight Your Medical Bills</div>
     </div>
   </div>
-  <div class="header-badge">Internal Team Tool</div>
+  <div class="header-badge">Beta</div>
+</div>
+
+<div class="step-guide">
+  <div class="step-guide-item">
+    <div class="step-guide-num">1</div>
+    <span class="step-guide-label">Enter your bill</span>
+  </div>
+  <span class="step-guide-arrow">→</span>
+  <div class="step-guide-item">
+    <div class="step-guide-num">2</div>
+    <span class="step-guide-label">Find errors</span>
+  </div>
+  <span class="step-guide-arrow">→</span>
+  <div class="step-guide-item">
+    <div class="step-guide-num">3</div>
+    <span class="step-guide-label">Choose pathway</span>
+  </div>
+  <span class="step-guide-arrow">→</span>
+  <div class="step-guide-item">
+    <div class="step-guide-num">4</div>
+    <span class="step-guide-label">Send letter</span>
+  </div>
+  <div class="step-guide-sep"></div>
+  <div class="step-guide-item" style="color:#8792a2;font-size:.75rem">Reference tools: Price Lookup · Case Library · Benchmarks</div>
 </div>
 
 <div class="tab-nav">
@@ -188,18 +237,26 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
   <button class="tab-btn" onclick="switchTab('pathway',this)">3. Dispute Pathway</button>
   <button class="tab-btn" onclick="switchTab('letters',this)">4. Letter Generator</button>
   <button class="tab-btn" onclick="switchTab('calculator',this)">5. Savings Calculator</button>
-  <button class="tab-btn" onclick="switchTab('cases',this)">6. Case Library (550)</button>
-  <button class="tab-btn" onclick="switchTab('pricelookup',this)">7. GFE / Price Lookup</button>
-  <button class="tab-btn" onclick="switchTab('aiocr',this)">8. AI & OCR Guide</button>
-  <button class="tab-btn" onclick="switchTab('clearinghouse',this)">9. Clearinghouse</button>
-  <button class="tab-btn" onclick="switchTab('aitraining',this)">10. AI Training</button>
-  <button class="tab-btn" onclick="switchTab('benchmarks',this)">11. Price Benchmarks</button>
+  <button class="tab-btn" onclick="switchTab('cases',this)">6. Case Library</button>
+  <button class="tab-btn" onclick="switchTab('pricelookup',this)">7. Price Lookup</button>
+  <button class="tab-btn" onclick="switchTab('benchmarks',this)">11. Benchmarks</button>
+  <button class="tab-btn team-tab" onclick="switchTab('aiocr',this)">8. AI & OCR Guide</button>
+  <button class="tab-btn team-tab" onclick="switchTab('clearinghouse',this)">9. Clearinghouse</button>
+  <button class="tab-btn team-tab" onclick="switchTab('aitraining',this)">10. AI Training</button>
+  <button class="team-toggle-btn" onclick="toggleTeamTabs(this)" title="Show/hide internal team tools">⚙ Team</button>
 </div>
 
 <div class="main">
 
 <!-- TAB 1: INTAKE -->
 <div id="tab-intake" class="tab-content active">
+  <div class="intake-intro">
+    <div class="intake-intro-icon">💡</div>
+    <div class="intake-intro-text">
+      <strong>Start here — takes 2 minutes</strong>
+      Fill in your bill details below, then click <strong>Analyze My Bill</strong>. We'll flag what to dispute, recommend your best pathway, and generate a ready-to-send letter.
+    </div>
+  </div>
   <div class="card">
     <div class="card-title"><span class="icon">📋</span> Patient & Case Information</div>
     <div class="form-row">
@@ -297,7 +354,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
   </div>
 
   <div class="card">
-    <div class="card-title"><span class="icon">🏠</span> Financial Information (for Charity Care Eligibility)</div>
+    <button class="collapsible-toggle" onclick="toggleCollapsible(this)">
+      <span class="collapsible-arrow">▶</span>
+      <span class="icon" style="color:var(--orange)">🏠</span> Financial Information <span style="font-weight:400;color:var(--gray)">&nbsp;— optional, for charity care eligibility check</span>
+    </button>
+    <div class="collapsible-body">
     <div class="form-row triple">
       <div class="form-group">
         <label>Employment Status</label>
@@ -321,6 +382,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FFF8F0;color:#1F2937;m
       </div>
     </div>
     <div id="fpl-result-box"></div>
+    </div><!-- /collapsible-body -->
   </div>
 
   <button class="btn btn-primary btn-lg btn-block" onclick="analyzeIntake()">Analyze My Bill →</button>
@@ -3896,6 +3958,21 @@ function renderBenchmarkResult(row, amount, mdc, payer) {
 
 function renderBenchmarks() {
   initBenchmarkTab();
+}
+
+function toggleTeamTabs(btn) {
+  const teamTabs = document.querySelectorAll('.team-tab');
+  const show = !btn.classList.contains('active');
+  btn.classList.toggle('active', show);
+  btn.textContent = show ? '⚙ Hide Team' : '⚙ Team';
+  teamTabs.forEach(t => t.classList.toggle('visible', show));
+}
+
+function toggleCollapsible(btn) {
+  const body = btn.nextElementSibling;
+  const arrow = btn.querySelector('.collapsible-arrow');
+  const open = body.classList.toggle('open');
+  arrow.style.transform = open ? 'rotate(90deg)' : '';
 }
 </script>
 </body>
